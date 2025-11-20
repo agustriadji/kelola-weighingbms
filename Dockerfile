@@ -1,21 +1,23 @@
-# Gunakan base image Node.js
-FROM node:lts-alpine3.21
+# Use Node.js 18 Alpine as base image
+FROM node:18-alpine
 
 # Set working directory
 WORKDIR /app
 
-# Salin package.json dan install dependencies
-COPY package.json package-lock.json ./
-RUN npm install
+# Copy package files
+COPY package*.json ./
 
-# Salin seluruh source code
+# Install dependencies
+RUN npm ci --only=production
+
+# Copy source code
 COPY . .
 
-# Build Next.js app
+# Build the application
 RUN npm run build
 
-# Expose port Next.js
+# Expose port 3000
 EXPOSE 3000
 
-# Jalankan Next.js dev server
-CMD ["npm", "run", "dev"]
+# Start the application
+CMD ["npm", "start"]
