@@ -1,3 +1,4 @@
+import "reflect-metadata";
 import "./globals.css";
 // import Navigation from "@/components/navigation";
 // import QueryProvider from "@/components/queryProvider";

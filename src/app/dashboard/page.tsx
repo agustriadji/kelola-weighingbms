@@ -4,6 +4,11 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Footer from '@/components/Footer'
 import WeighingDisplay from '@/components/WeighingDisplay'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import PermissionGate from '@/components/PermissionGate'
+import { useAuth } from '@/hooks/useAuth'
+import { Permissions } from '@/types/rbac'
+
 
 interface LoginData {
   username: string
@@ -15,22 +20,23 @@ interface LoginData {
 export default function DashboardPage() {
   const [loginData, setLoginData] = useState<LoginData | null>(null)
   const router = useRouter()
+  const { user, logout: authLogout } = useAuth()
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn')
-    const storedLoginData = localStorage.getItem('loginData')
-
-    if (!isLoggedIn || !storedLoginData) {
+    const token = localStorage.getItem('token')
+    if (!token) {
       router.push('/login')
       return
     }
-
-    setLoginData(JSON.parse(storedLoginData))
+    
+    const storedLoginData = localStorage.getItem('loginData')
+    if (storedLoginData) {
+      setLoginData(JSON.parse(storedLoginData))
+    }
   }, [router])
 
   const handleLogout = () => {
-    localStorage.removeItem('loginData')
-    localStorage.removeItem('isLoggedIn')
+    authLogout()
     router.push('/login')
   }
 
@@ -48,7 +54,8 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <ProtectedRoute requiredPermission={Permissions.VIEW_DASHBOARD}>
+      <div className="min-h-screen bg-gray-100">
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-4">
@@ -59,15 +66,23 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                <span>Welcome, <strong>{user?.fullName}</strong></span>
+                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  {user?.role?.name}
+                </span>
+              </div>
               <button className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200">
                 Dashboard
               </button>
-              <button
-                onClick={() => router.push('/user')}
-                className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200"
-              >
-                User
-              </button>
+              <PermissionGate permission={Permissions.VIEW_USERS}>
+                <button
+                  onClick={() => router.push('/user')}
+                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200"
+                >
+                  User
+                </button>
+              </PermissionGate>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200"
@@ -85,6 +100,7 @@ export default function DashboardPage() {
         </div>
       </div>
       <Footer />
-    </div>
+      </div>
+    </ProtectedRoute>
   )
 }

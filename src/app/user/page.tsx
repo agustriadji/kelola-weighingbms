@@ -2,31 +2,39 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { addUser, getAllUsers } from '@/utils/storage'
 import Footer from '@/components/Footer'
+import ProtectedRoute from '@/components/ProtectedRoute'
+import PermissionGate from '@/components/PermissionGate'
+import RolePermissionManager from '@/components/RolePermissionManager'
+import { useAuth } from '@/hooks/useAuth'
+import { Permissions } from '@/types/rbac'
+
 
 interface User {
-  id?: number
+  id: number
   username: string
-  password: string
-  role: string
-  nik: string
-  createdAt: string
+  fullName: string
+  role: {
+    id: number
+    name: string
+  }
 }
 
 export default function UserPage() {
   const [users, setUsers] = useState<User[]>([])
+  const [showRoleManager, setShowRoleManager] = useState(false)
   const [formData, setFormData] = useState({
     username: '',
     password: '',
-    role: 'Admin',
-    nik: ''
+    fullName: '',
+    roleName: 'Admin'
   })
   const router = useRouter()
+  const { user, logout: authLogout } = useAuth()
 
   useEffect(() => {
-    const isLoggedIn = localStorage.getItem('isLoggedIn')
-    if (!isLoggedIn) {
+    const token = localStorage.getItem('token')
+    if (!token) {
       router.push('/login')
       return
     }
@@ -44,8 +52,11 @@ export default function UserPage() {
 
   const loadUsers = async () => {
     try {
-      const allUsers = await getAllUsers()
-      setUsers(allUsers)
+      const response = await fetch('/api/users')
+      const result = await response.json()
+      if (result.users) {
+        setUsers(result.users)
+      }
     } catch (error) {
       console.error('Error loading users:', error)
     }
@@ -54,35 +65,36 @@ export default function UserPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (!formData.username || !formData.password || !formData.nik) {
-      alert('Silakan lengkapi semua field')
-      return
-    }
-
-    const userData: User = {
-      ...formData,
-      createdAt: new Date().toISOString()
-    }
-
-    const success = await addUser(userData)
-    
-    if (success) {
-      alert('User berhasil ditambahkan')
-      setFormData({ username: '', password: '', role: 'Admin', nik: '' })
-      loadUsers()
-    } else {
-      alert('Gagal menambahkan user')
+    try {
+      const response = await fetch('/api/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok) {
+        alert('User berhasil ditambahkan')
+        setFormData({ username: '', password: '', fullName: '', roleName: 'Admin' })
+        loadUsers()
+      } else {
+        alert(result.error || 'Gagal menambahkan user')
+      }
+    } catch (error) {
+      console.error('Error creating user:', error)
+      alert('Terjadi kesalahan saat menambahkan user')
     }
   }
 
   const handleLogout = () => {
-    localStorage.removeItem('loginData')
-    localStorage.removeItem('isLoggedIn')
+    authLogout()
     router.push('/login')
   }
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <ProtectedRoute requiredPermission={Permissions.VIEW_USERS}>
+      <div className="min-h-screen bg-gray-100">
       {/* Topbar */}
       <div className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -94,6 +106,12 @@ export default function UserPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
+              <div className="text-sm text-gray-600">
+                <span>Welcome, <strong>{user?.fullName}</strong></span>
+                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
+                  {user?.role?.name}
+                </span>
+              </div>
               <button
                 onClick={() => router.push('/dashboard')}
                 className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md"
@@ -103,6 +121,14 @@ export default function UserPage() {
               <button className="bg-blue-600 text-white px-3 py-2 rounded-md">
                 User
               </button>
+              <PermissionGate permission={Permissions.MANAGE_SYSTEM}>
+                <button
+                  onClick={() => setShowRoleManager(true)}
+                  className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200"
+                >
+                  Roles
+                </button>
+              </PermissionGate>
               <button
                 onClick={handleLogout}
                 className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700"
@@ -116,8 +142,9 @@ export default function UserPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
         {/* Form User */}
-        <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">Tambah User</h2>
+        <PermissionGate permission={Permissions.CREATE_USERS}>
+          <div className="bg-white rounded-lg shadow-md p-2">
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Tambah User</h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -157,30 +184,31 @@ export default function UserPage() {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Role
+                Full Name
               </label>
-              <select
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+              <input
+                type="text"
+                value={formData.fullName}
+                onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              >
-                <option value="Admin">Admin</option>
-                <option value="User">User</option>
-                <option value="Supervisor">Supervisor</option>
-              </select>
+                placeholder="Masukkan nama lengkap"
+              />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                NIK
+                Role
               </label>
-              <input
-                type="text"
-                value={formData.nik}
-                onChange={(e) => setFormData({ ...formData, nik: e.target.value })}
+              <select
+                value={formData.roleName}
+                onChange={(e) => setFormData({ ...formData, roleName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Masukkan NIK"
-              />
+              >
+                <option value="Admin">Admin</option>
+                <option value="Supervisor">Supervisor</option>
+                <option value="Operator">Operator</option>
+                <option value="Viewer">Viewer</option>
+              </select>
             </div>
 
             <div className="md:col-span-2">
@@ -192,7 +220,8 @@ export default function UserPage() {
               </button>
             </div>
           </form>
-        </div>
+          </div>
+        </PermissionGate>
 
         {/* Table List User */}
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -204,16 +233,14 @@ export default function UserPage() {
                 <tr className="bg-gray-50">
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">ID</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Username</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Password</th>
+                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Full Name</th>
                   <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Role</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">NIK</th>
-                  <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Created At</th>
                 </tr>
               </thead>
               <tbody>
                 {users.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                    <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
                       Belum ada data user
                     </td>
                   </tr>
@@ -222,12 +249,8 @@ export default function UserPage() {
                     <tr key={user.id} className="border-t">
                       <td className="px-4 py-2 text-sm text-gray-900">{user.id}</td>
                       <td className="px-4 py-2 text-sm text-gray-900">{user.username}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{user.password}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{user.role}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">{user.nik}</td>
-                      <td className="px-4 py-2 text-sm text-gray-900">
-                        {new Date(user.createdAt).toLocaleDateString('id-ID')}
-                      </td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{user.fullName}</td>
+                      <td className="px-4 py-2 text-sm text-gray-900">{user.role.name}</td>
                     </tr>
                   ))
                 )}
@@ -237,6 +260,11 @@ export default function UserPage() {
         </div>
       </div>
       <Footer />
-    </div>
+      
+      {showRoleManager && (
+        <RolePermissionManager onClose={() => setShowRoleManager(false)} />
+      )}
+      </div>
+    </ProtectedRoute>
   )
 }

@@ -7,6 +7,8 @@ export default function LoginPage() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [filterJenis, setFilterJenis] = useState('')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
   const router = useRouter()
 
   const filterOptions = [
@@ -15,27 +17,41 @@ export default function LoginPage() {
     { value: 'material-store', label: 'MATERIAL STORE (MISCELLANEOUS)' }
   ]
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError('')
     
     if (!username || !password || !filterJenis) {
-      alert('Silakan lengkapi semua field')
+      setError('Silakan lengkapi semua field')
       return
     }
 
-    // Simpan data ke localStorage
-    const loginData = {
-      username,
-      password,
-      filterJenis,
-      loginTime: new Date().toISOString()
+    setLoading(true)
+    
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password })
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok) {
+        // Store token and user data
+        localStorage.setItem('token', result.token)
+        localStorage.setItem('user', JSON.stringify(result.user))
+        localStorage.setItem('loginData', JSON.stringify({ username, password, filterJenis }))
+        
+        router.push('/dashboard')
+      } else {
+        setError(result.error || 'Login failed')
+      }
+    } catch (error) {
+      setError('Terjadi kesalahan saat login')
+    } finally {
+      setLoading(false)
     }
-    
-    localStorage.setItem('loginData', JSON.stringify(loginData))
-    localStorage.setItem('isLoggedIn', 'true')
-    
-    // Redirect ke dashboard
-    router.push('/dashboard')
   }
 
   return (
@@ -49,6 +65,24 @@ export default function LoginPage() {
               <div className="w-4 h-4 bg-green-400 rounded-full mr-2"></div>
               Life Chemistry
             </div>
+          </div>
+        </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {error}
+          </div>
+        )}
+
+        {/* Default Users Info */}
+        <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-4">
+          <h3 className="text-sm font-semibold text-blue-800 mb-2">Default Users:</h3>
+          <div className="text-xs text-blue-700 space-y-1">
+            <div><strong>admin</strong> / admin123 (Full Access)</div>
+            <div><strong>supervisor</strong> / super123 (Supervisor)</div>
+            <div><strong>operator</strong> / oper123 (Operator)</div>
+            <div><strong>viewer</strong> / view123 (View Only)</div>
           </div>
         </div>
 
@@ -104,9 +138,10 @@ export default function LoginPage() {
           {/* Login Button */}
           <button
             type="submit"
-            className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-200 font-medium"
+            disabled={loading}
+            className="w-full bg-gray-600 text-white py-2 px-4 rounded-md hover:bg-gray-700 transition duration-200 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed"
           >
-            LOGIN
+            {loading ? 'Logging in...' : 'LOGIN'}
           </button>
         </form>
       </div>
