@@ -66,12 +66,6 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                <span>Welcome, <strong>{user?.fullName}</strong></span>
-                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                  {user?.role?.name}
-                </span>
-              </div>
               <button className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200">
                 Dashboard
               </button>

@@ -389,7 +389,7 @@ export default function WeighingDisplay() {
                   currentBatch.status === 'ongoing' ? 'text-green-600' :
                   'text-gray-600'
                 }`}>
-                  STATUS: {currentBatch.status.toUpperCase()}
+                  STATUS: {currentBatch.status === 'pending' ? 'PENDING' : currentBatch.status === 'ongoing' ? 'ONGOING' : 'FINISHED'}
                 </div>
                 <div className="text-sm mt-1">
                   Vehicle: {currentBatch.vehicle?.plate} | Supplier: {currentBatch.supplier?.name}
@@ -409,34 +409,34 @@ export default function WeighingDisplay() {
                 onClick={createBatch}
                 className="w-full bg-blue-600 py-3 text-lg font-semibold border border-gray-500 text-white"
               >
-                CREATE BATCH
+BUAT BATCH
               </button>
             ) : currentBatch.status === 'pending' ? (
               <button 
                 onClick={() => startBatch(currentBatch.id)}
                 className="w-full bg-green-600 py-3 text-lg font-semibold border border-gray-500 text-white"
               >
-                START WEIGHING
+MULAI TIMBANG
               </button>
             ) : currentBatch.status === 'ongoing' ? (
               <button 
                 onClick={() => endBatch(currentBatch.id)}
                 className="w-full bg-red-600 py-3 text-lg font-semibold border border-gray-500 text-white"
               >
-                END BATCH
+SELESAI BATCH
               </button>
             ) : (
               <button 
                 onClick={createBatch}
                 className="w-full bg-blue-600 py-3 text-lg font-semibold border border-gray-500 text-white"
               >
-                CREATE NEW BATCH
+BUAT BATCH BARU
               </button>
             )}
           </PermissionGate>
 
           <div>
-            <div className="text-center mb-2">Nama Operator</div>
+            <div className="text-center mb-2">Operator Name</div>
             <input type="text" value={user?.fullName || ''} className="w-full border border-gray-400 px-2 py-2 text-center" readOnly />
           </div>
           

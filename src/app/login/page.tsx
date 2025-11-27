@@ -22,7 +22,7 @@ export default function LoginPage() {
     setError('')
     
     if (!username || !password || !filterJenis) {
-      setError('Silakan lengkapi semua field')
+      setError('Please fill in all fields')
       return
     }
 
@@ -41,14 +41,19 @@ export default function LoginPage() {
         // Store token and user data
         localStorage.setItem('token', result.token)
         localStorage.setItem('user', JSON.stringify(result.user))
-        localStorage.setItem('loginData', JSON.stringify({ username, password, filterJenis }))
+        localStorage.setItem('loginData', JSON.stringify({ 
+          username, 
+          password, 
+          filterJenis, 
+          loginTime: new Date().toISOString() 
+        }))
         
         router.push('/dashboard')
       } else {
         setError(result.error || 'Login failed')
       }
     } catch (error) {
-      setError('Terjadi kesalahan saat login')
+      setError('An error occurred during login')
     } finally {
       setLoading(false)
     }
@@ -98,7 +103,7 @@ export default function LoginPage() {
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Masukkan username"
+              placeholder="Enter username"
             />
           </div>
 
@@ -112,21 +117,21 @@ export default function LoginPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Masukkan password"
+              placeholder="Enter password"
             />
           </div>
 
           {/* Filter Jenis */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Filter Jenis
+              Filter Type
             </label>
             <select
               value={filterJenis}
               onChange={(e) => setFilterJenis(e.target.value)}
               className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="">Pilih Filter Jenis</option>
+              <option value="">Select Filter Type</option>
               {filterOptions.map((option) => (
                 <option key={option.value} value={option.value}>
                   {option.label}

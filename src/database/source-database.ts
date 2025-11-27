@@ -29,10 +29,20 @@ export const AppDataSource = new DataSource({
   username: process.env.DATABASE_USERNAME || "",
   password: process.env.DATABASE_PASSWORD || "",
   database: process.env.DATABASE_NAME || "",
-  poolSize: 10,
+  poolSize: 20,
+  maxQueryExecutionTime: 5000,
   installExtensions: true,
   synchronize: false,
   logging: false,
+  cache: {
+    duration: 30000 // 30 seconds cache
+  },
+  extra: {
+    connectionLimit: 20,
+    acquireTimeout: 60000,
+    timeout: 60000,
+    reconnect: true
+  },
   entities: [
     User,
     Role,

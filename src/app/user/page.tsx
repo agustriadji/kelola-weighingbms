@@ -75,15 +75,15 @@ export default function UserPage() {
       const result = await response.json()
       
       if (response.ok) {
-        alert('User berhasil ditambahkan')
+        alert('User created successfully')
         setFormData({ username: '', password: '', fullName: '', roleName: 'Admin' })
         loadUsers()
       } else {
-        alert(result.error || 'Gagal menambahkan user')
+        alert(result.error || 'Failed to create user')
       }
     } catch (error) {
       console.error('Error creating user:', error)
-      alert('Terjadi kesalahan saat menambahkan user')
+      alert('An error occurred while creating user')
     }
   }
 
@@ -106,12 +106,6 @@ export default function UserPage() {
               </div>
             </div>
             <div className="flex items-center space-x-4">
-              <div className="text-sm text-gray-600">
-                <span>Welcome, <strong>{user?.fullName}</strong></span>
-                <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs">
-                  {user?.role?.name}
-                </span>
-              </div>
               <button
                 onClick={() => router.push('/dashboard')}
                 className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md"
@@ -144,7 +138,7 @@ export default function UserPage() {
         {/* Form User */}
         <PermissionGate permission={Permissions.CREATE_USERS}>
           <div className="bg-white rounded-lg shadow-md p-2">
-            <h2 className="text-xl font-bold text-gray-800 mb-4">Tambah User</h2>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">Add User</h2>
           
           <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -156,7 +150,7 @@ export default function UserPage() {
                 value={formData.username}
                 onChange={(e) => setFormData({ ...formData, username: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Masukkan username"
+                placeholder="Enter username"
               />
             </div>
 
@@ -191,7 +185,7 @@ export default function UserPage() {
                 value={formData.fullName}
                 onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Masukkan nama lengkap"
+                placeholder="Enter full name"
               />
             </div>
 
@@ -216,7 +210,7 @@ export default function UserPage() {
                 type="submit"
                 className="bg-green-600 text-white px-6 py-2 rounded-md hover:bg-green-700"
               >
-                Simpan User
+Save User
               </button>
             </div>
           </form>
@@ -225,7 +219,7 @@ export default function UserPage() {
 
         {/* Table List User */}
         <div className="bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">List User</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-4">User List</h2>
           
           <div className="overflow-x-auto">
             <table className="min-w-full table-auto">
@@ -241,7 +235,7 @@ export default function UserPage() {
                 {users.length === 0 ? (
                   <tr>
                     <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
-                      Belum ada data user
+                      No user data available
                     </td>
                   </tr>
                 ) : (
