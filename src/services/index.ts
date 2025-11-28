@@ -1,5 +1,3 @@
-// Only export functions, not classes to avoid client-side issues
-export { login } from './auth.service'
-
-// Note: Services with TypeORM should only be used in API routes
-// Client components should use API calls instead
+// IMPORTANT: Do not import this file in client components
+// Services are server-side only and should be used in API routes
+// Client components should use fetch() to call API endpoints

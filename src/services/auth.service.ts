@@ -7,19 +7,27 @@ const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_EXPIRES = process.env.JWT_EXPIRES || "1d";
 
 export const login = async (username: string, password: string) => {
+  console.log('Login attempt for:', username);
+  
   // Check cache first
   const cacheKey = `user:${username}`;
   let user = getCache(cacheKey);
   
   if (!user) {
-    const repo = await userRepository();
-    user = await repo.findOne({
-      where: { username },
-      relations: ["role"],
-    });
-    
-    if (user) {
-      setCache(cacheKey, user, 300); // Cache for 5 minutes
+    try {
+      const repo = await userRepository();
+      user = await repo.findOne({
+        where: { username },
+        relations: ["role"],
+      });
+      console.log('User found in DB:', !!user);
+      
+      if (user) {
+        setCache(cacheKey, user, 300); // Cache for 5 minutes
+      }
+    } catch (error) {
+      console.error('Database error:', error);
+      throw new Error('Database connection failed');
     }
   }
 

@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   # PostgreSQL Database
-  postgres:
+  db:
     image: postgres:15-alpine
     container_name: wbms_postgres_dev
     environment:
@@ -25,14 +25,19 @@ services:
       dockerfile: Dockerfile.dev
     container_name: wbms_app_dev
     ports:
-      - "3000:3000"
+      - "3001:3001"
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://wbms_user:wbms_password@postgres:5432/wbms_db
+      - DATABASE_URL=postgresql://wbms_user:wbms_password@db:5432/wbms_db
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=wbms_user
+      - DB_PASSWORD=wbms_password
+      - DB_NAME=wbms_db
       - JWT_SECRET=dev-secret-key
       - ENABLE_SAP_CRON=false
     depends_on:
-      - postgres
+      - db
     networks:
       - wbms_network
     volumes:

@@ -6,54 +6,38 @@ FROM base AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 
+# Configure npm for better network handling
+RUN npm config set registry https://registry.npmjs.org/
+RUN npm config set fetch-retries 5
+RUN npm config set fetch-retry-factor 2
+RUN npm config set fetch-retry-mintimeout 10000
+RUN npm config set fetch-retry-maxtimeout 60000
+
 # Copy package files
 COPY package.json package-lock.json* ./
-RUN npm ci --only=production
+RUN npm ci --only=production --no-audit --no-fund
 
-# Rebuild the source code only when needed
-FROM base AS builder
+FROM node:18-alpine
+
 WORKDIR /app
-COPY --from=deps /app/node_modules ./node_modules
+
+# Copy package files
+COPY package*.json ./
+
+# Install dependencies including autoprefixer
+RUN npm install
+RUN npm install autoprefixer
+
+# Copy source code
 COPY . .
 
-# Set environment variables for build
-ENV NEXT_TELEMETRY_DISABLED 1
-ENV NODE_ENV production
-
-# Build the application
-RUN npm run build
-
-# Production image, copy all the files and run next
-FROM base AS runner
-WORKDIR /app
-
-ENV NODE_ENV production
-ENV NEXT_TELEMETRY_DISABLED 1
-
-# Create nextjs user
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-
-# Copy built application
-COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-
-# Copy database files and scripts
-COPY --from=builder /app/src ./src
-COPY --from=builder /app/typeorm-cli.js ./
-COPY --from=builder /app/scripts ./scripts
-COPY --from=builder /app/node_modules ./node_modules
-
-# Create logs directory
-RUN mkdir -p /app/logs && chown nextjs:nodejs /app/logs
-
-USER nextjs
+# Skip build for development mode
 
 EXPOSE 3000
 
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
+# Copy start script
+COPY docker-start.sh ./
+RUN chmod +x docker-start.sh
 
-# Start the application with database setup
-CMD ["sh", "-c", "npm run db:setup && node server.js"]
+# Start the application
+CMD ["./docker-start.sh"]

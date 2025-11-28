@@ -24,11 +24,11 @@ dotenv.config({ path: ".env.local" });
 
 export const AppDataSource = new DataSource({
   type: "postgres",
-  host: process.env.DATABASE_HOST || "localhost",
-  port: parseInt(process.env.DATABASE_PORT || "5432"),
-  username: process.env.DATABASE_USERNAME || "",
-  password: process.env.DATABASE_PASSWORD || "",
-  database: process.env.DATABASE_NAME || "",
+  host: process.env.DB_HOST || "db",
+  port: parseInt(process.env.DB_PORT || "5432"),
+  username: process.env.DB_USER || "wbms_user",
+  password: process.env.DB_PASSWORD || "wbms_password",
+  database: process.env.DB_NAME || "wbms_db",
   poolSize: 20,
   maxQueryExecutionTime: 5000,
   installExtensions: true,

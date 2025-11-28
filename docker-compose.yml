@@ -14,7 +14,8 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./wbms_db.sql:/docker-entrypoint-initdb.d/wbms_db.sql
+      - ./database/create-tables.sql:/docker-entrypoint-initdb.d/create-tables.sql
+      - ./database/insert-data.sql:/docker-entrypoint-initdb.d/insert-data.sql
     networks:
       - wbms_network
     healthcheck:
@@ -30,7 +31,7 @@ services:
       dockerfile: Dockerfile
     container_name: wbms_app
     ports:
-      - "3000:3000"
+      - "3001:3000"
     environment:
       - NODE_ENV=production
       - DATABASE_URL=postgresql://wbms_user:wbms_password@postgres:5432/wbms_db
