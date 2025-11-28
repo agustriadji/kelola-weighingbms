@@ -310,6 +310,26 @@ CREATE TABLE master_sync_status (
 );
 
 -- ============================================
+-- RESET SEQUENCES
+-- ============================================
+
+SELECT setval('batches_id_seq', COALESCE((SELECT MAX(id) FROM batches), 0) + 1, false);
+SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1, false);
+SELECT setval('roles_id_seq', COALESCE((SELECT MAX(id) FROM roles), 0) + 1, false);
+SELECT setval('permissions_id_seq', COALESCE((SELECT MAX(id) FROM permissions), 0) + 1, false);
+SELECT setval('role_permissions_id_seq', COALESCE((SELECT MAX(id) FROM role_permissions), 0) + 1, false);
+SELECT setval('suppliers_id_seq', COALESCE((SELECT MAX(id) FROM suppliers), 0) + 1, false);
+SELECT setval('materials_id_seq', COALESCE((SELECT MAX(id) FROM materials), 0) + 1, false);
+SELECT setval('vehicles_id_seq', COALESCE((SELECT MAX(id) FROM vehicles), 0) + 1, false);
+SELECT setval('drivers_id_seq', COALESCE((SELECT MAX(id) FROM drivers), 0) + 1, false);
+SELECT setval('weighbridges_id_seq', COALESCE((SELECT MAX(id) FROM weighbridges), 0) + 1, false);
+SELECT setval('audit_logs_id_seq', COALESCE((SELECT MAX(id) FROM audit_logs), 0) + 1, false);
+SELECT setval('segments_id_seq', COALESCE((SELECT MAX(id) FROM segments), 0) + 1, false);
+SELECT setval('records_id_seq', COALESCE((SELECT MAX(id) FROM records), 0) + 1, false);
+SELECT setval('sync_queue_id_seq', COALESCE((SELECT MAX(id) FROM sync_queue), 0) + 1, false);
+SELECT setval('master_sync_status_id_seq', COALESCE((SELECT MAX(id) FROM master_sync_status), 0) + 1, false);
+
+-- ============================================
 -- DONE
 -- ============================================
 
