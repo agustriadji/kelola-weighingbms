@@ -1,17 +1,17 @@
-import { NextRequest, NextResponse } from "next/server";
-import { createBatch } from "@/services/batch.service";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import { createBatch } from '@/services/batch.service';
+import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = req.headers.get("authorization");
-    
+    const auth = req.headers.get('authorization');
+
     if (!auth || !auth.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
-    
-    const token = auth.replace("Bearer ", "");
-    
+
+    const token = auth.replace('Bearer ', '');
+
     let user;
     try {
       user = jwt.verify(token, process.env.JWT_SECRET!) as any;
@@ -24,7 +24,6 @@ export async function POST(req: NextRequest) {
 
     const batch = await createBatch(body);
     return NextResponse.json(batch);
-    
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }

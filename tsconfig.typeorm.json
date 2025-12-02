@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+
+    // TypeORM BUTUH emit JS
+    "noEmit": false,
+
+    "module": "CommonJS",
+    "moduleResolution": "node",
+    "target": "ES2020",
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+
+    // WAJIB OFF: kalau tidak, TS5096 error
+    "allowImportingTsExtensions": false
+  },
+  "include": ["src/entities/**/*.ts", "src/database/**/*.ts"]
+}

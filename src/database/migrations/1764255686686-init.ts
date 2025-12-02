@@ -1,9 +1,7 @@
-import { MigrationInterface, QueryRunner } from "typeorm";
+import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class Init1764255686686 implements MigrationInterface {
-
-      public async up(queryRunner: QueryRunner): Promise<void> {
-
+  public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(`CREATE EXTENSION IF NOT EXISTS "uuid-ossp";`);
 
     // ---------- ROLES ----------
@@ -50,7 +48,9 @@ export class Init1764255686686 implements MigrationInterface {
         code VARCHAR(50) UNIQUE NOT NULL,
         name VARCHAR(200) NOT NULL,
         sap_id VARCHAR(100),
-        last_sync_at TIMESTAMP
+        last_sync_at TIMESTAMP,
+        is_active BOOLEAN DEFAULT true,
+        is_deleted BOOLEAN DEFAULT false
       );
     `);
 
@@ -62,7 +62,9 @@ export class Init1764255686686 implements MigrationInterface {
         description VARCHAR(200),
         sap_id VARCHAR(100),
         uom VARCHAR(20),
-        last_sync_at TIMESTAMP
+        last_sync_at TIMESTAMP,
+        is_active BOOLEAN DEFAULT true,
+        is_deleted BOOLEAN DEFAULT false
       );
     `);
 
@@ -72,7 +74,9 @@ export class Init1764255686686 implements MigrationInterface {
         id SERIAL PRIMARY KEY,
         plate VARCHAR(50) UNIQUE NOT NULL,
         type VARCHAR(100),
-        owner VARCHAR(200)
+        owner VARCHAR(200),
+        is_active BOOLEAN DEFAULT true,
+        is_deleted BOOLEAN DEFAULT false
       );
     `);
 
@@ -81,7 +85,9 @@ export class Init1764255686686 implements MigrationInterface {
       CREATE TABLE IF NOT EXISTS drivers (
         id SERIAL PRIMARY KEY,
         name VARCHAR(150) NOT NULL,
-        phone VARCHAR(50)
+        sim VARCHAR(150) NOT NULL,
+        is_active BOOLEAN DEFAULT true,
+        is_deleted BOOLEAN DEFAULT false
       );
     `);
 
@@ -173,7 +179,6 @@ export class Init1764255686686 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-
     await queryRunner.query(`DROP EXTENSION IF EXISTS "uuid-ossp";`);
     await queryRunner.query(`DROP TABLE master_sync_status`);
     await queryRunner.query(`DROP TABLE sync_queue`);
@@ -191,5 +196,4 @@ export class Init1764255686686 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE permissions`);
     await queryRunner.query(`DROP TABLE roles`);
   }
-
 }

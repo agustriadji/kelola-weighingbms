@@ -2,21 +2,19 @@ version: '3.8'
 
 services:
   # PostgreSQL Database
-  db:
-    image: postgres:15-alpine
-    container_name: wbms_postgres_dev
-    environment:
-      POSTGRES_DB: wbms_db
-      POSTGRES_USER: wbms_user
-      POSTGRES_PASSWORD: wbms_password
-    ports:
-      - "5433:5432"
-    volumes:
-      - postgres_dev_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./wbms_db.sql:/docker-entrypoint-initdb.d/wbms_db.sql
-    networks:
-      - wbms_network
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: wbms_postgres_dev
+  #   environment:
+  #     POSTGRES_DB: wbms_db
+  #     POSTGRES_USER: wbms_user
+  #     POSTGRES_PASSWORD: wbms_password
+  #   ports:
+  #     - '5433:5432'
+  #   volumes:
+  #     - postgres_dev_data:/var/lib/postgresql/data
+  #   networks:
+  #     - wbms_network
 
   # Next.js Development
   app:
@@ -25,19 +23,21 @@ services:
       dockerfile: Dockerfile.dev
     container_name: wbms_app_dev
     ports:
-      - "3001:3001"
+      - '3001:3001'
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://wbms_user:wbms_password@db:5432/wbms_db
-      - DB_HOST=db
+      - DATABASE_URL=postgresql://postgres:newpassword@host.docker.internal:5432/wbms_db
+      - DB_HOST=host.docker.internal
       - DB_PORT=5432
-      - DB_USER=wbms_user
-      - DB_PASSWORD=wbms_password
+      - DB_USER=postgres
+      #wbms_user
+      - DB_PASSWORD=newpassword
+      #wbms_password
       - DB_NAME=wbms_db
-      - JWT_SECRET=dev-secret-key
+      - JWT_SECRET=supersecret_for_wbms
       - ENABLE_SAP_CRON=false
-    depends_on:
-      - db
+    # depends_on:
+    #   - db
     networks:
       - wbms_network
     volumes:
@@ -45,8 +45,8 @@ services:
       - /app/node_modules
       - /app/.next
 
-volumes:
-  postgres_dev_data:
+# volumes:
+#   postgres_dev_data:
 
 networks:
   wbms_network:

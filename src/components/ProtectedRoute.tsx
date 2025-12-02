@@ -1,16 +1,16 @@
-'use client'
+'use client';
 
-import { useAuth } from '@/hooks/useAuth'
-import { Permissions } from '@/types/rbac'
-import { useRouter } from 'next/navigation'
-import { useEffect } from 'react'
+import { useAuth } from '@/hooks/useAuth';
+import { Permissions } from '@/types/rbac';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
-  children: React.ReactNode
-  requiredPermission?: Permissions
-  requiredPermissions?: Permissions[]
-  requiredRole?: string
-  fallback?: React.ReactNode
+  children: React.ReactNode;
+  requiredPermission?: Permissions;
+  requiredPermissions?: Permissions[];
+  requiredRole?: string;
+  fallback?: React.ReactNode;
 }
 
 export default function ProtectedRoute({
@@ -18,41 +18,42 @@ export default function ProtectedRoute({
   requiredPermission,
   requiredPermissions,
   requiredRole,
-  fallback
+  fallback,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, hasPermission, hasAnyPermission, hasRole, loading } = useAuth()
-  const router = useRouter()
+  const { isAuthenticated, hasPermission, hasAnyPermission, hasRole, loading } = useAuth();
+  const router = useRouter();
 
   useEffect(() => {
     if (!loading && !isAuthenticated) {
-      router.push('/login')
+      router.push('/login');
     }
-  }, [loading, isAuthenticated, router])
+  }, [loading, isAuthenticated, router]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>
+    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
   }
 
   if (!isAuthenticated) {
-    return <div className="flex items-center justify-center min-h-screen">Redirecting...</div>
+    return <div className="flex items-center justify-center min-h-screen">Redirecting...</div>;
   }
 
   // Check single permission
   if (requiredPermission && !hasPermission(requiredPermission)) {
-    return fallback || <UnauthorizedAccess />
+    return fallback || <UnauthorizedAccess />;
   }
 
   // Check multiple permissions (any)
+  console.log(requiredPermissions, hasAnyPermission(requiredPermissions), '00000000000000000');
   if (requiredPermissions && !hasAnyPermission(requiredPermissions)) {
-    return fallback || <UnauthorizedAccess />
+    return fallback || <UnauthorizedAccess />;
   }
 
   // Check role
   if (requiredRole && !hasRole(requiredRole)) {
-    return fallback || <UnauthorizedAccess />
+    return fallback || <UnauthorizedAccess />;
   }
 
-  return <>{children}</>
+  return <>{children}</>;
 }
 
 function UnauthorizedAccess() {
@@ -61,8 +62,8 @@ function UnauthorizedAccess() {
       <div className="bg-white p-8 rounded-lg shadow-md text-center">
         <div className="text-red-500 text-6xl mb-4">🚫</div>
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Access Denied</h1>
-        <p className="text-gray-600">You don't have permission to access this page.</p>
+        <p className="text-gray-600">{`You don't have permission to access this page.`}</p>
       </div>
     </div>
-  )
+  );
 }

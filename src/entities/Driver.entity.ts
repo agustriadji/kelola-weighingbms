@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-@Entity("drivers")
+@Entity('drivers')
 export class Driver {
   @PrimaryGeneratedColumn()
   id: number;
@@ -9,5 +9,5 @@ export class Driver {
   name: string;
 
   @Column({ type: 'varchar', length: 50, nullable: true })
-  phone: string;
+  sim: string;
 }
