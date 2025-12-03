@@ -1,20 +1,18 @@
 version: '3.8'
 
 services:
-  # PostgreSQL Database
-  # db:
-  #   image: postgres:15-alpine
-  #   container_name: wbms_postgres_dev
-  #   environment:
-  #     POSTGRES_DB: wbms_db
-  #     POSTGRES_USER: wbms_user
-  #     POSTGRES_PASSWORD: wbms_password
-  #   ports:
-  #     - '5433:5432'
-  #   volumes:
-  #     - postgres_dev_data:/var/lib/postgresql/data
-  #   networks:
-  #     - wbms_network
+  #PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: wbms_postgres_dev
+    environment:
+      POSTGRES_DB: wbms_db
+      POSTGRES_USER: wbms_user
+      POSTGRES_PASSWORD: wbms_password
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
 
   # Next.js Development
   app:
@@ -26,28 +24,25 @@ services:
       - '3001:3001'
     environment:
       - NODE_ENV=development
-      - DATABASE_URL=postgresql://postgres:newpassword@host.docker.internal:5432/wbms_db
-      - DB_HOST=host.docker.internal
+      - DATABASE_URL=postgresql://wbms_user:wbms_password@db:5432/wbms_db
+      - DB_HOST=db
       - DB_PORT=5432
-      - DB_USER=postgres
+      - DB_USER=wbms_user
       #wbms_user
-      - DB_PASSWORD=newpassword
+      - DB_PASSWORD=wbms_password
       #wbms_password
       - DB_NAME=wbms_db
       - JWT_SECRET=supersecret_for_wbms
       - ENABLE_SAP_CRON=false
-    # depends_on:
-    #   - db
-    networks:
-      - wbms_network
+      - TYPEORM_SYNCHRONIZE=true
+    depends_on:
+      - db
     volumes:
       - .:/app
       - /app/node_modules
       - /app/.next
 
-# volumes:
-#   postgres_dev_data:
+volumes:
+  postgres_dev_data:
 
-networks:
-  wbms_network:
-    driver: bridge
+
