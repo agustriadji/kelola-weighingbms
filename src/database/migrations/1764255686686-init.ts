@@ -102,6 +102,21 @@ export class Init1764255686686 implements MigrationInterface {
       );
     `);
 
+    // ---------- BATCHES ----------
+    await queryRunner.query(`
+      CREATE TABLE IF NOT EXISTS batches (
+        id SERIAL PRIMARY KEY,
+        batch_name VARCHAR(100) NOT NULL,
+        vehicle_id INTEGER REFERENCES vehicles(id),
+        supplier_id INTEGER REFERENCES suppliers(id),
+        material_id INTEGER REFERENCES materials(id),
+        created_by INTEGER REFERENCES users(id),
+        status VARCHAR(50) NOT NULL,
+        started_at TIMESTAMP,
+        ended_at TIMESTAMP
+      );
+    `);
+
     // ---------- SEGMENTS (optional pause/resume support) ----------
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS segments (
@@ -170,6 +185,7 @@ export class Init1764255686686 implements MigrationInterface {
     await queryRunner.query(`DROP TABLE audit_logs`);
     await queryRunner.query(`DROP TABLE records`);
     await queryRunner.query(`DROP TABLE segments`);
+    await queryRunner.query(`DROP TABLE batches`);
     await queryRunner.query(`DROP TABLE weighbridges`);
     await queryRunner.query(`DROP TABLE drivers`);
     await queryRunner.query(`DROP TABLE vehicles`);
