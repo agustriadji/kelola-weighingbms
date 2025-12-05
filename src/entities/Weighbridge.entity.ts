@@ -2,18 +2,18 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("weighbridges")
 export class Weighbridge {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 150 })
+  @Column({ name: 'name', type: 'varchar', length: 150 })
   name: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column({ name: 'location', type: 'varchar', length: 200 })
   location: string;
 
   @Column({ name: 'indicator_topic', type: 'varchar', length: 200, nullable: true })
   indicatorTopic: string; // mqtt topic
 
-  @Column({ type: "jsonb", nullable: true })
+  @Column({ name: 'config', type: "jsonb", nullable: true })
   config: any;
 }

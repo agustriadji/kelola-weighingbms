@@ -3,25 +3,25 @@ import { WeighIn } from './WeighIn.entity';
 
 @Entity('audit_logs')
 export class AuditLog {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100 })
+  @Column({ name: 'entity', type: 'varchar', length: 100 })
   entity: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ name: 'entity_id', type: 'varchar', length: 50 })
   entityId: string;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ name: 'action', type: 'varchar', length: 50 })
   action: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ name: 'payload', type: 'jsonb' })
   payload: any;
 
   @ManyToOne('User')
   user: any;
 
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
   @ManyToOne(() => WeighIn, { nullable: true })

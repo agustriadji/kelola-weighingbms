@@ -1,27 +1,27 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { Batch } from "./Batch.entity";
-import { Segment } from "./Segment.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
+import { InboundTicket } from './inboundTicket.entity';
+import { Segment } from './Segment.entity';
 
-@Entity("records")
+@Entity('records')
 export class Record {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @ManyToOne(() => Batch)
-  batch: Batch;
+  @ManyToOne(() => InboundTicket)
+  batch: InboundTicket;
 
   @ManyToOne(() => Segment, { nullable: true })
   segment: Segment;
 
-  @Column({ type: 'float' })
+  @Column({ name: 'weight', type: 'float' })
   weight: number;
 
-  @Column({ type: 'timestamp' })
+  @Column({ name: 'timestamp', type: 'timestamp' })
   timestamp: Date;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name: 'stable', type: 'boolean', default: false })
   stable: boolean;
 
-  @Column({ type: 'varchar', length: 50, nullable: true })
+  @Column({ name: 'source', type: 'varchar', length: 50, nullable: true })
   source: string; // mqtt / manual / override
 }

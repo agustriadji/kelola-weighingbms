@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { getBatchDetail } from "@/services/batch.service";
+import { NextRequest, NextResponse } from 'next/server';
+import { getBatchDetail } from '@/services/inbound/batch.service';
 
 export async function POST(req: NextRequest) {
   const { id } = await req.json();

@@ -2,15 +2,15 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("vehicles")
 export class Vehicle {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ name: 'plate', type: 'varchar', length: 50, unique: true })
   plate: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true })
+  @Column({ name: 'type', type: 'varchar', length: 100, nullable: true })
   type: string;
 
-  @Column({ type: 'varchar', length: 200, nullable: true })
+  @Column({ name: 'owner', type: 'varchar', length: 200, nullable: true })
   owner: string;
 }

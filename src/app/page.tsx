@@ -1,27 +1,31 @@
-'use client'
+'use client';
 
-import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import LoadingIcon from '@/components/templates/LoadingIcon';
 
 export default function Home() {
-  const router = useRouter()
+  const router = useRouter();
 
   useEffect(() => {
     const checkAuth = () => {
-      const token = localStorage.getItem('token')
+      const token = localStorage.getItem('token');
       if (token) {
-        router.push('/dashboard')
+        router.push('/dashboard');
       } else {
-        router.push('/login')
+        router.push('/login');
       }
-    }
-    
-    checkAuth()
-  }, [router])
+    };
+
+    checkAuth();
+  }, [router]);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <p className="text-center">Redirecting...</p>
+      <div className="flex flex-col items-center gap-4">
+        <LoadingIcon />
+        <p className="text-center text-gray-600">Redirecting...</p>
+      </div>
     </div>
-  )
+  );
 }

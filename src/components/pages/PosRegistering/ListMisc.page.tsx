@@ -1,7 +1,7 @@
 'use client';
 
 import { Search, Eye } from 'lucide-react';
-import FormMiscPage from '@/components/pages/pos1/FormMisc.page';
+import FormMiscPage from '@/components/pages/PosRegistering/FormMisc.page';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Dialog from '@radix-ui/react-dialog';

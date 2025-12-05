@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse, MiddlewareConfig } from 'next/server';
-import { createInbound, getInboundList } from '@/services/inbound.service';
+import { createInbound, getInboundList } from '@/services/inbound/inbound.service';
 import { listInbound } from '@/services/inbound/listInbound.service';
 import jwt from 'jsonwebtoken';
 

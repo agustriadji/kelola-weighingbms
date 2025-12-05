@@ -14,20 +14,21 @@ import { WeighOut } from './WeighOut.entity';
 
 @Entity('inbound_ticket')
 export class InboundTicket {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
   @Column({
+    name: 'transaction_type',
     type: 'enum',
     enum: ['INCOMING', 'OUTGOING', 'MISC'],
-    name: 'transaction_type',
   })
   transactionType: 'INCOMING' | 'OUTGOING' | 'MISC';
 
-  @Column({ type: 'int', name: 'transaction_id' })
+  @Column({ name: 'transaction_id', type: 'int' })
   transactionId: number; // FK ke incoming_detail/outgoing_detail/misc_detail
 
   @Column({
+    name: 'status',
     type: 'enum',
     enum: [
       'registered',
@@ -40,7 +41,6 @@ export class InboundTicket {
       'weighed-out',
       'finished',
     ],
-    name: 'status',
     default: 'queue-weigh-in',
   })
   status: string;
@@ -59,9 +59,9 @@ export class InboundTicket {
   @Column({ name: 'weigh_out_id', type: 'int', nullable: true })
   weighOutId: number;
 
-  @CreateDateColumn({ name: 'created_at' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
   updatedAt: Date;
 }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getInboundDetail } from '@/services/inbound.service';
+import { getInboundDetail } from '@/services/inbound/inbound.service';
 
 export async function GET(_req: Request, { params }: { params: { id: string } }) {
   try {

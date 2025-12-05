@@ -3,18 +3,18 @@ import { Batch } from "./Batch.entity";
 
 @Entity("segments")
 export class Segment {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
   @ManyToOne(() => Batch)
   batch: Batch;
 
-  @Column({ type: 'timestamp' })
+  @Column({ name: 'started_at', type: 'timestamp' })
   startedAt: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Column({ name: 'ended_at', type: 'timestamp', nullable: true })
   endedAt: Date;
 
-  @Column({ type: 'varchar', length: 200, nullable: true })
+  @Column({ name: 'reason', type: 'varchar', length: 200, nullable: true })
   reason: string;
 }

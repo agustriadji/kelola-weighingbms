@@ -1,5 +1,5 @@
-import { NextRequest, NextResponse } from "next/server";
-import { updateBatchWeights } from "@/services/batch.service";
+import { NextRequest, NextResponse } from 'next/server';
+import { updateBatchWeights } from '@/services/inbound/batch.service';
 
 export async function POST(req: NextRequest) {
   try {

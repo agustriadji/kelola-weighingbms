@@ -3,22 +3,22 @@ import { Role } from "./Role.entity";
 
 @Entity("users")
 export class User {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ name: 'username', type: 'varchar', length: 100, unique: true })
   username: string;
 
-  @Column({ type: 'text', name: 'password_hash' })
+  @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;
 
-  @Column({ type: 'varchar', length: 150, name: 'full_name' })
+  @Column({ name: 'full_name', type: 'varchar', length: 150 })
   fullName: string;
 
   @ManyToOne("Role", "users")
   @JoinColumn({ name: 'role_id' })
   role: any;
 
-  @Column({ type: 'timestamp', nullable: true, name: 'last_login' })
+  @Column({ name: 'last_login', type: 'timestamp', nullable: true })
   lastLogin: Date;
 }

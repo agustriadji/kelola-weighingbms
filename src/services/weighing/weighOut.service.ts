@@ -1,31 +1,34 @@
 import { weighOutRepository } from '@/repositories/weighOut.repository';
-import { inboundTransactionRepository } from '@/repositories/inboundTransaction.repository';
+import { inboundRepository } from '@/repositories/inbound.repository';
 
-import { calculateShrinkage } from './shared/shrinkage.util';
+import { calculateShrinkage } from '../shared/shrinkage.util';
 
-const inboundRepo = await inboundTransactionRepository();
+const inboundRepo = await inboundRepository();
 const weighOutRepo = await weighOutRepository();
 
 export const startWeighOut = async (inboundId: number) => {
   const inbound = await inboundRepo.findOne({ where: { id: inboundId } });
   if (!inbound) throw new Error('Inbound not found');
 
-  const wo = weighOutRepo.create({ inbound });
+  const wo = weighOutRepo.create({
+    inbound,
+    weightType: inbound.transactionType !== 'OUTGOING' ? 'TARRA' : 'BRUTTO',
+  });
   return await weighOutRepo.save(wo);
 };
 
 export const saveTarraWeight = async (inboundId: number, tarra: number, cctvUrl?: string) => {
   const inbound = await inboundRepo.findOne({
     where: { id: inboundId },
-    relations: ['weighOutRecords', 'weighInRecords'],
+    relations: ['weighOut', 'weighIn'],
   });
 
   if (!inbound) throw new Error('Inbound not found');
 
-  const we = inbound.weighOutRecords[0];
+  const we = inbound.weighOut[0];
   if (!we) throw new Error('Weigh-Out record not initialized');
 
-  const brutto = inbound.weighInRecords[0]?.brutto;
+  const brutto = inbound.weighIn[0]?.brutto;
   const netto = brutto - tarra;
 
   // shrinkage calculation
@@ -40,13 +43,9 @@ export const saveTarraWeight = async (inboundId: number, tarra: number, cctvUrl?
   we.shrinkageValue = shrinkage.shrinkageValue;
   we.shrinkagePercent = shrinkage.shrinkagePercent;
   we.warningFlag = shrinkage.warning;
+  we.timestamp = new Date();
 
   await weighOutRepo.save(we);
-
-  // close inbound
-  await inboundRepo.update(inboundId, {
-    status: 'closed',
-  });
 
   return {
     brutto,

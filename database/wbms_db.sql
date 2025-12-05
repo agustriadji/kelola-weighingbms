@@ -100,16 +100,16 @@ ON CONFLICT (id) DO UPDATE SET
 CREATE TABLE drivers (
   id SERIAL PRIMARY KEY,
   name VARCHAR(150) NOT NULL,
-  phone VARCHAR(50)
+  sim VARCHAR(50)
 );
 
-INSERT INTO drivers (id, name, phone) VALUES
+INSERT INTO drivers (id, name, sim) VALUES
   (1, 'Budi Santoso', '081234567890'),
   (2, 'Ahmad Wijaya', '081987654321'),
   (3, 'Siti Nurhaliza', '081122334455')
 ON CONFLICT (id) DO UPDATE SET
   name = EXCLUDED.name,
-  phone = EXCLUDED.phone;
+  sim = EXCLUDED.sim;
 
 -- ============================================
 -- ROLES

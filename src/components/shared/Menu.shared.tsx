@@ -1,6 +1,6 @@
 'use client';
 
-import PermissionGate from '../PermissionGate';
+import PermissionGate from './PermissionGate';
 import { Permissions } from '@/types/rbac';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/hooks/useAuth';

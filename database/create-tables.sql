@@ -43,7 +43,7 @@ CREATE TABLE IF NOT EXISTS vehicles (
 CREATE TABLE IF NOT EXISTS drivers (
     id SERIAL PRIMARY KEY,
     name VARCHAR(150) NOT NULL,
-    phone VARCHAR(50)
+    sim VARCHAR(50)
 );
 
 CREATE TABLE IF NOT EXISTS weighbridges (

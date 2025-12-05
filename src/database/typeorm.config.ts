@@ -16,4 +16,9 @@ module.exports = new DataSource({
   logging: true,
   entities: ['dist/entities/*.js'],
   migrations: ['dist/database/migrations/*.js'],
+  cache: {
+    type: 'database',
+    tableName: 'query_result_cache',
+    duration: 30000 // 30 seconds
+  }
 });

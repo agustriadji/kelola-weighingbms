@@ -2,13 +2,13 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("suppliers")
 export class Supplier {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 50, unique: true })
+  @Column({ name: 'code', type: 'varchar', length: 50, unique: true })
   code: string;
 
-  @Column({ type: 'varchar', length: 200 })
+  @Column({ name: 'name', type: 'varchar', length: 200 })
   name: string;
 
   @Column({ type: 'varchar', length: 100, nullable: true, name: 'sap_id' })

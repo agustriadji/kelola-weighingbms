@@ -12,7 +12,7 @@ export class OutgoingDetail {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ type: 'varchar', nullable: true }) rfid: string;
+  @Column({ name: 'rfid', type: 'varchar', nullable: true }) rfid: string;
 
   @Column({ type: 'varchar', name: 'vehicle_number', nullable: true }) vehicleNumber: string;
   @Column({ type: 'varchar', name: 'vehicle_type', nullable: true }) vehicleType: string;

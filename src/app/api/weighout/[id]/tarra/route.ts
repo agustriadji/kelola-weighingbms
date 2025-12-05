@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { saveTarraWeight } from '@/services/weighOut.service';
+import { saveTarraWeight } from '@/services/weighing/weighOut.service';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {

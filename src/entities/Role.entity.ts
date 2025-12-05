@@ -2,10 +2,10 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 
 @Entity("roles")
 export class Role {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100, unique: true })
+  @Column({ name: 'name', type: 'varchar', length: 100, unique: true })
   name: string;
 
   @OneToMany("User", "role")

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createOutgoing, listOutgoing } from '@/services/pos1/outgoing.service';
+import { createOutgoing, listOutgoing } from '@/services/registering/outgoing.service';
 import { getInboundList } from '@/services/inbound/getInbound.service';
 
 export async function GET() {

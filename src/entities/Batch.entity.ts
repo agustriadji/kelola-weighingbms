@@ -1,12 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Supplier } from "./Supplier.entity";
-import { Material } from "./Material.entity";
-import { Vehicle } from "./Vehicle.entity";
-import { User } from "./User.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Supplier } from './Supplier.entity';
+import { Material } from './Material.entity';
+import { Vehicle } from './Vehicle.entity';
+import { User } from './User.entity';
 
-@Entity("batches")
+@Entity('batches')
 export class Batch {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
   @Column({ type: 'varchar', length: 100, name: 'batch_name' })
@@ -28,11 +28,8 @@ export class Batch {
   @JoinColumn({ name: 'created_by' })
   createdBy: User;
 
-  @Column({ type: 'varchar', length: 50 })
+  @Column({ name: 'status', type: 'varchar', length: 50 })
   status: string; // pending, ongoing, finished
-
-  @Column({ type: 'timestamp', nullable: true, name: 'started_at' })
-  startedAt: Date;
 
   @Column({ type: 'timestamp', nullable: true, name: 'ended_at' })
   endedAt: Date;

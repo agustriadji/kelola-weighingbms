@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { saveBruttoWeight } from '@/services/weighIn.service';
+import { saveBruttoWeight } from '@/services/weighing/weighIn.service';
 
 export async function POST(req: Request, { params }: { params: { id: string } }) {
   try {

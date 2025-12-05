@@ -3,7 +3,7 @@
 import { Search, Eye, Weight, Scale } from 'lucide-react';
 import { ButtonDocumentAction } from '../../molecules/ButtonDocument.molecules';
 //import { DocumentIncomingOrganism } from '@/components/organisms/DocumentIncoming.organism';
-import FormIncomingPage from '@/components/pages/pos1/FromIncoming.page';
+import FormIncomingPage from '@/components/pages/PosRegistering/FromIncoming.page';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as Dialog from '@radix-ui/react-dialog';

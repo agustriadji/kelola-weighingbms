@@ -74,7 +74,7 @@ INSERT INTO vehicles (plate, type, owner) VALUES
 ON CONFLICT (plate) DO NOTHING;
 
 -- Insert sample drivers
-INSERT INTO drivers (name, phone) VALUES 
+INSERT INTO drivers (name, sim) VALUES 
   ('Budi Santoso', '081234567890'),
   ('Andi Wijaya', '081234567891'),
   ('Candra Kusuma', '081234567892')
@@ -86,3 +86,14 @@ INSERT INTO weighbridges (name, location) VALUES
   ('WB-002', 'Gate Out'),
   ('WB-003', 'Internal Check')
 ON CONFLICT DO NOTHING;
+
+-- Reset sequences to avoid duplicate key errors
+SELECT setval('batches_id_seq', COALESCE((SELECT MAX(id) FROM batches), 0) + 1, false);
+SELECT setval('users_id_seq', COALESCE((SELECT MAX(id) FROM users), 0) + 1, false);
+SELECT setval('roles_id_seq', COALESCE((SELECT MAX(id) FROM roles), 0) + 1, false);
+SELECT setval('permissions_id_seq', COALESCE((SELECT MAX(id) FROM permissions), 0) + 1, false);
+SELECT setval('suppliers_id_seq', COALESCE((SELECT MAX(id) FROM suppliers), 0) + 1, false);
+SELECT setval('materials_id_seq', COALESCE((SELECT MAX(id) FROM materials), 0) + 1, false);
+SELECT setval('vehicles_id_seq', COALESCE((SELECT MAX(id) FROM vehicles), 0) + 1, false);
+SELECT setval('drivers_id_seq', COALESCE((SELECT MAX(id) FROM drivers), 0) + 1, false);
+SELECT setval('weighbridges_id_seq', COALESCE((SELECT MAX(id) FROM weighbridges), 0) + 1, false);

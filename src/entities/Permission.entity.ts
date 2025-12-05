@@ -2,9 +2,9 @@ import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity("permissions")
 export class Permission {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 150, unique: true })
+  @Column({ name: 'name', type: 'varchar', length: 150, unique: true })
   name: string;
 }

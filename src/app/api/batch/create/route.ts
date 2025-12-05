@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createBatch } from '@/services/batch.service';
+import { createBatch } from '@/services/inbound/batch.service';
 import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {

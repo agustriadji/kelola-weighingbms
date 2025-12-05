@@ -1,29 +1,64 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import { setRequestContext, generateRequestId, clearRequestContext } from '@/utils/context';
+import { saveBruttoWeighing, saveTarraWeighing } from '@/services/inbound/batch.service';
+import { useWeighing } from '@/hooks/useWeighing';
+import { InboundStatus } from '@/types/inbound.type';
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = req.headers.get("authorization");
-    
-    if (!auth || !auth.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const token = auth.replace("Bearer ", "");
-    
-    try {
-      jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (jwtErr) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const requestId = generateRequestId();
+    // Get user from middleware
+    const userHeader = req.headers.get('x-user');
+    const user = userHeader ? JSON.parse(userHeader) : null;
+
+    // Set context untuk service layer
+    setRequestContext(requestId, { user });
+
+    let data = null;
+    const { batchId, weight, stable, source, cctvUrl, transactionType, transactionId, status } =
+      await req.json();
+
+    console.log(
+      {
+        batchId,
+        weight,
+        stable,
+        source,
+        cctvUrl,
+        transactionType,
+        transactionId,
+        status,
+      },
+      'TEST'
+    );
+
+    if (transactionType === 'OUTGOING') {
+      data = await saveTarraWeighing(
+        batchId,
+        weight,
+        stable,
+        source,
+        cctvUrl,
+        transactionType,
+        transactionId,
+        status
+      );
+    } else {
+      data = await saveBruttoWeighing(
+        batchId,
+        weight,
+        stable,
+        source,
+        cctvUrl,
+        transactionType,
+        transactionId,
+        status
+      );
     }
 
-    const { batchId, weight, stable, source } = await req.json();
-    
     // Mock save weight record
-    console.log('Weight record saved:', { batchId, weight, stable, source });
-    
-    return NextResponse.json({ ok: true });
-    
+
+    return NextResponse.json({ ok: true, data });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }

@@ -7,13 +7,13 @@ import ListMiscPage from './ListMisc.page';
 import Image from 'next/image';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/Footer';
+import Footer from '@/components/templates/Footer';
 
 export default function Pos1Page() {
   const [active, setActive] = useState<'incoming' | 'outgoing' | 'misc'>('incoming');
   const [list, setList] = useState([]);
   const [showModal, setShowModal] = useState(false);
-  
+
   const router = useRouter();
   const { user, logout: authLogout } = useAuth();
 

@@ -34,7 +34,7 @@ services:
       - DB_NAME=wbms_db
       - JWT_SECRET=supersecret_for_wbms
       - ENABLE_SAP_CRON=false
-      - TYPEORM_SYNCHRONIZE=true
+      - TYPEORM_SYNCHRONIZE=false
     depends_on:
       - db
     volumes:
@@ -44,5 +44,3 @@ services:
 
 volumes:
   postgres_dev_data:
-
-

@@ -1,31 +1,43 @@
-import { Entity, PrimaryGeneratedColumn, ManyToOne, Column, CreateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Column,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
 
 @Entity()
 export class WeighIn {
-  @PrimaryGeneratedColumn()
+  @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
   @ManyToOne('InboundTicket', (it: any) => it.weighInRecords)
-  inbound: any;
+  @JoinColumn({ name: 'inbound_id' })
+  inboundId: any;
 
-  @Column({ type: 'float', nullable: true })
+  @Column({ name: 'weight', type: 'float', nullable: true })
   weight: number; // sebelumnya 'brutto'
 
   @Column({
+    name: 'weight_type',
     type: 'enum',
     enum: ['BRUTTO', 'TARRA'],
   })
   weightType: 'BRUTTO' | 'TARRA';
 
-  @CreateDateColumn()
+  @CreateDateColumn({ name: 'timestamp', type: 'timestamp' })
   timestamp: Date; // sebelumnya 'bruttoTime'
 
-  @Column({ type: 'varchar', nullable: true })
+  @Column({ name: 'cctv_url', type: 'varchar', nullable: true })
   cctvUrl: string; // sebelumnya cctvBruttoUrl
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name: 'stable', type: 'boolean', default: false })
   stable: boolean;
 
-  @Column({ type: 'boolean', default: false })
+  @Column({ name: 'approved', type: 'boolean', default: false })
   approved: boolean;
+
+  @Column({ name: 'created_by', type: 'int', nullable: true })
+  createdBy: number;
 }
