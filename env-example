@@ -1,0 +1,13 @@
+NODE_ENV=development
+NEXT_PUBLIC_BACKEND_HOST=http://localhost:8100
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=postgres
+DATABASE_PASSWORD=newpassword
+DATABASE_NAME=wbms_db
+
+JWT_SECRET=supersecret_for_wbms
+JWT_EXPIRES=1d
+
+SAP_URL=http://localhost:3002/SAP
+REDIS_URL=redis://localhost:6379

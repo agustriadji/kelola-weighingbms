@@ -1,15 +1,46 @@
 version: '3.8'
 
 services:
-  weighing-app-dev:
+  #PostgreSQL Database
+  db:
+    image: postgres:15-alpine
+    container_name: wbms_postgres_dev
+    environment:
+      POSTGRES_DB: wbms_db
+      POSTGRES_USER: wbms_user
+      POSTGRES_PASSWORD: wbms_password
+    ports:
+      - '5433:5432'
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+
+  # Next.js Development
+  app:
     build:
       context: .
       dockerfile: Dockerfile.dev
+    container_name: wbms_app_dev
     ports:
-      - "3000:3000"
+      - '3001:3001'
     environment:
       - NODE_ENV=development
+      - DATABASE_URL=postgresql://wbms_user:wbms_password@db:5432/wbms_db
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=wbms_user
+      #wbms_user
+      - DB_PASSWORD=wbms_password
+      #wbms_password
+      - DB_NAME=wbms_db
+      - JWT_SECRET=supersecret_for_wbms
+      - ENABLE_SAP_CRON=false
+      - TYPEORM_SYNCHRONIZE=false
+    depends_on:
+      - db
     volumes:
       - .:/app
       - /app/node_modules
-    restart: unless-stopped
+      - /app/.next
+
+volumes:
+  postgres_dev_data:

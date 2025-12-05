@@ -1,13 +1,53 @@
 version: '3.8'
 
 services:
-  weighing-app:
-    build: .
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: wbms_postgres
+    environment:
+      POSTGRES_DB: wbms_db
+      POSTGRES_USER: wbms_user
+      POSTGRES_PASSWORD: wbms_password
     ports:
-      - "3000:3000"
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
+      - ./database/create-tables.sql:/docker-entrypoint-initdb.d/create-tables.sql
+      - ./database/insert-data.sql:/docker-entrypoint-initdb.d/insert-data.sql
+    networks:
+      - wbms_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U wbms_user -d wbms_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Next.js Application
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wbms_app
+    ports:
+      - "3001:3000"
     environment:
       - NODE_ENV=production
+      - DATABASE_URL=postgresql://wbms_user:wbms_password@postgres:5432/wbms_db
+      - JWT_SECRET=your-super-secret-jwt-key-for-production
+      - ENABLE_SAP_CRON=false
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - wbms_network
     volumes:
-      - .:/app
-      - /app/node_modules
-    restart: unless-stopped
+      - ./logs:/app/logs
+
+volumes:
+  postgres_data:
+
+networks:
+  wbms_network:
+    driver: bridge

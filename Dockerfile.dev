@@ -1,20 +1,22 @@
-# Development Dockerfile
-FROM node:18-alpine
+FROM node:20-alpine3.19
 
-# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Update packages and install security updates
+RUN apk update && apk upgrade && apk add --no-cache dumb-init
 
-# Install all dependencies (including dev)
+# Install dependencies
+COPY package*.json ./
 RUN npm install
 
 # Copy source code
 COPY . .
 
-# Expose port 3000
-EXPOSE 3000
+# Expose port
+EXPOSE 3001
+
+# Set Next.js to listen on all interfaces
+ENV HOSTNAME=0.0.0.0
 
 # Start development server
-CMD ["npm", "run", "dev"]
+CMD ["sh", "-c", "sleep 10 && npm run build:typeorm && npm run migration:run && npm run dev -- -p 3001"]

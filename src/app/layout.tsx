@@ -1,20 +1,19 @@
-import "./globals.css";
+import 'reflect-metadata';
+import './globals.css';
 // import Navigation from "@/components/navigation";
 // import QueryProvider from "@/components/queryProvider";
-import Navbar from "../components/Navbar";
-import { ChatProvider } from "@/contexts/ChatContext";
-
+import { ChatProvider } from '@/contexts/ChatContext';
 
 export const metadata = {
   title: 'Dashboard',
   description: 'test',
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // Disable console.log in production
+  if (typeof window !== 'undefined') {
+    console.log = () => {};
+  }
 
   return (
     <html lang="en">
