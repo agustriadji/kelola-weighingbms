@@ -15,11 +15,9 @@ export async function POST(req: NextRequest) {
 
     const { id } = await req.json();
 
-    console.log(id, 'ID');
     await startWeighingIn(id, requestId);
     return NextResponse.json({ ok: true });
   } catch (err: any) {
-    console.log(err, 'ID');
     return NextResponse.json({ error: err.message }, { status: 400 });
   } finally {
     // Cleanup context

@@ -11,9 +11,8 @@ export const metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   // Disable console.log in production
-  if (typeof window !== 'undefined') {
-    console.log = () => {};
-  }
+
+  console.log = () => { };
 
   return (
     <html lang="en">

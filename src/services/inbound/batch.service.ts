@@ -35,7 +35,7 @@ export const saveBruttoWeighing = async (
   const repo = await inboundRepository();
 
   const data = await saveBruttoWeight(batchId, weight, cctvUrl);
-  console.log(data, 'DATA===============');
+
   return repo.update(batchId, {
     status: InboundStatus.YARD,
     updatedAt: new Date(),
@@ -143,7 +143,6 @@ export const getBatchDetail = async (id: number) => {
       where: { id },
     });
 
-    console.log(dataInbound, 'DATA');
 
     if (dataInbound?.transactionType === 'INCOMING') {
       const repoIncoming = await incomingRepository();
@@ -165,13 +164,7 @@ export const getBatchDetail = async (id: number) => {
     console.error('Error fetching batch detail:', error);
     throw new Error('Error fetching batch detail');
   }
-  console.log(
-    {
-      inbound: dataInbound || null,
-      document: dataDocument,
-    },
-    'MASA GA'
-  );
+
   return {
     inbound: dataInbound || null,
     document: dataDocument,

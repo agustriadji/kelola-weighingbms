@@ -4,8 +4,7 @@ export default function WeighingInfoTemplate() {
   const { currentBatch, batchId, vehicleHistory, tarraHistory, expectedNetto, nettoWeight } =
     useWeighing();
   const { inbound, document } = currentBatch || {};
-  console.log('vehicleHistory', vehicleHistory);
-  console.log('tarraHistory', tarraHistory);
+
   const data = {
     outStandingContract: 1480000,
     totalBrutto: '-10 Kg',
@@ -130,13 +129,12 @@ export default function WeighingInfoTemplate() {
                 ? (((expectedNetto - nettoWeight) / expectedNetto) * 100).toFixed(3)
                 : '0'
             }
-            className={`flex-1 border px-1 py-1 text-xs ${
-              expectedNetto &&
-              nettoWeight &&
-              ((expectedNetto - nettoWeight) / expectedNetto) * 100 > 0.2
+            className={`flex-1 border px-1 py-1 text-xs ${expectedNetto &&
+                nettoWeight &&
+                ((expectedNetto - nettoWeight) / expectedNetto) * 100 > 0.2
                 ? 'border-red-400 bg-red-50'
                 : 'border-gray-400'
-            }`}
+              }`}
             readOnly
           />
           <span className="text-xs ml-1">%</span>

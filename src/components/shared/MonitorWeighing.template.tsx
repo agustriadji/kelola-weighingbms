@@ -13,9 +13,7 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
     batchId,
   } = useWeighing();
   const { inbound, document } = currentBatch || {};
-  console.log('document', document);
-  console.log('inbound', inbound);
-  console.log('currentBatch', currentBatch);
+
   data = {
     outStandingContract: 1480000,
     totalBrutto: '-10 Kg',
@@ -51,8 +49,8 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
                     ? currentWeight
                     : inbound?.status === InboundStatus.YARD ||
                       inbound?.status === InboundStatus.WEIGHING_OUT
-                    ? tarraWeight
-                    : 0
+                      ? tarraWeight
+                      : 0
                 }
               ></textarea>
             </div>
@@ -65,8 +63,8 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
                   inbound?.status === InboundStatus.WEIGHING_OUT
                     ? currentWeight
                     : inbound?.status === InboundStatus.FINISHED
-                    ? tarraWeight
-                    : 0
+                      ? tarraWeight
+                      : 0
                 }
               ></textarea>
             </div>

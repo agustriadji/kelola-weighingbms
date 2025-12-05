@@ -21,7 +21,7 @@ export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void
   });
 
   function onError(errors: FieldErrors<OutgoingType>) {
-    console.log('Form validation errors:', errors);
+    console.error('Form validation errors:', errors);
     alert('Please check the form for errors!');
   }
 

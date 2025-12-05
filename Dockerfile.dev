@@ -19,4 +19,4 @@ EXPOSE 3001
 ENV HOSTNAME=0.0.0.0
 
 # Start development server
-CMD ["sh", "-c", "sleep 10 && npm run build:typeorm && npm run migration:run && npm run dev -- -p 3001"]
+CMD ["sh", "-c", "sleep 10 && npm run dev -- -p 3001"]

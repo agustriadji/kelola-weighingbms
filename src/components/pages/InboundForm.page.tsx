@@ -21,7 +21,6 @@ export default function InboundFormPage() {
   });
 
   function onSubmit(data: InboundType) {
-    console.log('Inbound Data: ', data);
     alert('Inbound saved!');
   }
 

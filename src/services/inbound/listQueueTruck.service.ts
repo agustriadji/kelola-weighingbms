@@ -4,7 +4,6 @@ import { InboundStatus } from './inboundStateMechine.service';
 export async function listInbound2(status) {
   const repo = await inboundRepository();
 
-  console.log(status, 'status==================');
   const data = await repo.manager.connection.query(
     `
     SELECT

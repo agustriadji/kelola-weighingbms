@@ -44,7 +44,7 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
   });
 
   const onSubmit: SubmitHandler<IncomingType> = async (data) => {
-    console.log('Submitting data:', data);
+
     try {
       const res = await fetch('/api/pos1/incoming', {
         method: 'POST',
@@ -67,9 +67,6 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
   };
 
   function onError(errors: FieldErrors<IncomingType>) {
-    console.log('=== FORM VALIDATION DEBUG ===');
-    console.log('Raw errors object:', errors);
-    console.log('Error fields:', Object.keys(errors));
 
     // Log each error with details
     Object.entries(errors).forEach(([field, error]) => {

@@ -9,18 +9,17 @@ export const getDb = async (): Promise<DataSource> => {
   if (dataSource && dataSource.isInitialized) {
     return dataSource;
   }
-  
+
   // If initialization is in progress, wait for it
   if (initPromise) {
     return initPromise;
   }
-  
+
   // Start new initialization
   initPromise = AppDataSource.initialize()
     .then((ds) => {
       dataSource = ds;
       initPromise = null;
-      console.log('Database connected successfully');
       return ds;
     })
     .catch((error) => {
@@ -28,7 +27,7 @@ export const getDb = async (): Promise<DataSource> => {
       console.error('Database connection failed:', error);
       throw error;
     });
-  
+
   return initPromise;
 };
 

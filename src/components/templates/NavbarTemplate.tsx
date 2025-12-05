@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 
 export default function NavbarTemplate({ user, handleLogout }) {
   const router = useRouter();
-
   return (
     <div className="flex justify-between items-center py-4">
       <div className="flex items-center">
@@ -15,12 +14,12 @@ export default function NavbarTemplate({ user, handleLogout }) {
         </div>
       </div>
       <div className="flex items-center space-x-4">
-        <PermissionGate permissions={[user?.permissions[Permissions.CREATE_WEIGHING]]}>
+        <PermissionGate permission={user?.permissions[Permissions.CREATE_WEIGHING]}>
           <button className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200">
             Weighing
           </button>
         </PermissionGate>
-        <PermissionGate permissions={[user?.permissions[Permissions.CREATE_INCOMING]]}>
+        <PermissionGate permission={user?.permissions[Permissions.CREATE_INCOMING]}>
           <button
             onClick={() => router.push('/user')}
             className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200"
@@ -28,7 +27,7 @@ export default function NavbarTemplate({ user, handleLogout }) {
             Registering
           </button>
         </PermissionGate>
-        <PermissionGate permissions={[user?.permissions[Permissions.CREATE_USERS]]}>
+        <PermissionGate permission={user?.permissions[Permissions.CREATE_USERS]}>
           <button
             onClick={() => router.push('/user')}
             className="text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200"

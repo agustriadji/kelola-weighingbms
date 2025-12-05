@@ -18,20 +18,6 @@ export async function POST(req: NextRequest) {
     const { batchId, weight, stable, source, cctvUrl, transactionType, transactionId, status } =
       await req.json();
 
-    console.log(
-      {
-        batchId,
-        weight,
-        stable,
-        source,
-        cctvUrl,
-        transactionType,
-        transactionId,
-        status,
-      },
-      'TEST'
-    );
-
     if (transactionType === 'OUTGOING') {
       data = await saveTarraWeighing(
         batchId,

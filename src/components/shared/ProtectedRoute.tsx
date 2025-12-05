@@ -43,7 +43,7 @@ export default function ProtectedRoute({
   }
 
   // Check multiple permissions (any)
-  console.log(requiredPermissions, hasAnyPermission(requiredPermissions), '00000000000000000');
+
   if (requiredPermissions && !hasAnyPermission(requiredPermissions)) {
     return fallback || <UnauthorizedAccess />;
   }

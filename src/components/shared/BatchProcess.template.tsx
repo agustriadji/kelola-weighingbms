@@ -34,7 +34,6 @@ export default function WeighingInfoTemplate() {
     }
   };
 
-  console.log(currentBatch?.inbound.status, 'test');
 
   const handleStartBatch = async () => {
     if (!currentBatch) return;
@@ -62,23 +61,21 @@ export default function WeighingInfoTemplate() {
         <div className="pt-4">
           {currentBatch?.warningFlag && (
             <div
-              className={`p-4 rounded border-2 mb-4 ${
-                currentBatch.inbound.status === InboundStatus.QUEUE_IN
+              className={`p-4 rounded border-2 mb-4 ${currentBatch.inbound.status === InboundStatus.QUEUE_IN
                   ? 'bg-yellow-100 border-yellow-400'
                   : currentBatch.inbound.status === InboundStatus.WEIGHING_IN
-                  ? 'bg-green-100 border-green-400'
-                  : 'bg-gray-100 border-gray-400'
-              }`}
+                    ? 'bg-green-100 border-green-400'
+                    : 'bg-gray-100 border-gray-400'
+                }`}
             >
               <div className="text-center">
                 <div
-                  className={`text-xl font-bold mt-2 ${
-                    currentBatch.inbound.status === InboundStatus.QUEUE_IN
+                  className={`text-xl font-bold mt-2 ${currentBatch.inbound.status === InboundStatus.QUEUE_IN
                       ? 'text-yellow-600'
                       : currentBatch.inbound.status === InboundStatus.WEIGHING_IN
-                      ? 'text-green-600'
-                      : 'text-gray-600'
-                  }`}
+                        ? 'text-green-600'
+                        : 'text-gray-600'
+                    }`}
                 >
                   {currentBatch.warningFlag && (
                     <div className="text-red-600 font-bold mt-2">

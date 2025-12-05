@@ -38,7 +38,6 @@ export default function LoginPage() {
 
       const result = await response.json();
 
-      console.log(response, '-----------------------');
       if (response.ok) {
         // Store token and user data
         localStorage.setItem('token', result.token);
@@ -51,7 +50,6 @@ export default function LoginPage() {
           })
         );
 
-        console.log(result.user, '-----------------------');
         if (result.user.permissions.length) {
           if (result.user.role === 'Operator_Registering') {
             router.push('/pos-one');

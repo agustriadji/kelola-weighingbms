@@ -7,7 +7,6 @@ const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
 const JWT_EXPIRES = process.env.JWT_EXPIRES || '1d';
 
 export const login = async (username: string, password: string) => {
-  console.log('Login attempt for:', username, new Date().toLocaleString());
 
   // Check cache first
   const cacheKey = `user:${username}`;

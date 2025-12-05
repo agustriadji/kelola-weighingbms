@@ -26,7 +26,6 @@ export const useWeighing = () => {
     if (store.isLoading) return;
 
     store.setLoading(true);
-    console.log('🚀 Initializing weighing data...');
 
     try {
       // Load master data
@@ -41,7 +40,6 @@ export const useWeighing = () => {
       }
 
       store.setInitialized(true);
-      console.log('✅ Weighing data initialized successfully');
     } catch (error) {
       console.error('❌ Error initializing weighing data:', error);
       sessionStorage.removeItem('weighing-initialized'); // Reset on error
@@ -114,7 +112,6 @@ export const useWeighing = () => {
           timestamp: new Date(),
           stable,
         });
-        console.log(data, 'SAVE');
         store.setCurrentBatch(null);
         store.setBatchId(null);
         store.resetWeights();
@@ -155,7 +152,7 @@ export const useWeighing = () => {
 
         if (success) {
           const batch = await weighingContext.loadDetailBatch(id);
-          console.log(success, 'CHECK');
+
           store.setCurrentBatch(batch);
           return true;
         }
@@ -221,11 +218,9 @@ export const useWeighing = () => {
         now - store.documentCacheTime < cacheExpiry &&
         store.listDocument.length > 0
       ) {
-        console.log(`📋 Using cached data for ${type}`);
         return;
       }
 
-      console.log(`🔄 Loading fresh data for ${type}`);
       try {
         const data = await weighingContext.loadListDocument(type);
         store.setListDocument(data);
