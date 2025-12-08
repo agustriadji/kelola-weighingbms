@@ -35,31 +35,12 @@ export const saveBruttoWeighing = async (
 ) => {
   const repo = await inboundRepository();
 
-  const getInbound = await repo.findOne({
-    where: { id: batchId },
-    relations: ['weighIn', 'weighOut'],
+  await saveBruttoWeight(batchId, weight, cctvUrl);
+
+  return repo.update(batchId, {
+    status: InboundStatus.YARD,
+    updatedAt: new Date(),
   });
-
-  if (getInbound?.weighIn?.id) {
-    // calculate netto, shrinkage, tarra
-    return saveTarraWeighing(
-      batchId,
-      weight,
-      stable,
-      source,
-      cctvUrl,
-      transactionType,
-      transactionId,
-      status
-    );
-  } else {
-    await saveBruttoWeight(batchId, weight, cctvUrl);
-
-    return repo.update(batchId, {
-      status: InboundStatus.YARD,
-      updatedAt: new Date(),
-    });
-  }
 };
 // END W-IN
 

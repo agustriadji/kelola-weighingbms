@@ -2,8 +2,10 @@ import PermissionGate from '@/components/shared/PermissionGate';
 import { Permissions } from '@/types/rbac';
 import { useWeighing } from '@/hooks/useWeighing';
 import { InboundStatus } from '@/types/inbound.type';
+import { useSysStore } from '@/store/sys.store';
 
 export default function WeighingInfoTemplate() {
+  const { setLoadingState } = useSysStore();
   const {
     // State
     currentTime,
@@ -44,10 +46,13 @@ export default function WeighingInfoTemplate() {
 
   const handleEndBatch = async () => {
     if (!currentBatch) return;
+
+    setLoadingState(true);
     const success = await saveWeightRecordState(brutoWeight, isStable);
     if (!success) {
       alert('Failed');
     }
+    setLoadingState(false);
   };
   const data = {
     outStandingContract: 1480000,
