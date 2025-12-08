@@ -2,7 +2,7 @@ import * as Select from '@radix-ui/react-select';
 
 export function StyledSelect({ value, onChange, placeholder, items }: any) {
   return (
-    <Select.Root value={value} onValueChange={onChange}>
+    <Select.Root value={value || ''} onValueChange={onChange}>
       <Select.Trigger
         className="
           h-10 border rounded-md px-3 w-full text-left 

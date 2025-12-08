@@ -1,6 +1,7 @@
 import { inboundRepository } from '@/repositories/inbound.repository';
+import { RegisterDocType } from '@/types/inbound.type';
 
-export async function getInboundList(type?: 'INCOMING' | 'OUTGOING' | 'MISC') {
+export async function getInboundList(type?: RegisterDocType) {
   const repo = await inboundRepository();
 
   return repo.find({

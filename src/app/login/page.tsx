@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
@@ -53,9 +54,7 @@ export default function LoginPage() {
         if (result.user.permissions.length) {
           if (result.user.role === 'Operator_Registering') {
             router.push('/pos-one');
-          } else if (result.user.role === 'Operator_Weighing') {
-            router.push('/dashboard');
-          } else if (result.user.role === 'Admin' || result.user.role === 'Supervisor') {
+          } else {
             router.push('/dashboard');
           }
         }
@@ -68,6 +67,14 @@ export default function LoginPage() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <LoadingSpinner size="lg" text="Loading..." />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -101,7 +108,10 @@ export default function LoginPage() {
               <strong>supervisor</strong> / super123 (Supervisor)
             </div> */}
             <div>
-              <strong>operator_weighing</strong> / oper123 (Operator Weighing)
+              <strong>operator_weighing_in</strong> / oper123 (Operator Weighing IN)
+            </div>
+            <div>
+              <strong>operator_weighing_out</strong> / oper123 (Operator Weighing OUT)
             </div>
             <div>
               <strong>operator_registering</strong> / oper123 (Operator Registering)

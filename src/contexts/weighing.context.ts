@@ -15,7 +15,7 @@ export interface WeighingContextType {
   loadBatches: () => Promise<any[]>;
   loadDetailBatch: (id: any) => Promise<any>;
   createBatch: (formData: any) => Promise<boolean>;
-  startBatch: (id: number) => Promise<boolean>;
+  startBatch: (id: number, isYard?: boolean) => Promise<boolean>;
   endBatch: (id: number, expectedNetto: number, actualNetto: number) => Promise<any>;
 
   // Vehicle Operations
@@ -95,9 +95,9 @@ export const weighingContext: WeighingContextType = {
     }
   },
 
-  startBatch: async (id: number) => {
+  startBatch: async (id: number, isYard?: boolean) => {
     try {
-      const response = await apiPost('/api/batch/start', { id });
+      const response = await apiPost('/api/batch/start', { id, isYard });
       return response.ok;
     } catch (error) {
       console.error('Error starting batch:', error);

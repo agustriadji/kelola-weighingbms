@@ -1,11 +1,13 @@
 import { inboundRepository } from '@/repositories/inbound.repository';
 import { outgoingRepository } from '../../repositories/outgoing.repository';
 import { createInbound } from '../inbound/createInbound.service';
+import { RegisterDocType } from '@/types/inbound.type';
 
 export async function listOutgoing() {
   const repo = await inboundRepository();
 
-  const list = await repo.query(`
+  const list = await repo.manager.query(
+    `
     SELECT
       inbound_ticket.id,
       inbound_ticket.transaction_type,
@@ -26,8 +28,11 @@ export async function listOutgoing() {
     ON
       inbound_ticket.transaction_id = outgoing_detail.id
     WHERE
-      inbound_ticket.transaction_type = 'OUTGOING'
-  `);
+      inbound_ticket.transaction_type = $1
+  `,
+    [RegisterDocType.DISPATCH],
+    { cache: { id: 'list_outgoing', milliseconds: 30000 } }
+  );
   return list;
 }
 
@@ -54,7 +59,7 @@ export async function createOutgoing(data) {
   const savedDetail = await repo.save(detail);
 
   const inbound = await createInbound({
-    transactionType: 'OUTGOING',
+    transactionType: RegisterDocType.DISPATCH,
     transactionId: savedDetail.id,
   });
 

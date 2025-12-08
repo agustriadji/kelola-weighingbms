@@ -1,14 +1,13 @@
 import { incomingRepository } from '@/repositories/incoming.repository';
 import { inboundRepository } from '@/repositories/inbound.repository';
 import { createInbound } from '../inbound/createInbound.service';
+import { RegisterDocType } from '@/types/inbound.type';
 
 export async function listIncoming() {
   const repo = await inboundRepository();
 
-  // select inbound_ticket with transactionType === 'INCOMING'
-  // inner join incoming_detail incoming on inbound.transactionId = incoming.id
-  // table inbound_ticket not ref to incoming_detail
-  const list = await repo.query(`
+  const list = await repo.manager.query(
+    `
     SELECT
       inbound_ticket.id,
       inbound_ticket.transaction_type,
@@ -32,8 +31,11 @@ export async function listIncoming() {
     ON
       inbound_ticket.transaction_id = incoming_detail.id
     WHERE
-      inbound_ticket.transaction_type = 'INCOMING'
-  `);
+      inbound_ticket.transaction_type = $1
+  `,
+    [RegisterDocType.RAW_MATERIAL],
+    { cache: { id: 'list_incoming', milliseconds: 30000 } }
+  );
   return list;
 }
 
@@ -45,8 +47,8 @@ export async function createIncoming(data) {
   const savedDetail = await repo.save(detail);
 
   const inbound = await createInbound({
-    transactionType: 'INCOMING',
-    transactionId: savedDetail.id,
+    transactionType: RegisterDocType.RAW_MATERIAL,
+    transactionId: savedDetail?.id,
   });
 
   return {

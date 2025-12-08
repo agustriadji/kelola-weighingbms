@@ -19,6 +19,10 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
     totalBrutto: '-10 Kg',
     totalShrinkage: '-0.02 %',
   };
+  console.log(currentWeight, ' currentW', batchId, isStable);
+  console.log(brutoWeight, ' brutoWeight', batchId, isStable);
+  console.log(tarraWeight, ' tarraWeight', batchId, isStable);
+  console.log(nettoWeight, ' nettoWeight', batchId, isStable);
   return (
     <div className="bg-blue-100 p-2 mb-6 border rounded-md border-gray-400">
       <div className="flex gap-4 items-start">
@@ -49,8 +53,8 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
                     ? currentWeight
                     : inbound?.status === InboundStatus.YARD ||
                       inbound?.status === InboundStatus.WEIGHING_OUT
-                      ? tarraWeight
-                      : 0
+                    ? tarraWeight
+                    : 0
                 }
               ></textarea>
             </div>
@@ -63,8 +67,8 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
                   inbound?.status === InboundStatus.WEIGHING_OUT
                     ? currentWeight
                     : inbound?.status === InboundStatus.FINISHED
-                      ? tarraWeight
-                      : 0
+                    ? tarraWeight
+                    : 0
                 }
               ></textarea>
             </div>

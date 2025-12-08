@@ -1,5 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { startWeighingIn } from '@/services/inbound/batch.service';
+import { startWeighingIn, startWeighingOut } from '@/services/inbound/batch.service';
 import { setRequestContext, generateRequestId, clearRequestContext } from '@/utils/context';
 
 export async function POST(req: NextRequest) {
@@ -13,9 +14,13 @@ export async function POST(req: NextRequest) {
     // Set context untuk service layer
     setRequestContext(requestId, { user });
 
-    const { id } = await req.json();
+    const { id, isYard } = await req.json();
 
-    await startWeighingIn(id, requestId);
+    if (isYard) {
+      await startWeighingOut(id, requestId);
+    } else {
+      await startWeighingIn(id, requestId);
+    }
     return NextResponse.json({ ok: true });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });

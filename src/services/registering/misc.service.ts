@@ -1,11 +1,13 @@
 import { MiscRepository } from '@/repositories/misc.repository';
 import { createInbound } from '../inbound/createInbound.service';
 import { inboundRepository } from '@/repositories/inbound.repository';
+import { RegisterDocType } from '@/types/inbound.type';
 
 export async function listMisc() {
   const repo = await inboundRepository();
 
-  const list = await repo.query(`
+  const list = await repo.manager.query(
+    `
     SELECT
       inbound_ticket.id,
       inbound_ticket.transaction_type,
@@ -24,8 +26,11 @@ export async function listMisc() {
     ON
       inbound_ticket.transaction_id = misc_detail.id
     WHERE
-      inbound_ticket.transaction_type = 'MISC'
-  `);
+      inbound_ticket.transaction_type = $1
+  `,
+    [RegisterDocType.MISCELLANEOUS],
+    { cache: { id: 'list_misc', milliseconds: 30000 } }
+  );
   return list;
 }
 
@@ -52,7 +57,7 @@ export async function createMisc(data) {
   const savedDetail = await repo.save(detail);
 
   const inbound = await createInbound({
-    transactionType: 'MISC',
+    transactionType: RegisterDocType.MISCELLANEOUS,
     transactionId: savedDetail.id,
   });
 

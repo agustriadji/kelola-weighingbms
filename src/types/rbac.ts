@@ -44,6 +44,8 @@ export enum Permissions {
   CREATE_WEIGHING = 'create_weighing',
   UPDATE_WEIGHING = 'update_weighing',
   DELETE_WEIGHING = 'delete_weighing',
+  POS_WEIGHINGIN = 'pos_weighingin',
+  POS_WEIGHINGOUT = 'pos_weighingout',
 
   // Users
   VIEW_USERS = 'view_users',

@@ -1,8 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from 'next/server';
-import { setRequestContext, generateRequestId, clearRequestContext } from '@/utils/context';
+import { setRequestContext, generateRequestId } from '@/utils/context';
 import { saveBruttoWeighing, saveTarraWeighing } from '@/services/inbound/batch.service';
-import { useWeighing } from '@/hooks/useWeighing';
-import { InboundStatus } from '@/types/inbound.type';
+import { RegisterDocType } from '@/types/inbound.type';
 
 export async function POST(req: NextRequest) {
   try {
@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     const { batchId, weight, stable, source, cctvUrl, transactionType, transactionId, status } =
       await req.json();
 
-    if (transactionType === 'OUTGOING') {
+    if (transactionType === RegisterDocType.DISPATCH) {
       data = await saveTarraWeighing(
         batchId,
         weight,

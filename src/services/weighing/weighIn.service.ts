@@ -1,6 +1,7 @@
 import { weighInRepository } from '@/repositories/weighIn.repository';
 import { inboundRepository } from '@/repositories/inbound.repository';
 import { getRequestContext } from '@/utils/context';
+import { RegisterDocType } from '@/types/inbound.type';
 
 const weighInRepo = await weighInRepository();
 const inboundRepo = await inboundRepository();
@@ -15,7 +16,7 @@ export const startWeighIn = async (inboundId: number, requestId?: string) => {
   // create weigh-in record
   const wi = weighInRepo.create({
     inbound,
-    weightType: inbound.transactionType !== 'OUTGOING' ? 'BRUTTO' : 'TARRA',
+    weightType: inbound.transactionType !== RegisterDocType.DISPATCH ? 'BRUTTO' : 'TARRA',
   });
 
   return await weighInRepo.save(wi);

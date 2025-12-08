@@ -10,7 +10,7 @@ import {
 
 export const useWeighingStore = create<WeighingState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       // Initial State
       currentTime: '',
       suppliers: [],
@@ -42,8 +42,16 @@ export const useWeighingStore = create<WeighingState>()(
       isInitialized: false,
       lastDocumentType: null,
       documentCacheTime: 0,
+      activeListWeighingState: 'weighing',
+      showActiveWeighState: false,
 
       // Actions
+      setActiveListWeighingState: (listActiveWeigh: string) =>
+        set({ activeListWeighingState: listActiveWeigh }),
+
+      setShowActiveWeighState: (showActiveWeigh: boolean) =>
+        set({ showActiveWeighState: showActiveWeigh }),
+
       setCurrentTime: (time: string) => set({ currentTime: time }),
 
       setMasterData: (suppliers: any[], materials: any[], vehicles: any[]) =>

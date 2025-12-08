@@ -4,25 +4,26 @@ import { StyledSelect } from '../atoms/StyledSelect';
 export function VehicleNumberMolecule({ control, Controller }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-gray-700">Vehicle Number</label>
+      <label className="text-sm font-medium text-gray-700">Vehicle Number*</label>
       <Controller
         name="vehicleNumber"
         control={control}
-        render={({ field }) => <StyledInput {...field} placeholder="Vehicle No." />}
+        render={({ field }) => <StyledInput {...field} placeholder="Vehicle No." required={true} />}
       />
     </div>
   );
 }
 
-export function VehicleTypeMolecule({ control, Controller }) {
+export function VehicleTypeMiscMolecule({ control, Controller }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-gray-700">Vehicle Type</label>
+      <label className="text-sm font-medium text-gray-700">Vehicle Type*</label>
       <Controller
         name="vehicleType"
         control={control}
         render={({ field }) => (
           <StyledSelect
+            required={true}
             value={field.value}
             onChange={field.onChange}
             placeholder="Vehicle Type"
@@ -43,12 +44,13 @@ export function VehicleTypeMolecule({ control, Controller }) {
 export function VehicleTypeIncomingMolecule({ control, Controller }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-gray-700">Vehicle Type</label>
+      <label className="text-sm font-medium text-gray-700">Vehicle Type*</label>
       <Controller
         name="vehicleType"
         control={control}
         render={({ field }) => (
           <StyledSelect
+            required={true}
             value={field.value}
             onChange={field.onChange}
             placeholder="Vehicle Type"
@@ -69,8 +71,9 @@ export function VehicleTypeIncomingMolecule({ control, Controller }) {
 export function VehicleTypeOutgoingMolecule({ control, Controller }) {
   return (
     <div className="flex flex-col gap-1">
-      <label className="text-sm font-medium text-gray-700">Vehicle Type</label>
+      <label className="text-sm font-medium text-gray-700">Vehicle Type*</label>
       <Controller
+        required={true}
         name="vehicleType"
         control={control}
         render={({ field }) => (

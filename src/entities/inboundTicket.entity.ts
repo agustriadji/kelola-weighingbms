@@ -11,6 +11,7 @@ import {
 } from 'typeorm';
 import { WeighIn } from './WeighIn.entity';
 import { WeighOut } from './WeighOut.entity';
+import { InboundStatus, RegisterDocType } from '../types/inbound.type';
 
 @Entity('inbound_ticket')
 export class InboundTicket {
@@ -20,9 +21,12 @@ export class InboundTicket {
   @Column({
     name: 'transaction_type',
     type: 'enum',
-    enum: ['INCOMING', 'OUTGOING', 'MISC'],
+    enum: [RegisterDocType.RAW_MATERIAL, RegisterDocType.DISPATCH, RegisterDocType.MISCELLANEOUS],
   })
-  transactionType: 'INCOMING' | 'OUTGOING' | 'MISC';
+  transactionType:
+    | RegisterDocType.RAW_MATERIAL
+    | RegisterDocType.DISPATCH
+    | RegisterDocType.MISCELLANEOUS;
 
   @Column({ name: 'transaction_id', type: 'int' })
   transactionId: number; // FK ke incoming_detail/outgoing_detail/misc_detail
@@ -31,17 +35,17 @@ export class InboundTicket {
     name: 'status',
     type: 'enum',
     enum: [
-      'registered',
-      'queue-weigh-in',
-      'weighing-in',
-      'weighed-in',
-      'yard-processing',
-      'queue-weigh-out',
-      'weighing-out',
-      'weighed-out',
-      'finished',
+      InboundStatus.REGISTERED,
+      InboundStatus.QUEUE_IN,
+      InboundStatus.WEIGHING_IN,
+      InboundStatus.WEIGHED_IN,
+      InboundStatus.YARD,
+      InboundStatus.QUEUE_OUT,
+      InboundStatus.WEIGHING_OUT,
+      InboundStatus.WEIGHED_OUT,
+      InboundStatus.FINISHED,
     ],
-    default: 'queue-weigh-in',
+    default: InboundStatus.QUEUE_IN,
   })
   status: string;
 

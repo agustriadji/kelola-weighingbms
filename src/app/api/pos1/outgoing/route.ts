@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextResponse } from 'next/server';
 import { createOutgoing, listOutgoing } from '@/services/registering/outgoing.service';
-import { getInboundList } from '@/services/inbound/getInbound.service';
+import { RegisterDocType, RegisterDocTypeName } from '@/types/inbound.type';
 
 export async function GET() {
   try {
@@ -23,14 +24,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      type: 'OUTGOING',
+      type: RegisterDocType.DISPATCH,
       inbound: result.inbound,
       detail: result.detail,
     });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
-      { ok: false, error: err.message || 'Failed to create outgoing transaction' },
+      {
+        ok: false,
+        error: err.message || `Failed to create ${RegisterDocTypeName.DISPATCH} transaction`,
+      },
       { status: 500 }
     );
   }

@@ -52,7 +52,14 @@ export class RBACSeeder {
   private static async seedRoles(db: any) {
     const roleRepo = db.getRepository(Role);
 
-    const roles = ['Admin', 'Supervisor', 'Operator_Registering', 'Operator_Weighing', 'Viewer'];
+    const roles = [
+      'Admin',
+      'Supervisor',
+      'Operator_Registering',
+      'Operator_WeighingIn',
+      'Operator_Weighingout',
+      'Viewer',
+    ];
 
     for (const roleName of roles) {
       const existing = await roleRepo.findOne({ where: { name: roleName } });
@@ -96,11 +103,19 @@ export class RBACSeeder {
         Permissions.UPDATE_MISC,
         Permissions.DELETE_MISC,
       ],
-      Operator_Weighing: [
+      Operator_WeighingIn: [
         Permissions.VIEW_DASHBOARD,
         Permissions.VIEW_WEIGHING,
         Permissions.CREATE_WEIGHING,
         Permissions.UPDATE_WEIGHING,
+        Permissions.POS_WEIGHINGOUT,
+      ],
+      Operator_WeighingOut: [
+        Permissions.VIEW_DASHBOARD,
+        Permissions.VIEW_WEIGHING,
+        Permissions.CREATE_WEIGHING,
+        Permissions.UPDATE_WEIGHING,
+        Permissions.POS_WEIGHINGOUT,
       ],
       Viewer: [Permissions.VIEW_DASHBOARD, Permissions.VIEW_WEIGHING, Permissions.VIEW_REPORTS],
     };
@@ -149,10 +164,16 @@ export class RBACSeeder {
         roleName: 'Supervisor',
       },
       {
-        username: 'operator_weighing',
+        username: 'operator_weighing_in',
         password: 'oper123',
-        fullName: 'Operator User Weighing',
-        roleName: 'Operator_Weighing',
+        fullName: 'Operator User Weighing IN',
+        roleName: 'Operator_WeighingIn',
+      },
+      {
+        username: 'operator_weighing_out',
+        password: 'oper123',
+        fullName: 'Operator User Weighing OUT',
+        roleName: 'Operator_WeighingOut',
       },
       {
         username: 'operator_registering',

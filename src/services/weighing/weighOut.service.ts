@@ -2,6 +2,7 @@ import { weighOutRepository } from '@/repositories/weighOut.repository';
 import { inboundRepository } from '@/repositories/inbound.repository';
 
 import { calculateShrinkage } from '../shared/shrinkage.util';
+import { RegisterDocType } from '@/types/inbound.type';
 
 const inboundRepo = await inboundRepository();
 const weighOutRepo = await weighOutRepository();
@@ -12,7 +13,7 @@ export const startWeighOut = async (inboundId: number) => {
 
   const wo = weighOutRepo.create({
     inbound,
-    weightType: inbound.transactionType !== 'OUTGOING' ? 'TARRA' : 'BRUTTO',
+    weightType: inbound.transactionType !== RegisterDocType.DISPATCH ? 'TARRA' : 'BRUTTO',
   });
   return await weighOutRepo.save(wo);
 };

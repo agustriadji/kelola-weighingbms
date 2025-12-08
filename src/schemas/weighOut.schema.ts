@@ -11,7 +11,7 @@ export const WeighOutSchema = z.object({
   shrinkageValue: z.number().optional(),
   shrinkagePercent: z.number().optional(),
 
-  status: z.string().default('closing'),
+  status: z.string().default('weighing-out'),
 });
 
 export type WeighOutType = z.infer<typeof WeighOutSchema>;

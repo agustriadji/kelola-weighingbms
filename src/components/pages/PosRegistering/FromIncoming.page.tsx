@@ -5,8 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DocumentIncomingOrganism } from '@/components/organisms/DocumentIncoming.organism';
 import { IncomingSchema, IncomingType } from '@/schemas/incoming.schema';
 import { ButtonDocumentAction } from '@/components/molecules/ButtonDocument.molecules';
+import { DialogFooter } from '@/components/shared/DialogFooter';
+import { useSysStore } from '@/store/sys.store';
+import { RegisterDocTypeName } from '@/types/inbound.type';
 
 export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void }) {
+  const { setLoadingState } = useSysStore();
   const {
     control,
     handleSubmit,
@@ -44,7 +48,7 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
   });
 
   const onSubmit: SubmitHandler<IncomingType> = async (data) => {
-
+    setLoadingState(true);
     try {
       const res = await fetch('/api/pos1/incoming', {
         method: 'POST',
@@ -56,7 +60,7 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
 
       if (result.ok) {
         onSuccess?.();
-        alert('Incoming saved!');
+        alert(`${RegisterDocTypeName.RAW_MATERIAL} saved!`);
       } else {
         alert(`Failed: ${result.error}`);
       }
@@ -64,10 +68,10 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
       console.error('Submit error:', error);
       alert('Failed to submit');
     }
+    setLoadingState(false);
   };
 
   function onError(errors: FieldErrors<IncomingType>) {
-
     // Log each error with details
     Object.entries(errors).forEach(([field, error]) => {
       console.log(`Field "${field}":`, {
@@ -86,14 +90,14 @@ export default function FormIncomingPage({ onSuccess }: { onSuccess?: () => void
   };
 
   return (
-    <form
-      onSubmit={handleFormSubmit}
-      className="flex flex-col gap-1 p-6 space-y-2 max-w-6xl mx-auto"
-    >
-      <DocumentIncomingOrganism control={control} />
-      <div className="grid grid-cols-2 gap-4 pt-3 max-w-xs ml-auto">
-        <ButtonDocumentAction onClose={onSuccess} />
+    <form onSubmit={handleFormSubmit} className="flex flex-col gap-1 space-y-2  max-h-full mx-auto">
+      <div className="overflow-y-auto p-2 max-h-[60vh]">
+        <DocumentIncomingOrganism control={control} />
       </div>
+
+      <DialogFooter>
+        <ButtonDocumentAction onClose={onSuccess} />
+      </DialogFooter>
     </form>
   );
 }

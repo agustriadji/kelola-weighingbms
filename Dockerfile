@@ -1,43 +1,31 @@
-# Use Node.js 18 Alpine as base image
-FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
-WORKDIR /app
-
-# Configure npm for better network handling
-RUN npm config set registry https://registry.npmjs.org/
-RUN npm config set fetch-retries 5
-RUN npm config set fetch-retry-factor 2
-RUN npm config set fetch-retry-mintimeout 10000
-RUN npm config set fetch-retry-maxtimeout 60000
-
-# Copy package files
-COPY package.json package-lock.json* ./
-RUN npm ci --only=production --no-audit --no-fund
-
-FROM node:18-alpine
+# Build stage
+FROM node:20-alpine3.19 AS builder
 
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
+RUN npm ci --only=production=false
 
-# Install dependencies including autoprefixer
-RUN npm install
-RUN npm install autoprefixer
-
-# Copy source code
 COPY . .
+RUN npm run build
 
-# Skip build for development mode
+# Production stage
+FROM node:20-alpine3.19
 
-EXPOSE 3000
+WORKDIR /app
 
-# Copy start script
-COPY docker-start.sh ./
-RUN chmod +x docker-start.sh
+RUN apk update && apk upgrade && apk add --no-cache dumb-init
 
-# Start the application
-CMD ["./docker-start.sh"]
+COPY package*.json ./
+RUN npm ci --only=production
+
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/next.config.js ./next.config.js
+
+EXPOSE 3001
+
+ENV NODE_ENV=production
+ENV HOSTNAME=0.0.0.0
+
+CMD ["dumb-init", "sh", "-c", "sleep 10 && npm run start"]

@@ -1,21 +1,24 @@
 import { z } from 'zod';
 
 export const MiscSchema = z.object({
-  contractNumber: z.string().optional(),
-  poNumber: z.string().optional(),
-  supplier: z.string().optional(),
-  material: z.string(),
-  doNumber: z.string().optional(),
-  vehicleNumber: z.string(),
+  contractNumber: z.string().nonempty(),
+  poNumber: z.string().nonempty(),
+  supplier: z.string().nonempty(),
+  relationName: z.string().nonempty(),
+  material: z.string().nonempty(),
+  doNumber: z.string().nonempty(),
+  vehicleNumber: z.string().nonempty(),
   vehicleType: z.string().optional(),
+  transporter: z.string().nonempty(),
+  driverName: z.string().nonempty(),
+
   containerNumber: z.string().optional(),
-  transporter: z.string(),
-  driverName: z.string(),
   driverId: z.string().optional(),
 
-  bcType: z.string().optional(),
-  bcNumber: z.string().optional(),
+  bcType: z.string().nonempty(),
+  bcNumber: z.string().nonempty(),
   sealNumber: z.string().optional(),
+
   status: z.string().optional(),
 });
 

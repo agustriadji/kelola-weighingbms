@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import LoadingIcon from '@/components/templates/LoadingIcon';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 
 export default function Home() {
   const router = useRouter();
@@ -18,13 +18,12 @@ export default function Home() {
     };
 
     checkAuth();
-  }, [router]);
+  }, []);
 
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="flex flex-col items-center gap-4">
-        <LoadingIcon />
-        <p className="text-center text-gray-600">Redirecting...</p>
+        <LoadingSpinner size="lg" text="Loading..." />
       </div>
     </div>
   );

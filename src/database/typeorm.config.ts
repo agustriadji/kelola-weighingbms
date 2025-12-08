@@ -13,12 +13,12 @@ module.exports = new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   synchronize: false,
-  logging: true,
+  logging: false,
   entities: ['dist/entities/*.js'],
   migrations: ['dist/database/migrations/*.js'],
   cache: {
     type: 'database',
     tableName: 'query_result_cache',
-    duration: 30000 // 30 seconds
-  }
+    duration: 30000, // 30 seconds
+  },
 });

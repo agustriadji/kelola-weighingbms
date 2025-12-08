@@ -1,4 +1,23 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { DocumentTypeEnum, SealConditionEnum } from './constanta';
+
+export enum RegisterDocType {
+  RAW_MATERIAL = 'RAW_MATERIAL',
+  DISPATCH = 'DISPATCH',
+  MISCELLANEOUS = 'MISCELLANEOUS',
+}
+
+export enum RegisterDocTypeName {
+  RAW_MATERIAL = 'Raw Material',
+  DISPATCH = 'Dispatch',
+  MISCELLANEOUS = 'Miscellaneous',
+}
+
+export enum RegisterDocTypeAPI {
+  RAW_MATERIAL = 'incoming',
+  DISPATCH = 'outgoing',
+  MISCELLANEOUS = 'misc',
+}
 
 export interface InboundType {
   id?: number;
@@ -74,6 +93,12 @@ export interface WeighingFormData {
 }
 
 export interface WeighingState {
+  // ActiveListWeigh
+  activeListWeighingState: string;
+  setActiveListWeighingState: (listActiveWeigh: string) => void;
+
+  showActiveWeighState: boolean;
+  setShowActiveWeighState: (showActiveWeigh: boolean) => void;
   // Time
   currentTime: string;
 

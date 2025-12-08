@@ -7,6 +7,7 @@ import { InboundStatus } from './inboundStateMechine.service';
 import { startWeighIn, saveBruttoWeight } from '../weighing/weighIn.service';
 import { startWeighOut, saveTarraWeight } from '../weighing/weighOut.service';
 import { getRequestContext } from '@/utils/context';
+import { RegisterDocType } from '@/types/inbound.type';
 
 // W-IN
 export const startWeighingIn = async (id: number, requestId?: string) => {
@@ -34,12 +35,31 @@ export const saveBruttoWeighing = async (
 ) => {
   const repo = await inboundRepository();
 
-  const data = await saveBruttoWeight(batchId, weight, cctvUrl);
-
-  return repo.update(batchId, {
-    status: InboundStatus.YARD,
-    updatedAt: new Date(),
+  const getInbound = await repo.findOne({
+    where: { id: batchId },
+    relations: ['weighIn', 'weighOut'],
   });
+
+  if (getInbound?.weighIn?.id) {
+    // calculate netto, shrinkage, tarra
+    return saveTarraWeighing(
+      batchId,
+      weight,
+      stable,
+      source,
+      cctvUrl,
+      transactionType,
+      transactionId,
+      status
+    );
+  } else {
+    await saveBruttoWeight(batchId, weight, cctvUrl);
+
+    return repo.update(batchId, {
+      status: InboundStatus.YARD,
+      updatedAt: new Date(),
+    });
+  }
 };
 // END W-IN
 
@@ -49,7 +69,7 @@ export const startWeighingOut = async (id: number, weighingInBy: string) => {
 
   const weighOut = await startWeighOut(id);
   return repo.update(id, {
-    weighInId: weighOut.id,
+    weighOutId: weighOut.id,
     status: InboundStatus.WEIGHING_OUT,
     updatedAt: new Date(),
   });
@@ -69,7 +89,7 @@ export const saveTarraWeighing = async (
 
   await saveTarraWeight(batchId, weight, cctvUrl);
   return repo.update(batchId, {
-    status: InboundStatus.FINISHED,
+    status: InboundStatus.WEIGHED_OUT,
     updatedAt: new Date(),
   });
 };
@@ -141,20 +161,20 @@ export const getBatchDetail = async (id: number) => {
     const repo = await inboundRepository();
     dataInbound = await repo.findOne({
       where: { id },
+      relations: ['weighIn', 'weighOut'],
     });
 
-
-    if (dataInbound?.transactionType === 'INCOMING') {
+    if (dataInbound?.transactionType === RegisterDocType.RAW_MATERIAL) {
       const repoIncoming = await incomingRepository();
       dataDocument = await repoIncoming.findOne({
         where: { id: dataInbound?.transactionId },
       });
-    } else if (dataInbound?.transactionType === 'OUTGOING') {
+    } else if (dataInbound?.transactionType === RegisterDocType.DISPATCH) {
       const repoOutgoing = await outgoingRepository();
       dataDocument = await repoOutgoing.findOne({
         where: { id: dataInbound?.transactionId },
       });
-    } else if (dataInbound?.transactionType === 'MISC') {
+    } else if (dataInbound?.transactionType === RegisterDocType.MISCELLANEOUS) {
       const repoMisc = await MiscRepository();
       dataDocument = await repoMisc.findOne({
         where: { id: dataInbound?.transactionId },

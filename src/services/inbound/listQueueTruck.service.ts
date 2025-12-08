@@ -1,5 +1,5 @@
 import { inboundRepository } from '@/repositories/inbound.repository';
-import { InboundStatus } from './inboundStateMechine.service';
+import { RegisterDocType } from '@/types/inbound.type';
 
 export async function listInbound2(status) {
   const repo = await inboundRepository();
@@ -15,37 +15,37 @@ export async function listInbound2(status) {
     
     -- vehicle_number
     case
-        when inbound_ticket.transaction_type = 'INCOMING' then incoming_detail.vehicle_number
-        when inbound_ticket.transaction_type = 'OUTGOING' then outgoing_detail.vehicle_number
-        when inbound_ticket.transaction_type = 'MISC' then misc_detail.vehicle_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.RAW_MATERIAL}' then incoming_detail.vehicle_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.DISPATCH}' then outgoing_detail.vehicle_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.MISCELLANEOUS}' then misc_detail.vehicle_number
     end as vehicle_number,
 
     -- document
     case 
-        when inbound_ticket.transaction_type = 'INCOMING' then incoming_detail.contract_number
-        when inbound_ticket.transaction_type = 'OUTGOING' then outgoing_detail.contract_number
-        when inbound_ticket.transaction_type = 'MISC' then misc_detail.contract_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.RAW_MATERIAL}' then incoming_detail.contract_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.DISPATCH}' then outgoing_detail.contract_number
+        when inbound_ticket.transaction_type = '${RegisterDocType.MISCELLANEOUS}' then misc_detail.contract_number
     end as contract_number,
 
     -- material
     case 
-        when inbound_ticket.transaction_type = 'INCOMING' then incoming_detail.material
-        when inbound_ticket.transaction_type = 'OUTGOING' then outgoing_detail.material
-        when inbound_ticket.transaction_type = 'MISC' then misc_detail.material
+        when inbound_ticket.transaction_type = '${RegisterDocType.RAW_MATERIAL}' then incoming_detail.material
+        when inbound_ticket.transaction_type = '${RegisterDocType.DISPATCH}' then outgoing_detail.material
+        when inbound_ticket.transaction_type = '${RegisterDocType.MISCELLANEOUS}' then misc_detail.material
     end as material,
 
     -- relation
     case
-        when inbound_ticket.transaction_type = 'INCOMING' then NULL
-        when inbound_ticket.transaction_type = 'OUTGOING' then outgoing_detail.relation_name
-        when inbound_ticket.transaction_type = 'MISC' then NULL
+        when inbound_ticket.transaction_type = '${RegisterDocType.RAW_MATERIAL}' then NULL
+        when inbound_ticket.transaction_type = '${RegisterDocType.DISPATCH}' then outgoing_detail.relation_name
+        when inbound_ticket.transaction_type = '${RegisterDocType.MISCELLANEOUS}' then NULL
     end as relation_name, 
 
     -- transporter
     case
-        when inbound_ticket.transaction_type = 'INCOMING' then incoming_detail.transporter
-        when inbound_ticket.transaction_type = 'OUTGOING' then outgoing_detail.transporter
-        when inbound_ticket.transaction_type = 'MISC' then misc_detail.transporter
+        when inbound_ticket.transaction_type = '${RegisterDocType.RAW_MATERIAL}' then incoming_detail.transporter
+        when inbound_ticket.transaction_type = '${RegisterDocType.DISPATCH}' then outgoing_detail.transporter
+        when inbound_ticket.transaction_type = '${RegisterDocType.MISCELLANEOUS}' then misc_detail.transporter
     end as transporter,
 
     inbound_ticket.status,

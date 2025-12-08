@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createIncoming, listIncoming } from '@/services/registering/incoming.service';
+import { RegisterDocType, RegisterDocTypeName } from '@/types/inbound.type';
+
 // import { getInboundList } from '@/services/inbound/getInbound.service';
 
 export async function GET() {
@@ -28,14 +30,17 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       ok: true,
-      type: 'INCOMING',
+      type: RegisterDocType.RAW_MATERIAL,
       inbound: result.inbound,
       detail: result.detail,
     });
   } catch (err: any) {
     console.error(err);
     return NextResponse.json(
-      { ok: false, error: err.message || 'Failed to create incoming transaction' },
+      {
+        ok: false,
+        error: err.message || `Failed to create ${RegisterDocTypeName.RAW_MATERIAL} transaction`,
+      },
       { status: 500 }
     );
   }

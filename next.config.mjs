@@ -1,8 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'standalone',
-  webpack: (config, { isServer }) => {
-    // Server-side optimizations
+  webpack: (config, { isServer, dev }) => {
+    // Hot reload for Docker
+    if (dev) {
+      config.watchOptions = {
+        poll: 1000,
+        aggregateTimeout: 300,
+        ignored: /node_modules/,
+      };
+    }
+
+    // Server-side optimizationsss
     if (isServer) {
       // Only load PostgreSQL driver on server
       config.externals = config.externals || [];
@@ -35,19 +44,11 @@ const nextConfig = {
         'pg-native': false,
       };
 
-      // Completely exclude backend modules from client
-      config.module = config.module || {};
-      config.module.rules = config.module.rules || [];
-      config.module.rules.push(
-        {
-          test: /src[\\\/](entities|database|repositories|services)[\\\/].*/,
-          use: 'ignore-loader',
-        },
-        {
-          test: /node_modules[\\\/]typeorm[\\\/]driver[\\\/](react-native|mysql|oracle|sap|sqlite|sqljs|mongodb|aurora-mysql|aurora-postgres|better-sqlite3|capacitor|cordova|expo|nativescript)[\\\/].*/,
-          use: 'ignore-loader',
-        }
-      );
+      // Exclude backend modules from client bundle only
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        typeorm: false,
+      };
     }
 
     // Global optimizations

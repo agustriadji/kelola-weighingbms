@@ -16,16 +16,15 @@ import {
 } from '@/components/molecules/Vehicle.molecules';
 import { TransporterMolecule } from '@/components/molecules/Transporter.molecules';
 import { MaterialMolecule } from '../molecules/Material.molecules';
-import { ButtonDocumentAction } from '../molecules/ButtonDocument.molecules';
 // import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
 
 export function DocumentOutgoingOrganism({ control }) {
   return (
-    <section className="p-4 rounded-xl space-y-4 bg-white shadow-sm">
-      <h2 className="font-semibold text-sm text-slate-500">Document Verification</h2>
+    <section className="space-y-4">
+      {/* <h2 className="font-semibold text-sm text-slate-500">Document Verification</h2> */}
 
       {/* ==== BAGIAN 1 — DOCUMENT NUMBERS & TYPES ==== */}
-      <div className="grid grid-cols-3 gap-6 pt-3 border-t">
+      <div className="grid grid-cols-3 gap-6">
         <div className="space-y-3">
           <ContractNumberMolecule control={control} Controller={Controller} />
           <RelationNameMolecule control={control} Controller={Controller} />

@@ -5,8 +5,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DocumentMiscOrganism } from '@/components/organisms/DocumentMisc.organism';
 import { MiscSchema, MiscType } from '@/schemas/misc.schema';
 import { ButtonDocumentAction } from '@/components/molecules/ButtonDocument.molecules';
+import { RegisterDocType } from '@/types/inbound.type';
+import { DialogFooter } from '@/components/shared/DialogFooter';
+import { useSysStore } from '@/store/sys.store';
 
 export default function MiscFormPage({ onSuccess }: { onSuccess?: () => void }) {
+  const { setLoadingState } = useSysStore();
   const {
     control,
     handleSubmit,
@@ -21,7 +25,12 @@ export default function MiscFormPage({ onSuccess }: { onSuccess?: () => void }) 
   });
 
   const onSubmit: SubmitHandler<MiscType> = async (data) => {
+    setLoadingState(true);
     try {
+      const ok = window.confirm('Are you sure you want to submit this data ?');
+      if (!ok) {
+        return;
+      }
       const res = await fetch('/api/pos1/misc', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +41,7 @@ export default function MiscFormPage({ onSuccess }: { onSuccess?: () => void }) 
 
       if (result.ok) {
         onSuccess?.();
-        alert('Misc saved!');
+        alert(`${RegisterDocType.MISCELLANEOUS} saved!`);
       } else {
         alert(`Failed: ${result.error}`);
       }
@@ -40,22 +49,30 @@ export default function MiscFormPage({ onSuccess }: { onSuccess?: () => void }) 
       console.error('Submit error:', error);
       alert('Failed to submit');
     }
+    setLoadingState(false);
   };
 
   function onError(errors: FieldErrors<MiscType>) {
-    console.error('Form validation errors:', errors);
-    alert('Please check the form for errors!');
+    // Log each error with details
+    Object.entries(errors).forEach(([field, error]) => {
+      console.log(`Field "${field}":`, {
+        message: error?.message,
+        type: error?.type,
+        value: control._formValues[field],
+      });
+    });
+
+    alert(`Validation errors in: ${Object.keys(errors).join(', ')}`);
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, onError)}
-      className="flex flex-col gap-1 p-6 space-y-2 max-w-6xl mx-auto"
-    >
-      <DocumentMiscOrganism control={control} />
-      <div className="grid grid-cols-2 gap-4 pt-3 max-w-xs ml-auto">
-        <ButtonDocumentAction onClose={onSuccess} />
+    <form onSubmit={handleSubmit} className="flex flex-col gap-1 space-y-2  max-h-full mx-auto">
+      <div className="overflow-y-auto p-2 max-h-[60vh]">
+        <DocumentMiscOrganism control={control} />
       </div>
+      <DialogFooter>
+        <ButtonDocumentAction onClose={onSuccess} />
+      </DialogFooter>
     </form>
   );
 }

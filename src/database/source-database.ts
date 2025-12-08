@@ -41,6 +41,8 @@ export const AppDataSource = new DataSource({
   synchronize: false,
   logging: false,
   cache: {
+    type: 'database',
+    tableName: 'query_result_cache',
     duration: 30000, // 30 seconds cache
   },
   extra: {

@@ -1,109 +1,110 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react';
 
 interface RolePermissionManagerProps {
-  onClose: () => void
+  onClose: () => void;
 }
 
 export default function RolePermissionManager({ onClose }: RolePermissionManagerProps) {
-  const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'assign'>('roles')
-  const [roles, setRoles] = useState<any[]>([])
-  const [permissions, setPermissions] = useState<any[]>([])
-  const [users, setUsers] = useState<any[]>([])
-  const [selectedRole, setSelectedRole] = useState<any | null>(null)
+  const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'assign'>('roles');
+  const [roles, setRoles] = useState<any[]>([]);
+  const [permissions, setPermissions] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
+  const [selectedRole, setSelectedRole] = useState<any | null>(null);
 
-  const [newRoleName, setNewRoleName] = useState('')
-  const [newPermissionName, setNewPermissionName] = useState('')
-  const [selectedPermissions, setSelectedPermissions] = useState<number[]>([])
-  const [selectedUserId, setSelectedUserId] = useState<number | null>(null)
-  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null)
+  const [newRoleName, setNewRoleName] = useState('');
+  const [newPermissionName, setNewPermissionName] = useState('');
+  const [selectedPermissions, setSelectedPermissions] = useState<number[]>([]);
+  const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
+  const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
 
   useEffect(() => {
-    loadData()
-  }, [])
+    loadData();
+  }, []);
 
   const loadData = async () => {
     try {
       const [rolesRes, permsRes, usersRes] = await Promise.all([
         fetch('/api/roles'),
         fetch('/api/permissions'),
-        fetch('/api/users')
-      ])
+        fetch('/api/users'),
+      ]);
 
       const [rolesData, permsData, usersData] = await Promise.all([
         rolesRes.json(),
         permsRes.json(),
-        usersRes.json()
-      ])
+        usersRes.json(),
+      ]);
 
-      if (rolesData.roles) setRoles(rolesData.roles)
-      if (permsData.permissions) setPermissions(permsData.permissions)
-      if (usersData.users) setUsers(usersData.users)
+      if (rolesData.roles) setRoles(rolesData.roles);
+      if (permsData.permissions) setPermissions(permsData.permissions);
+      if (usersData.users) setUsers(usersData.users);
     } catch (error) {
-      console.error('Error loading data:', error)
+      console.error('Error loading data:', error);
     }
-  }
+  };
 
   const handleCreateRole = async () => {
-    if (!newRoleName.trim()) return
+    if (!newRoleName.trim()) return;
 
     try {
       const response = await fetch('/api/roles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newRoleName, permissionIds: selectedPermissions })
-      })
+        body: JSON.stringify({ name: newRoleName, permissionIds: selectedPermissions }),
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (response.ok) {
-        alert('Role created successfully')
-        setNewRoleName('')
-        setSelectedPermissions([])
-        loadData()
+        alert('Role created successfully');
+        setNewRoleName('');
+        setSelectedPermissions([]);
+        loadData();
       } else {
-        alert(result.error || 'Failed to create role')
+        alert(result.error || 'Failed to create role');
       }
     } catch (error) {
-      console.error('Error creating role:', error)
-      alert('Error creating role')
+      console.error('Error creating role:', error);
+      alert('Error creating role');
     }
-  }
+  };
 
   const handleCreatePermission = async () => {
-    if (!newPermissionName.trim()) return
+    if (!newPermissionName.trim()) return;
     // TODO: Implement API call to create permission
-  }
+  };
 
   const handleAssignRole = async () => {
-    if (!selectedUserId || !selectedRoleId) return
+    if (!selectedUserId || !selectedRoleId) return;
     // TODO: Implement API call to assign role
-  }
+  };
 
   const handleUpdateRolePermissions = async () => {
-    if (!selectedRole) return
+    if (!selectedRole) return;
 
     try {
       const response = await fetch('/api/roles/permissions', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roleId: selectedRole.id, permissionIds: selectedPermissions })
-      })
+        body: JSON.stringify({ roleId: selectedRole.id, permissionIds: selectedPermissions }),
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (response.ok) {
-        alert('Role permissions updated successfully')
-        loadData()
+        alert('Role permissions updated successfully');
+        loadData();
       } else {
-        alert(result.error || 'Failed to update role permissions')
+        alert(result.error || 'Failed to update role permissions');
       }
     } catch (error) {
-      console.error('Error updating role permissions:', error)
-      alert('Error updating role permissions')
+      console.error('Error updating role permissions:', error);
+      alert('Error updating role permissions');
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -117,15 +118,16 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
             {[
               { key: 'roles', label: 'Roles' },
               { key: 'permissions', label: 'Permissions' },
-              { key: 'assign', label: 'Assign Roles' }
-            ].map(tab => (
+              { key: 'assign', label: 'Assign Roles' },
+            ].map((tab) => (
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key as any)}
-                className={`px-4 py-2 ${activeTab === tab.key
-                  ? 'border-b-2 border-blue-500 text-blue-600'
-                  : 'text-gray-600'
-                  }`}
+                className={`px-4 py-2 ${
+                  activeTab === tab.key
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-600'
+                }`}
               >
                 {tab.label}
               </button>
@@ -135,7 +137,6 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
 
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-4">
-
           {/* Roles Tab */}
           {activeTab === 'roles' && (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -154,16 +155,18 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
                   <div>
                     <label className="block text-sm font-medium mb-2">Permissions</label>
                     <div className="max-h-40 overflow-y-auto border rounded p-2">
-                      {permissions.map(perm => (
+                      {permissions.map((perm) => (
                         <label key={perm.id} className="flex items-center space-x-2 mb-1">
                           <input
                             type="checkbox"
                             checked={selectedPermissions.includes(perm.id)}
                             onChange={(e) => {
                               if (e.target.checked) {
-                                setSelectedPermissions([...selectedPermissions, perm.id])
+                                setSelectedPermissions([...selectedPermissions, perm.id]);
                               } else {
-                                setSelectedPermissions(selectedPermissions.filter(id => id !== perm.id))
+                                setSelectedPermissions(
+                                  selectedPermissions.filter((id) => id !== perm.id)
+                                );
                               }
                             }}
                           />
@@ -186,15 +189,19 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
               <div>
                 <h3 className="font-semibold mb-3">Existing Roles</h3>
                 <div className="space-y-2">
-                  {roles.map(role => (
+                  {roles.map((role) => (
                     <div
                       key={role.id}
-                      className={`p-3 border rounded cursor-pointer ${selectedRole?.id === role.id ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'
-                        }`}
+                      className={`p-3 border rounded cursor-pointer ${
+                        selectedRole?.id === role.id
+                          ? 'bg-blue-100 border-blue-500'
+                          : 'hover:bg-gray-50'
+                      }`}
                       onClick={() => {
-                        setSelectedRole(role)
-                        const rolePermIds = role.permissions?.map((rp: any) => rp.permission.id) || []
-                        setSelectedPermissions(rolePermIds)
+                        setSelectedRole(role);
+                        const rolePermIds =
+                          role.permissions?.map((rp: any) => rp.permission.id) || [];
+                        setSelectedPermissions(rolePermIds);
                       }}
                     >
                       <div className="font-medium">{role.name}</div>
@@ -245,7 +252,7 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
               <div>
                 <h3 className="font-semibold mb-3">Existing Permissions</h3>
                 <div className="max-h-60 overflow-y-auto">
-                  {permissions.map(perm => (
+                  {permissions.map((perm) => (
                     <div key={perm.id} className="p-2 border-b">
                       <span className="text-sm">{perm.name}</span>
                     </div>
@@ -267,7 +274,7 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
                     className="w-full border rounded px-3 py-2"
                   >
                     <option value="">Choose user...</option>
-                    {users.map(user => (
+                    {users.map((user) => (
                       <option key={user.id} value={user.id}>
                         {user.username} ({user.role?.name || 'No role'})
                       </option>
@@ -283,7 +290,7 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
                     className="w-full border rounded px-3 py-2"
                   >
                     <option value="">Choose role...</option>
-                    {roles.map(role => (
+                    {roles.map((role) => (
                       <option key={role.id} value={role.id}>
                         {role.name}
                       </option>
@@ -313,7 +320,7 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
                       </tr>
                     </thead>
                     <tbody>
-                      {users.map(user => (
+                      {users.map((user) => (
                         <tr key={user.id}>
                           <td className="border px-4 py-2">{user.username}</td>
                           <td className="border px-4 py-2">{user.role?.name || 'No role'}</td>
@@ -341,5 +348,5 @@ export default function RolePermissionManager({ onClose }: RolePermissionManager
         </div>
       </div>
     </div>
-  )
+  );
 }

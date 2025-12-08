@@ -1,14 +1,11 @@
 import { Controller } from 'react-hook-form';
 import {
   DONumberMolecule,
-  DocumentTypeMolecule,
   PONumberMolecule,
-  SJNumberMolecule,
   ContractNumberMolecule,
-  DestinationMolecule,
   SupplierMaterialMolecule,
   MillOriginalMolecule,
-  CertificateOutgoingMolecule,
+  CertificateIncomingMolecule,
   ContainerNumberMolecule,
   SPBDateMolecule,
   SPBNumberMolecule,
@@ -20,11 +17,7 @@ import {
   ImpuritiesMolecule,
 } from '../molecules/Document.molecules';
 import { MaterialMolecule } from '../molecules/Material.molecules';
-import {
-  VehicleNumberMolecule,
-  VehicleTypeIncomingMolecule,
-  VehicleTypeMolecule,
-} from '../molecules/Vehicle.molecules';
+import { VehicleNumberMolecule, VehicleTypeIncomingMolecule } from '../molecules/Vehicle.molecules';
 import { DriverIdMolecule, DriverNameMolecule } from '../molecules/Driver.molecules';
 import { TransporterMolecule } from '../molecules/Transporter.molecules';
 import { SealNumberMolecules } from '../molecules/CheckCondition.molecules';
@@ -33,10 +26,10 @@ import { SealNumberMolecules } from '../molecules/CheckCondition.molecules';
 export function DocumentIncomingOrganism({ control }) {
   return (
     <section className="space-y-4">
-      <h2 className="font-semibold text-sm text-slate-500">Document Verification</h2>
+      {/* <h2 className="font-semibold text-sm text-slate-500">Document Verification</h2> */}
 
       {/* ==== BAGIAN 1 — DOCUMENT NUMBERS & TYPES ==== */}
-      <div className="grid grid-cols-4 gap-6 pt-3 border-t">
+      <div className="grid grid-cols-4 gap-6">
         <div className="space-y-6">
           <PONumberMolecule control={control} Controller={Controller} />
           <ContractNumberMolecule control={control} Controller={Controller} />
@@ -44,7 +37,7 @@ export function DocumentIncomingOrganism({ control }) {
           <MaterialMolecule control={control} Controller={Controller} />
           <MillOriginalMolecule control={control} Controller={Controller} />
           <DONumberMolecule control={control} Controller={Controller} />
-          <CertificateOutgoingMolecule control={control} Controller={Controller} />
+          <CertificateIncomingMolecule control={control} Controller={Controller} />
         </div>
 
         {/* ==== Vehicle ==== */}

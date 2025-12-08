@@ -1,4 +1,5 @@
 import { inboundRepository } from '@/repositories/inbound.repository';
+import { InboundStatus } from '@/types/inbound.type';
 
 export async function createInbound({ transactionType, transactionId }) {
   const repo = await inboundRepository();
@@ -6,7 +7,7 @@ export async function createInbound({ transactionType, transactionId }) {
   const inbound = repo.create({
     transactionType,
     transactionId,
-    status: 'queue-weigh-in',
+    status: InboundStatus.QUEUE_IN,
   });
 
   return repo.save(inbound);

@@ -4,6 +4,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Permissions } from '@/types/rbac';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import LoadingSpinner from './LoadingSpinner';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -20,7 +21,7 @@ export default function ProtectedRoute({
   requiredRole,
   fallback,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, hasPermission, hasAnyPermission, hasRole, loading } = useAuth();
+  const { isAuthenticated, loading, hasPermission, hasAnyPermission, hasRole } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
@@ -30,11 +31,15 @@ export default function ProtectedRoute({
   }, [loading, isAuthenticated, router]);
 
   if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <LoadingSpinner size="lg" text="Loading..." />
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
-    return <div className="flex items-center justify-center min-h-screen">Redirecting...</div>;
+    return null;
   }
 
   // Check single permission

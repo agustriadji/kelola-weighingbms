@@ -2,11 +2,13 @@
 
 import { useEffect, useCallback } from 'react';
 import { useWeighingStore } from '@/store/weighing.store';
+import { useSysStore } from '@/store/sys.store';
 import { weighingContext } from '@/contexts/weighing.context';
 import { DocumentWbState, InboundStatus } from '@/types/inbound.type';
 
 export const useWeighing = () => {
   const store = useWeighingStore();
+  const sysStore = useSysStore();
 
   // Initialize data on mount (only once per session)
   useEffect(() => {
@@ -62,7 +64,10 @@ export const useWeighing = () => {
 
   const startWeightSimulation = useCallback(() => {
     const simulateWeight = () => {
-      if (store.currentBatch?.inbound.status === InboundStatus.WEIGHING_IN) {
+      if (
+        store.currentBatch?.inbound.status === InboundStatus.WEIGHING_IN ||
+        store.currentBatch?.inbound.status === InboundStatus.WEIGHING_OUT
+      ) {
         // Simulate realistic weight fluctuation
         const baseWeight = 35000 + Math.random() * 1000;
         const fluctuation = (Math.random() - 0.5) * 100;
@@ -145,10 +150,10 @@ export const useWeighing = () => {
   }, [store]);
 
   const startBatch = useCallback(
-    async (id: any) => {
+    async (id: any, isYard?: boolean) => {
       try {
         store.setBatchId(id);
-        const success = await weighingContext.startBatch(id);
+        const success = await weighingContext.startBatch(id, isYard);
 
         if (success) {
           const batch = await weighingContext.loadDetailBatch(id);
@@ -234,6 +239,7 @@ export const useWeighing = () => {
 
   return {
     // State
+    ...sysStore,
     ...store,
 
     // Actions

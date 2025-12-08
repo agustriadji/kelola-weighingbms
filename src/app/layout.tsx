@@ -1,8 +1,7 @@
 import 'reflect-metadata';
 import './globals.css';
-// import Navigation from "@/components/navigation";
-// import QueryProvider from "@/components/queryProvider";
 import { ChatProvider } from '@/contexts/ChatContext';
+import GlobalLoading from '@/components/shared/GlobalLoading';
 
 export const metadata = {
   title: 'Dashboard',
@@ -19,7 +18,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="h-screen flex flex-col bg-gray-100 text-gray-900">
         {/* header */}
         {/* <Navbar /> */}
-        <ChatProvider>{children}</ChatProvider>
+        <ChatProvider>
+          <GlobalLoading />
+          {children}
+        </ChatProvider>
       </body>
     </html>
   );

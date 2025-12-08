@@ -4,121 +4,118 @@ import { useState, useEffect } from 'react';
 import ListIncomingPage from './ListIncoming.page';
 import ListOutgoingPage from './ListOutgoing.page';
 import ListMiscPage from './ListMisc.page';
-import Image from 'next/image';
-import { useAuth } from '@/hooks/useAuth';
-import { useRouter } from 'next/navigation';
+import NavbarTemplate from '@/components/templates/NavbarTemplate';
+import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import Footer from '@/components/templates/Footer';
+import MenuHeaderRegisterDocPage from './MenuHeaderRegisterDoc.page';
+import { useSysStore } from '@/store/sys.store';
+import { RegisterDocType, RegisterDocTypeAPI } from '@/types/inbound.type';
+import { Permissions } from '@/types/rbac';
 
 export default function Pos1Page() {
-  const [active, setActive] = useState<'incoming' | 'outgoing' | 'misc'>('incoming');
-  const [list, setList] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-
-  const router = useRouter();
-  const { user, logout: authLogout } = useAuth();
-
-  async function loadData() {
-    const res = await fetch(`/api/pos1/${active}`);
-    const data = await res.json();
-    setList(data.data || []);
-  }
-
-  const handleLogout = () => {
-    authLogout();
-    router.push('/login');
-  };
+  const { activeMenuState, setActiveMenuState, setLoadingState } = useSysStore();
+  const [allData, setAllData] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(10);
 
   useEffect(() => {
-    setShowModal(false);
-    loadData();
-  }, [active]);
+    setAllData([]);
+    setLoadingState(true);
+    if (!RegisterDocTypeAPI[activeMenuState]) {
+      setActiveMenuState(RegisterDocType.RAW_MATERIAL);
+    }
+    setLoadingState(false);
+  }, []);
+
+  useEffect(() => {
+    if (RegisterDocTypeAPI[activeMenuState]) {
+      setPage(1);
+      loadData();
+    }
+  }, [activeMenuState]);
+
+  const loadData = async () => {
+    if (!activeMenuState) return;
+    setIsLoading(true);
+    try {
+      const subpath = RegisterDocTypeAPI[activeMenuState];
+      const res = await fetch(`/api/pos1/${subpath}`);
+      const data = await res.json();
+      setAllData(data.data || []);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const paginatedData = allData.slice((page - 1) * limit, page * limit);
+  const totalPages = Math.ceil(allData.length / limit);
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      {/* Top Tab */}
-      <div className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center py-4">
-            <div className="flex items-center">
-              <Image src="/logo.png" alt="Evyap" width={120} height={40} />
-              <div className="ml-2 bg-green-600 text-white px-2 py-1 rounded-full text-xs">
-                Life Chemistry
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => setActive('incoming')}
-                className={
-                  active === 'incoming'
-                    ? `font-semibold text-blue-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                    : `text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                }
-              >
-                Incoming
-              </button>
-
-              <button
-                onClick={() => setActive('outgoing')}
-                className={
-                  active === 'outgoing'
-                    ? `font-semibold text-blue-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                    : `text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                }
-              >
-                Outgoing
-              </button>
-
-              <button
-                onClick={() => setActive('misc')}
-                className={
-                  active === 'misc'
-                    ? `font-semibold text-blue-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                    : `text-gray-600 hover:text-blue-600 px-3 py-2 rounded-md transition duration-200`
-                }
-              >
-                Miscellaneous
-              </button>
-              <button
-                onClick={handleLogout}
-                className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200"
-              >
-                Logout
-              </button>
-            </div>
+    <ProtectedRoute requiredPermissions={[Permissions.VIEW_DASHBOARD, Permissions.CREATE_WEIGHING]}>
+      <div className="min-h-screen bg-gray-100">
+        <div className="bg-white shadow-sm">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <NavbarTemplate />
           </div>
         </div>
-      </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-        <div className="bg-white rounded-lg shadow-md p-2">
-          {/* LISTS */}
-          {active === 'incoming' && <ListIncomingPage data={list} refresh={loadData} />}
-          {active === 'outgoing' && <ListOutgoingPage data={list} refresh={loadData} />}
-          {active === 'misc' && <ListMiscPage data={list} refresh={loadData} />}
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
+          <div className="bg-cyan-200 rounded-lg shadow-md p-2">
+            <MenuHeaderRegisterDocPage />
+            {/* LISTS */}
+            {activeMenuState === RegisterDocType.RAW_MATERIAL && (
+              <ListIncomingPage 
+                data={paginatedData} 
+                refresh={loadData} 
+                isLoading={isLoading}
+                page={page}
+                limit={limit}
+                totalPages={totalPages}
+                totalData={allData.length}
+                onPageChange={setPage}
+                onLimitChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+              />
+            )}
+            {activeMenuState === RegisterDocType.DISPATCH && (
+              <ListOutgoingPage 
+                data={paginatedData} 
+                refresh={loadData} 
+                isLoading={isLoading}
+                page={page}
+                limit={limit}
+                totalPages={totalPages}
+                totalData={allData.length}
+                onPageChange={setPage}
+                onLimitChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+              />
+            )}
+            {activeMenuState === RegisterDocType.MISCELLANEOUS && (
+              <ListMiscPage 
+                data={paginatedData} 
+                refresh={loadData} 
+                isLoading={isLoading}
+                page={page}
+                limit={limit}
+                totalPages={totalPages}
+                totalData={allData.length}
+                onPageChange={setPage}
+                onLimitChange={(newLimit) => {
+                  setLimit(newLimit);
+                  setPage(1);
+                }}
+              />
+            )}
+          </div>
         </div>
+        <Footer />
       </div>
-      <Footer />
-
-      {/* Action Button */}
-      {/* <div className="flex justify-end mb-4">
-        <button
-          onClick={() => setShowModal(true)}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md"
-        >
-          {active === 'incoming' && '+ Create Raw Material (Incoming)'}
-          {active === 'outgoing' && '+ Create Dispatch (Outgoing)'}
-          {active === 'misc' && '+ Create Material Store (Misc)'}
-        </button>
-      </div> */}
-
-      {/* MODALS
-      {showModal && active === 'incoming' && (
-        <IncomingFormModal onClose={() => setShowModal(false)} />
-      )}
-      {showModal && active === 'outgoing' && (
-        <OutgoingFormModal onClose={() => setShowModal(false)} />
-      )}
-      {showModal && active === 'misc' && <MiscFormModal onClose={() => setShowModal(false)} />} */}
-    </div>
+    </ProtectedRoute>
   );
 }

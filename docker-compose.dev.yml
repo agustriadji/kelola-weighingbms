@@ -28,13 +28,13 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=wbms_user
-      #wbms_user
       - DB_PASSWORD=wbms_password
-      #wbms_password
       - DB_NAME=wbms_db
       - JWT_SECRET=supersecret_for_wbms
       - ENABLE_SAP_CRON=false
       - TYPEORM_SYNCHRONIZE=false
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - db
     volumes:

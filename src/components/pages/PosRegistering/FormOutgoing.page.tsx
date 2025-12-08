@@ -5,8 +5,13 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { DocumentOutgoingOrganism } from '@/components/organisms/DocumentOutgoing.organism';
 import { OutgoingSchema, OutgoingType } from '@/schemas/outgoing.schema';
 import { ButtonDocumentAction } from '@/components/molecules/ButtonDocument.molecules';
+import { RegisterDocTypeName } from '@/types/inbound.type';
+
+import { DialogFooter } from '@/components/shared/DialogFooter';
+import { useSysStore } from '@/store/sys.store';
 
 export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void }) {
+  const { setLoadingState } = useSysStore();
   const {
     control,
     handleSubmit,
@@ -21,11 +26,20 @@ export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void
   });
 
   function onError(errors: FieldErrors<OutgoingType>) {
-    console.error('Form validation errors:', errors);
-    alert('Please check the form for errors!');
+    // Log each error with details
+    Object.entries(errors).forEach(([field, error]) => {
+      console.log(`Field "${field}":`, {
+        message: error?.message,
+        type: error?.type,
+        value: control._formValues[field],
+      });
+    });
+
+    alert(`Validation errors in: ${Object.keys(errors).join(', ')}`);
   }
 
   const onSubmit: SubmitHandler<OutgoingType> = async (data) => {
+    setLoadingState(true);
     try {
       const res = await fetch('/api/pos1/outgoing', {
         method: 'POST',
@@ -37,7 +51,7 @@ export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void
 
       if (result.ok) {
         onSuccess?.();
-        alert('Outgoing saved!');
+        alert(`${RegisterDocTypeName.DISPATCH} saved!`);
       } else {
         alert(`Failed: ${result.error}`);
       }
@@ -45,17 +59,22 @@ export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void
       console.error('Submit error:', error);
       alert('Failed to submit');
     }
+    setLoadingState(false);
+  };
+
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSubmit(onSubmit, onError)(e);
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit, onError)}
-      className="flex flex-col gap-1 p-6 space-y-2 max-w-6xl mx-auto"
-    >
-      <DocumentOutgoingOrganism control={control} />
-      <div className="grid grid-cols-2 gap-4 pt-3 max-w-xs ml-auto">
-        <ButtonDocumentAction onClose={onSuccess} />
+    <form onSubmit={handleFormSubmit} className="flex flex-col gap-1 space-y-2  max-h-full mx-auto">
+      <div className="overflow-y-auto p-2 max-h-[60vh]">
+        <DocumentOutgoingOrganism control={control} />
       </div>
+      <DialogFooter>
+        <ButtonDocumentAction onClose={onSuccess} />
+      </DialogFooter>
     </form>
   );
 }

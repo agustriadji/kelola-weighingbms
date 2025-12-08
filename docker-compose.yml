@@ -2,52 +2,41 @@ version: '3.8'
 
 services:
   # PostgreSQL Database
-  postgres:
+  db:
     image: postgres:15-alpine
-    container_name: wbms_postgres
+    container_name: wbms_postgres_prod
     environment:
       POSTGRES_DB: wbms_db
       POSTGRES_USER: wbms_user
       POSTGRES_PASSWORD: wbms_password
     ports:
-      - "5432:5432"
+      - '5432:5432'
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/01-init.sql
-      - ./database/create-tables.sql:/docker-entrypoint-initdb.d/create-tables.sql
-      - ./database/insert-data.sql:/docker-entrypoint-initdb.d/insert-data.sql
-    networks:
-      - wbms_network
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wbms_user -d wbms_db"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+      - postgres_prod_data:/var/lib/postgresql/data
+    restart: unless-stopped
 
-  # Next.js Application
+  # Next.js Production
   app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: wbms_app
+    container_name: wbms_app_prod
     ports:
-      - "3001:3000"
+      - '3001:3001'
     environment:
       - NODE_ENV=production
-      - DATABASE_URL=postgresql://wbms_user:wbms_password@postgres:5432/wbms_db
-      - JWT_SECRET=your-super-secret-jwt-key-for-production
-      - ENABLE_SAP_CRON=false
+      - DATABASE_URL=postgresql://wbms_user:wbms_password@db:5432/wbms_db
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=wbms_user
+      - DB_PASSWORD=wbms_password
+      - DB_NAME=wbms_db
+      - JWT_SECRET=supersecret_for_wbms
+      - ENABLE_SAP_CRON=true
+      - TYPEORM_SYNCHRONIZE=false
     depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - wbms_network
-    volumes:
-      - ./logs:/app/logs
+      - db
+    restart: unless-stopped
 
 volumes:
-  postgres_data:
-
-networks:
-  wbms_network:
-    driver: bridge
+  postgres_prod_data:
