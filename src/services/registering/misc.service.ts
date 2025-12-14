@@ -6,35 +6,45 @@ import { RegisterDocType } from '@/types/inbound.type';
 export async function listMisc() {
   const repo = await inboundRepository();
 
-  const list = await repo.manager.query(
-    `
-    SELECT
-      inbound_ticket.id,
-      inbound_ticket.transaction_type,
-      inbound_ticket.transaction_id,
-      inbound_ticket.status,
-      misc_detail.contract_number,
-      misc_detail.material,
-      misc_detail.vehicle_number,
-      misc_detail.vehicle_type,
-      misc_detail.transporter,
-      inbound_ticket.created_at
-    FROM
-      inbound_ticket
-    INNER JOIN
-      misc_detail
-    ON
-      inbound_ticket.transaction_id = misc_detail.id
-    WHERE
-      inbound_ticket.transaction_type = $1
-  `,
-    [RegisterDocType.MISCELLANEOUS],
-    { cache: { id: 'list_misc', milliseconds: 30000 } }
-  );
+  const list = await repo
+    .createQueryBuilder('inbound')
+    .select([
+      'inbound.id as id',
+      'inbound.transactionType as transaction_type',
+      'inbound.transactionId as transaction_id',
+      'inbound.status as status',
+      'inbound.createdAt as created_at',
+      'misc.contractNumber as contract_number',
+      'misc.material as material',
+      'misc.vehicleNumber as vehicle_number',
+      'misc.vehicleType as vehicle_type',
+      'misc.transporter as transporter',
+    ])
+    .innerJoin('misc_detail', 'misc', 'inbound.transactionId = misc.id')
+    .where('inbound.transactionType = :type', { type: RegisterDocType.MISCELLANEOUS })
+    .cache('list_misc', 30000)
+    .getRawMany();
+
   return list;
 }
 
-export async function createMisc(data) {
+export async function createMisc(data: {
+  rfid?: string;
+  vehicleNumber: string;
+  driverName: string;
+  driverId?: string;
+  vehicleType: string;
+  transporter: string;
+  containerNumber?: string;
+  contractNumber: string;
+  relationName: string;
+  material: string;
+  bcType: string;
+  bcNumber: string;
+  doNumber: string;
+  sealNumber: string;
+  status: string;
+}) {
   const repo = await MiscRepository();
 
   const detail = repo.create({
@@ -59,6 +69,7 @@ export async function createMisc(data) {
   const inbound = await createInbound({
     transactionType: RegisterDocType.MISCELLANEOUS,
     transactionId: savedDetail.id,
+    statusInbound: data.status || null,
   });
 
   return { inbound, detail: savedDetail };

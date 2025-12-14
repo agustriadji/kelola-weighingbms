@@ -1,33 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import { getVehicleTarraHistoryByContract } from '@/services/inbound/batch.service';
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const auth = req.headers.get("authorization");
-    
-    if (!auth || !auth.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const token = auth.replace("Bearer ", "");
-    
-    try {
-      jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (jwtErr) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const contractNumber = searchParams.get('contractNumber');
+
+    if (!contractNumber) {
+      return NextResponse.json(
+        { success: false, message: 'Contract number is required' },
+        { status: 400 }
+      );
     }
 
-    // Mock tarra history data
-    const mockTarra = {
-      plate: "BK1234ABC",
-      initial: 15200,
-      min: 15100,
-      max: 15300
-    };
-    
-    return NextResponse.json(mockTarra);
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+    const data = await getVehicleTarraHistoryByContract(contractNumber);
+
+    return NextResponse.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error('Error fetching vehicle tarra history:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

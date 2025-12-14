@@ -46,7 +46,7 @@ export default function ListQueueWeighing({ show, onClose }: ListQueueWeighingPr
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold">List Truck Parking</h1>
@@ -65,7 +65,7 @@ export default function ListQueueWeighing({ show, onClose }: ListQueueWeighingPr
       </div>
 
       {/* Table */}
-      <div className="overflow-x-auto bg-white shadow-sm relative">
+      <div className="overflow-x-auto bg-white shadow-sm">
         {isLoading || processing ? (
           <LoadingSpinner
             size="lg"

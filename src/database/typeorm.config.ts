@@ -1,6 +1,6 @@
-import dotenv from 'dotenv';
-import 'reflect-metadata';
-import { DataSource } from 'typeorm';
+const dotenv = require('dotenv');
+require('reflect-metadata');
+const { DataSource } = require('typeorm');
 
 dotenv.config({ path: '.env.local' });
 dotenv.config();

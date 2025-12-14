@@ -3,7 +3,7 @@ import { DriverNameMolecule, DriverIdMolecule } from '@/components/molecules/Dri
 import { RFIDMolecule } from '../molecules/Rfid.molecules';
 import { TransporterMolecule } from '../molecules/Transporter.molecules';
 import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
-import { VehicleNumberMolecule, VehicleTypeMolecule } from '../molecules/Vehicle.molecules';
+import { VehicleNumberMolecule } from '../molecules/Vehicle.molecules';
 
 export function RFIDOrganism({ control }) {
   return (
@@ -18,7 +18,6 @@ export function RFIDOrganism({ control }) {
           <TransporterMolecule control={control} Controller={Controller} />
 
           <VehicleNumberMolecule control={control} Controller={Controller} />
-          <VehicleTypeMolecule control={control} Controller={Controller} />
 
           <DriverNameMolecule control={control} Controller={Controller} />
           <DriverIdMolecule control={control} Controller={Controller} />

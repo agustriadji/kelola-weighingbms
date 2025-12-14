@@ -27,7 +27,7 @@ export default function WeighingInfoTemplate() {
           <label className="w-16 text-xs">NO. SIM</label>
           <input
             type="text"
-            value={document?.driverNumber}
+            value={document?.driverId}
             className="flex-1 border border-gray-400 px-1 py-1 text-xs"
             disabled={true}
           />
@@ -40,18 +40,18 @@ export default function WeighingInfoTemplate() {
         <table className="w-full text-xs border border-gray-400">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border border-gray-400 px-1 py-1">NO. POLISI</th>
-              <th className="border border-gray-400 px-1 py-1">BRUTO</th>
-              <th className="border border-gray-400 px-1 py-1">TARRA</th>
-              <th className="border border-gray-400 px-1 py-1">NETTO</th>
+              <th className="border border-gray-400 px-1 py-1">Vehicle No.</th>
+              <th className="border border-gray-400 px-1 py-1">Brutto</th>
+              <th className="border border-gray-400 px-1 py-1">Tarra</th>
+              <th className="border border-gray-400 px-1 py-1">Netto</th>
             </tr>
           </thead>
           <tbody>
             {vehicleHistory.length > 0 ? (
               vehicleHistory.map((record, index) => (
                 <tr key={index}>
-                  <td className="border border-gray-400 px-1 py-1">{record?.plate}</td>
-                  <td className="border border-gray-400 px-1 py-1">{record?.bruto}</td>
+                  <td className="border border-gray-400 px-1 py-1">{record?.driver_number}</td>
+                  <td className="border border-gray-400 px-1 py-1">{record?.brutto}</td>
                   <td className="border border-gray-400 px-1 py-1">{record?.tarra}</td>
                   <td className="border border-gray-400 px-1 py-1">{record?.netto}</td>
                 </tr>
@@ -73,19 +73,21 @@ export default function WeighingInfoTemplate() {
         <table className="w-full text-xs border border-gray-400">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border border-gray-400 px-1 py-1">NO. POLISI</th>
-              <th className="border border-gray-400 px-1 py-1">Tarra Awal</th>
-              <th className="border border-gray-400 px-1 py-1">Tarra Terendah</th>
-              <th className="border border-gray-400 px-1 py-1">Tarra Tertinggi</th>
+              <th className="border border-gray-400 px-1 py-1">Vehicle No.</th>
+              <th className="border border-gray-400 px-1 py-1">Initial Tarra</th>
+              <th className="border border-gray-400 px-1 py-1">Lowest Tarra</th>
+              <th className="border border-gray-400 px-1 py-1">Highest Tarra</th>
             </tr>
           </thead>
           <tbody>
             {tarraHistory ? (
               <tr>
-                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.plate}</td>
-                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.initial}</td>
-                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.min}</td>
-                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.max}</td>
+                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.driver_number}</td>
+                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.tarra_awal}</td>
+                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.tarra_terendah}</td>
+                <td className="border border-gray-400 px-1 py-1">
+                  {tarraHistory?.tarra_tertinggi}
+                </td>
               </tr>
             ) : (
               <tr>
@@ -129,12 +131,13 @@ export default function WeighingInfoTemplate() {
                 ? (((expectedNetto - nettoWeight) / expectedNetto) * 100).toFixed(3)
                 : '0'
             }
-            className={`flex-1 border px-1 py-1 text-xs ${expectedNetto &&
-                nettoWeight &&
-                ((expectedNetto - nettoWeight) / expectedNetto) * 100 > 0.2
+            className={`flex-1 border px-1 py-1 text-xs ${
+              expectedNetto &&
+              nettoWeight &&
+              ((expectedNetto - nettoWeight) / expectedNetto) * 100 > 0.2
                 ? 'border-red-400 bg-red-50'
                 : 'border-gray-400'
-              }`}
+            }`}
             readOnly
           />
           <span className="text-xs ml-1">%</span>

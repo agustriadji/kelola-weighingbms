@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { InboundTicket } from './inboundTicket.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { Batch } from './Batch.entity';
 import { Segment } from './Segment.entity';
 
 @Entity('records')
@@ -7,13 +7,15 @@ export class Record {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @ManyToOne(() => InboundTicket)
-  batch: InboundTicket;
+  @ManyToOne(() => Batch)
+  @JoinColumn({ name: 'batch_id' })
+  batch: Batch;
 
-  @ManyToOne(() => Segment, { nullable: true })
+  @ManyToOne(() => Segment)
+  @JoinColumn({ name: 'segment_id' })
   segment: Segment;
 
-  @Column({ name: 'weight', type: 'float' })
+  @Column({ name: 'weight', type: 'double precision' })
   weight: number;
 
   @Column({ name: 'timestamp', type: 'timestamp' })
@@ -23,5 +25,5 @@ export class Record {
   stable: boolean;
 
   @Column({ name: 'source', type: 'varchar', length: 50, nullable: true })
-  source: string; // mqtt / manual / override
+  source: string;
 }

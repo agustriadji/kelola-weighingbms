@@ -1,14 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/templates/Footer';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import PermissionGate from '@/components/shared/PermissionGate';
-import RolePermissionManager from '@/components/shared/RolePermissionManager';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import NavbarTemplate from '@/components/templates/NavbarTemplate';
 import { useAuth } from '@/hooks/useAuth';
 import { Permissions } from '@/types/rbac';
-import NavbarTemplate from '@/components/templates/NavbarTemplate';
+
+// Lazy load components
+const Footer = lazy(() => import('@/components/templates/Footer'));
+const RolePermissionManager = lazy(() => import('@/components/shared/RolePermissionManager'));
 
 interface User {
   id: number;
@@ -226,7 +229,9 @@ export default function UserPage() {
             </PermissionGate>
           </div>
         </div>
-        <Footer />
+        <Suspense fallback={<div className="h-16 flex items-center justify-center"><LoadingSpinner size="sm" /></div>}>
+          <Footer />
+        </Suspense>
       </div>
     </ProtectedRoute>
   );

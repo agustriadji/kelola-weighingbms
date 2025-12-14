@@ -1,5 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from 'typeorm';
-import { WeighIn } from './WeighIn.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { User } from './User.entity';
 
 @Entity('audit_logs')
 export class AuditLog {
@@ -18,12 +18,10 @@ export class AuditLog {
   @Column({ name: 'payload', type: 'jsonb' })
   payload: any;
 
-  @ManyToOne('User')
-  user: any;
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'user_id' })
+  user: User;
 
-  @Column({ name: 'created_at', type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+  @Column({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
-
-  @ManyToOne(() => WeighIn, { nullable: true })
-  weighIn: WeighIn;
 }

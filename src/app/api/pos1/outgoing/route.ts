@@ -3,6 +3,10 @@ import { NextResponse } from 'next/server';
 import { createOutgoing, listOutgoing } from '@/services/registering/outgoing.service';
 import { RegisterDocType, RegisterDocTypeName } from '@/types/inbound.type';
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const list = await listOutgoing();

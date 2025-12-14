@@ -1,10 +1,10 @@
-import { fetchJSON } from "@/utils/http";
-import { materialRepository } from "@/repositories/material.repository";
-import { supplierRepository } from "@/repositories/supplier.repository";
-import { vehicleRepository } from "@/repositories/vehicle.repository";
-import { driverRepository } from "@/repositories/driver.repository";
+import { fetchJSON } from '@/utils/http';
+import { materialRepository } from '@/repositories/material.repository';
+import { supplierRepository } from '@/repositories/supplier.repository';
+import { vehicleRepository } from '@/repositories/vehicle.repository';
+import { driverRepository } from '@/repositories/driver.repository';
 
-const SAP_URL = process.env.SAP_URL || "http://localhost:3001/SAP";
+const SAP_URL = process.env.SAP_URL || 'http://localhost:3001/SAP';
 
 /* ==========================
    MATERIALS SYNC
@@ -22,13 +22,15 @@ export const syncMaterials = async () => {
       shrinkageThreshold: m.SHRINKAGE_TOL,
     };
 
-    exist ? await repo.update(exist.id, payload)
-          : await repo.save(repo.create(payload));
+    if (exist) {
+      await repo.update(exist.id, payload);
+    } else {
+      await repo.save(repo.create(payload));
+    }
   }
 
-  console.log("[SYNC] MATERIALS UPDATED");
+  console.log('[SYNC] MATERIALS UPDATED');
 };
-
 
 /* ==========================
    SUPPLIERS SYNC
@@ -45,13 +47,15 @@ export const syncSuppliers = async () => {
       name: s.NAME1,
     };
 
-    exist ? await repo.update(exist.id, payload)
-          : await repo.save(repo.create(payload));
+    if (exist) {
+      await repo.update(exist.id, payload);
+    } else {
+      await repo.save(repo.create(payload));
+    }
   }
 
-  console.log("[SYNC] SUPPLIERS UPDATED");
+  console.log('[SYNC] SUPPLIERS UPDATED');
 };
-
 
 /* ==========================
    VEHICLES SYNC
@@ -61,20 +65,22 @@ export const syncVehicles = async () => {
   const data = await fetchJSON(`${SAP_URL}/VEHICLES`);
 
   for (const v of data.DATA) {
-    const exist = await repo.findOne({ where: { vehicleId: v.VEHICLE_ID } });
+    const exist = await repo.findOne({ where: { id: v.VEHICLE_ID } });
 
     const payload = {
-      vehicleId: v.VEHICLE_ID,
+      id: v.VEHICLE_ID,
       plateNo: v.PLATE_NO,
     };
 
-    exist ? await repo.update(exist.id, payload)
-          : await repo.save(repo.create(payload));
+    if (exist) {
+      await repo.update(exist.id, payload);
+    } else {
+      await repo.save(repo.create(payload));
+    }
   }
 
-  console.log("[SYNC] VEHICLES UPDATED");
+  console.log('[SYNC] VEHICLES UPDATED');
 };
-
 
 /* ==========================
    DRIVERS SYNC
@@ -84,16 +90,19 @@ export const syncDrivers = async () => {
   const data = await fetchJSON(`${SAP_URL}/DRIVERS`);
 
   for (const d of data.DATA) {
-    const exist = await repo.findOne({ where: { driverId: d.DRIVER_ID } });
+    const exist = await repo.findOne({ where: { id: d.DRIVER_ID } });
 
     const payload = {
-      driverId: d.DRIVER_ID,
+      id: d.DRIVER_ID,
       name: d.NAME,
     };
 
-    exist ? await repo.update(exist.id, payload)
-          : await repo.save(repo.create(payload));
+    if (exist) {
+      await repo.update(exist.id, payload);
+    } else {
+      await repo.save(repo.create(payload));
+    }
   }
 
-  console.log("[SYNC] DRIVERS UPDATED");
+  console.log('[SYNC] DRIVERS UPDATED');
 };

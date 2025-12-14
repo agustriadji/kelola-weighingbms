@@ -1,13 +1,11 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { userRepository } from '@/repositories/user.repositories';
-import { getCache, setCache } from '@/utils/cache';
+import { setCache } from '@/utils/cache';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'dev-secret-key';
-const JWT_EXPIRES = process.env.JWT_EXPIRES || '1d';
 
 export const login = async (username: string, password: string) => {
-
   // Check cache first
   const cacheKey = `user:${username}`;
   let user = null; //getCache(cacheKey);
@@ -51,9 +49,9 @@ export const login = async (username: string, password: string) => {
       role: user.role?.name,
       permissions,
     },
-    JWT_SECRET,
+    JWT_SECRET.toString(),
     {
-      expiresIn: JWT_EXPIRES,
+      expiresIn: '1d',
     }
   );
 

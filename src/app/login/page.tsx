@@ -82,12 +82,6 @@ export default function LoginPage() {
         {/* Logo */}
         <div className="text-center mb-8">
           <Image src="/logo.png" alt="Evyap" width={100} height={50} className="mx-auto mb-2" />
-          <div className="flex items-center justify-center">
-            <div className="bg-green-600 text-white px-3 py-1 rounded-full text-sm flex items-center">
-              <div className="w-4 h-4 bg-green-400 rounded-full mr-2"></div>
-              Life Chemistry
-            </div>
-          </div>
         </div>
 
         {/* Error Message */}

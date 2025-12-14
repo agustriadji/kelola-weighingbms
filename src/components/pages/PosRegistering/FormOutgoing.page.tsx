@@ -64,6 +64,13 @@ export default function OutgoingFormPage({ onSuccess }: { onSuccess?: () => void
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Check if reject button was clicked
+    const submitter = (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement;
+    const isRejectAction = submitter?.name === 'REJECT';
+
+    if (isRejectAction) {
+      setValue('status', 'rejected');
+    }
     handleSubmit(onSubmit, onError)(e);
   };
 

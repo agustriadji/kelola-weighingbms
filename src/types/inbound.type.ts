@@ -67,6 +67,7 @@ export const InboundStatus = {
   WEIGHING_OUT: 'weighing-out',
   WEIGHED_OUT: 'weighed-out',
   FINISHED: 'finished',
+  REJECTED: 'rejected',
 };
 
 export interface ListDocumentState {
@@ -114,7 +115,10 @@ export interface WeighingState {
 
   // Weight Data
   currentWeight: number;
+  captureWeight: number;
+  isCaptureWeight: boolean;
   isStable: boolean;
+  miscCategory: string;
   weightHistory: any[];
   brutoWeight: number;
   tarraWeight: number;
@@ -155,6 +159,9 @@ export interface WeighingState {
         | 'tarraWeight'
         | 'nettoWeight'
         | 'expectedNetto'
+        | 'captureWeight'
+        | 'isCaptureWeight'
+        | 'miscCategory'
       >
     >
   ) => void;
@@ -170,4 +177,19 @@ export interface WeighingState {
   resetWeights: () => void;
   resetForm: () => void;
   saveWeightState: (brutoWeight: number) => any;
+
+  // Gate Control
+  gateStatus: 'open' | 'closed';
+  gateProcessing: boolean;
+  setGateStatus: (status: 'open' | 'closed') => void;
+  setGateProcessing: (processing: boolean) => void;
+
+  // Reject Control
+  rejectModalOpen: boolean;
+  rejectReason: string;
+  setRejectModalOpen: (open: boolean) => void;
+  setRejectReason: (reason: string) => void;
+
+  // Miscellaneous Category
+  setMiscCategory: (category: string) => void;
 }

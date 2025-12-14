@@ -4,6 +4,10 @@ import { User } from '@/entities/User.entity'
 import { Role } from '@/entities/Role.entity'
 import bcrypt from 'bcrypt'
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const db = await getDb()

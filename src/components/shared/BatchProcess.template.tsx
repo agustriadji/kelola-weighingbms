@@ -54,11 +54,7 @@ export default function WeighingInfoTemplate() {
     }
     setLoadingState(false);
   };
-  const data = {
-    outStandingContract: 1480000,
-    totalBrutto: '-10 Kg',
-    totalShrinkage: '-0.02 %',
-  };
+
   return (
     <>
       <PermissionGate permission={Permissions.CREATE_WEIGHING}>
@@ -93,23 +89,37 @@ export default function WeighingInfoTemplate() {
             </div>
           )}
 
-          {currentBatch?.inbound?.status === InboundStatus.WEIGHING_IN ? (
+          {/* <div className="flex flex-col-3 space-x-3 px-3">
             <button
               onClick={handleEndBatch}
-              className="w-full bg-green-600 py-3 text-lg font-semibold border border-gray-500 text-white"
+              className="bg-green-600 p-4 text-sm font-semibold border border-gray-500 text-white"
             >
-              START WEIGHING BRUTTO
+              Reject
             </button>
-          ) : currentBatch?.inbound.status === InboundStatus.WEIGHING_OUT ? (
             <button
               onClick={handleEndBatch}
-              className="w-full bg-green-400 py-3 text-lg font-semibold border border-gray-500 text-white"
+              className=" bg-green-600 p-4 text-sm font-semibold border border-gray-500 text-white"
             >
-              START WEIGHING TARRA
+              Capture Weight
             </button>
-          ) : (
-            <></>
-          )}
+            {currentBatch?.inbound?.status === InboundStatus.WEIGHING_IN ? (
+              <button
+                onClick={handleEndBatch}
+                className="bg-green-600 p-4 text-sm font-semibold border border-gray-500 text-white"
+              >
+                Save Weight
+              </button>
+            ) : currentBatch?.inbound.status === InboundStatus.WEIGHING_OUT ? (
+              <button
+                onClick={handleEndBatch}
+                className="bg-green-400 p-4 text-sm font-semibold border border-gray-500 text-white"
+              >
+                Save Weight2
+              </button>
+            ) : (
+              <></>
+            )}
+          </div> */}
         </div>
       </PermissionGate>
 

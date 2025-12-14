@@ -9,7 +9,27 @@ import { RegisterDocTypeName } from '@/types/inbound.type';
 import { statusColor } from '@/utils/statusColor';
 import Pagination from '@/components/shared/Pagination';
 
-export default function ListOutgoingPage({ data, refresh, isLoading, page, limit, totalPages, totalData, onPageChange, onLimitChange }: { data: any[]; refresh: () => void; isLoading?: boolean; page: number; limit: number; totalPages: number; totalData: number; onPageChange: (page: number) => void; onLimitChange: (limit: number) => void; }) {
+export default function ListOutgoingPage({
+  data,
+  refresh,
+  isLoading,
+  page,
+  limit,
+  totalPages,
+  totalData,
+  onPageChange,
+  onLimitChange,
+}: {
+  data: any[];
+  refresh: () => void;
+  isLoading?: boolean;
+  page: number;
+  limit: number;
+  totalPages: number;
+  totalData: number;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
+}) {
   const [showModal, setShowModal] = useState(false);
   const [detailId, setDetailId] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -108,7 +128,9 @@ export default function ListOutgoingPage({ data, refresh, isLoading, page, limit
                   <td className="px-4 py-2">{item.transporter}</td>
                   <td className="px-4 py-2">{item.vessel_name}</td>
                   <td className={`px-4 py-2`}>
-                    <span className={`rounded-md p-1 text-xs font-bold ${statusColor(item.status)}`}>
+                    <span
+                      className={`rounded-md p-1 text-xs font-bold ${statusColor(item.status)}`}
+                    >
                       {item.status}
                     </span>
                   </td>
@@ -120,7 +142,14 @@ export default function ListOutgoingPage({ data, refresh, isLoading, page, limit
         </table>
       </div>
 
-      <Pagination page={page} limit={limit} totalPages={totalPages} totalData={totalData} onPageChange={onPageChange} onLimitChange={onLimitChange} />
+      <Pagination
+        page={page}
+        limit={limit}
+        totalPages={totalPages}
+        totalData={totalData}
+        onPageChange={onPageChange}
+        onLimitChange={onLimitChange}
+      />
 
       <Dialog.Root open={showModal} onOpenChange={setShowModal}>
         <Dialog.Portal>
@@ -138,11 +167,6 @@ export default function ListOutgoingPage({ data, refresh, isLoading, page, limit
               <FormOutgoingPage
                 onSuccess={() => {
                   refresh();
-                  setShowModal(false);
-                  setDetailId(null);
-                }}
-                detail={detailId}
-                onClose={() => {
                   setShowModal(false);
                   setDetailId(null);
                 }}

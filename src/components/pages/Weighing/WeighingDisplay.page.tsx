@@ -1,52 +1,149 @@
 'use client';
 
-import MonitorWeighingTemplate from '@/components/shared/MonitorWeighing.template';
-import VehicleIdentityTemplate from '@/components/shared/VehicleIdentity.template';
-import DocumentWeighingTemplate from '@/components/shared/DocumentWeighing.template';
-import WeighingInfoTemplate from '@/components/shared/WeighingInfo.template';
-import BatchProcessTemplate from '@/components/shared/BatchProcess.template';
-import MenuListWeighingTemplate from '@/components/shared/MenuListWeighing.template';
-import ListQueueWeighing from '@/components/pages/Weighing/ListQueueWeighing.page';
-import ListQueueYard from '@/components/pages/Weighing/ListQueueYard.page';
+import { lazy, Suspense } from 'react';
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
+import SkeletonLoader from '@/components/shared/SkeletonLoader';
 import { DocumentWbState } from '@/types/inbound.type';
 import { useWeighing } from '@/hooks/useWeighing';
 
+// Lazy load heavy components
+const MonitorWeighingTemplate = lazy(() => import('@/components/shared/MonitorWeighing.template'));
+const VehicleIdentityTemplate = lazy(() => import('@/components/shared/VehicleIdentity.template'));
+const DocumentWeighingTemplate = lazy(
+  () => import('@/components/shared/DocumentWeighing.template')
+);
+const WeighingInfoTemplate = lazy(() => import('@/components/shared/WeighingInfo.template'));
+const BatchProcessTemplate = lazy(() => import('@/components/shared/BatchProcess.template'));
+const MenuListWeighingTemplate = lazy(
+  () => import('@/components/shared/MenuListWeighing.template')
+);
+const ListQueueWeighing = lazy(() => import('@/components/pages/Weighing/ListQueueWeighing.page'));
+const ListQueueYard = lazy(() => import('@/components/pages/Weighing/ListQueueYard.page'));
+const ListTruckReject = lazy(() => import('@/components/pages/Weighing/ListTruckReject.page'));
+const ListClosedWB = lazy(() => import('@/components/pages/Weighing/ListClosedWB.page'));
+
 export default function WeighingDisplay() {
-  const { activeListWeighingState, setActiveListWeighingState } = useWeighing();
+  const { activeListWeighingState, setActiveListWeighingState, batchId } = useWeighing();
+
   return (
-    <div className="text-center p-4">
-      {/* Tab Menu */}
-      <MenuListWeighingTemplate />
+    <div className="bg-cyan-200 rounded-lg shadow-md">
+      {/* Main Content */}
+      <div className="min-h-screen">
+        <div className="p-4 w-full max-w-screen-2xl mx-auto">
+          {/* Tab Menu */}
+          <Suspense
+            fallback={
+              <div className="h-12 flex items-center justify-center">
+                <LoadingSpinner size="sm" />
+              </div>
+            }
+          >
+            <MenuListWeighingTemplate />
+          </Suspense>
 
-      {activeListWeighingState === DocumentWbState.WEIGHING_QUEUE ? (
-        <ListQueueWeighing show={true} onClose={() => setActiveListWeighingState('weighing')} />
-      ) : activeListWeighingState === DocumentWbState.YARD_QUEUE ? (
-        <ListQueueYard show={true} onClose={() => setActiveListWeighingState('weighing')} />
-      ) : (
-        <>
-          <MonitorWeighingTemplate data={null} />
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-            {/* Left Section */}
-            <div className="lg:col-span-4 space-y-4">
-              {/* Batch Form */}
-              <VehicleIdentityTemplate />
-
-              {/* Batch Status Display */}
-              <BatchProcessTemplate />
+          {activeListWeighingState === DocumentWbState.WEIGHING_QUEUE ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-12">
+                <Suspense
+                  fallback={
+                    <div className="h-96 flex items-center justify-center">
+                      <LoadingSpinner size="lg" text="Loading queue..." />
+                    </div>
+                  }
+                >
+                  <ListQueueWeighing
+                    show={true}
+                    onClose={() => setActiveListWeighingState('weighing')}
+                  />
+                </Suspense>
+              </div>
             </div>
-
-            {/* Center Section */}
-            <div className="lg:col-span-4 space-y-4">
-              <DocumentWeighingTemplate />
+          ) : activeListWeighingState === DocumentWbState.YARD_QUEUE ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-12">
+                <Suspense
+                  fallback={
+                    <div className="h-96 flex items-center justify-center">
+                      <LoadingSpinner size="lg" text="Loading yard queue..." />
+                    </div>
+                  }
+                >
+                  <ListQueueYard show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                </Suspense>
+              </div>
             </div>
-
-            {/* Right Section */}
-            <div className="lg:col-span-4 space-y-4">
-              <WeighingInfoTemplate />
+          ) : activeListWeighingState === DocumentWbState.WB_REJECT ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-12">
+                <Suspense
+                  fallback={
+                    <div className="h-96 flex items-center justify-center">
+                      <LoadingSpinner size="lg" text="Loading rejected trucks..." />
+                    </div>
+                  }
+                >
+                  <ListTruckReject show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                </Suspense>
+              </div>
             </div>
-          </div>
-        </>
-      )}
+          ) : activeListWeighingState === DocumentWbState.CLOSE_WB ? (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+              <div className="lg:col-span-12">
+                <Suspense
+                  fallback={
+                    <div className="h-96 flex items-center justify-center">
+                      <LoadingSpinner size="lg" text="Loading closed weighbridge..." />
+                    </div>
+                  }
+                >
+                  <ListClosedWB show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                </Suspense>
+              </div>
+            </div>
+          ) : (
+            <>
+              <Suspense
+                fallback={
+                  <div className="h-32 flex items-center justify-center">
+                    <LoadingSpinner size="md" text="Loading monitor..." />
+                  </div>
+                }
+              >
+                <MonitorWeighingTemplate data={batchId} />
+              </Suspense>
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                {/* Left Section */}
+                <div className="lg:col-span-4 space-y-4">
+                  <Suspense
+                    fallback={
+                      <SkeletonLoader type="form" rows={4} className="bg-white rounded-lg p-4" />
+                    }
+                  >
+                    <VehicleIdentityTemplate />
+                  </Suspense>
+                  <Suspense fallback={<SkeletonLoader type="card" rows={2} className="h-32" />}>
+                    <BatchProcessTemplate />
+                  </Suspense>
+                </div>
+
+                {/* Center Section */}
+                <div className="lg:col-span-4 space-y-4">
+                  <Suspense fallback={<SkeletonLoader type="card" rows={6} className="h-64" />}>
+                    <DocumentWeighingTemplate />
+                  </Suspense>
+                </div>
+
+                {/* Right Section */}
+                <div className="lg:col-span-4 space-y-4">
+                  <Suspense fallback={<SkeletonLoader type="form" rows={3} className="h-48" />}>
+                    <WeighingInfoTemplate />
+                  </Suspense>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

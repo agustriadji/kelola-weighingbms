@@ -1,13 +1,9 @@
 import { useWeighing } from '@/hooks/useWeighing';
 
 export default function DocumentWeighingTemplate() {
-  const { currentBatch, batchId } = useWeighing();
+  const { currentBatch } = useWeighing();
   const { inbound, document } = currentBatch || {};
-  const data = {
-    outStandingContract: 1480000,
-    totalBrutto: '-10 Kg',
-    totalShrinkage: '-0.02 %',
-  };
+
   return (
     <div>
       {/* Contract/SO Fields */}
@@ -101,8 +97,8 @@ export default function DocumentWeighingTemplate() {
         <div className="flex items-center">
           <label className="w-24 text-sm">Remark</label>
           <textarea
-            className="w-80 border border-gray-400 px-2 py-1 h-16"
-            defaultValue="REMARKS..."
+            className="w-80 border border-gray-400 text-sm px-2 py-1 h-16"
+            defaultValue="Remark..."
           ></textarea>
         </div>
       </div>

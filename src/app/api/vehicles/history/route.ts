@@ -1,32 +1,29 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import { getVehicleHistoryByContract } from '@/services/inbound/batch.service';
 
-export async function GET(req: NextRequest) {
+export async function GET(request: NextRequest) {
   try {
-    const auth = req.headers.get("authorization");
-    
-    if (!auth || !auth.startsWith('Bearer ')) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-    }
-    
-    const token = auth.replace("Bearer ", "");
-    
-    try {
-      jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (jwtErr) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const { searchParams } = new URL(request.url);
+    const contractNumber = searchParams.get('contractNumber');
+
+    if (!contractNumber) {
+      return NextResponse.json(
+        { success: false, message: 'Contract number is required' },
+        { status: 400 }
+      );
     }
 
-    // Mock vehicle history data
-    const mockHistory = [
-      { plate: "BK1234ABC", bruto: 35500, tarra: 15200, netto: 20300 },
-      { plate: "BK1234ABC", bruto: 35200, tarra: 15100, netto: 20100 },
-      { plate: "BK1234ABC", bruto: 35800, tarra: 15300, netto: 20500 }
-    ];
-    
-    return NextResponse.json(mockHistory);
-    
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message }, { status: 400 });
+    const data = await getVehicleHistoryByContract(contractNumber);
+
+    return NextResponse.json({
+      success: true,
+      data,
+    });
+  } catch (error) {
+    console.error('Error fetching vehicle history:', error);
+    return NextResponse.json(
+      { success: false, message: 'Internal server error' },
+      { status: 500 }
+    );
   }
 }

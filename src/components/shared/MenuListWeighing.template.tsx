@@ -55,11 +55,11 @@ export default function MenuListWeighingTemplate() {
                 ? 'bg-gray-200 border-gray-600'
                 : 'bg-white hover:bg-gray-300'
             } `}
-            // onClick={() => setActiveListWeighingState(DocumentWbState.WB_REJECT)}
+            onClick={() => setActiveListWeighingState(DocumentWbState.WB_REJECT)}
           >
             Truck Reject
           </button>
-          <PermissionGate permissions={[Permissions.POS_WEIGHINGOUT]}>
+          <PermissionGate permissions={[Permissions.CREATE_WEIGHING]}>
             <button
               className={`px-4 py-2 border border-gray-400 ${
                 activeListWeighingState === DocumentWbState.CLOSE_WB

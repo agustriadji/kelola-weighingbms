@@ -3,6 +3,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { startWeighingIn, startWeighingOut } from '@/services/inbound/batch.service';
 import { setRequestContext, generateRequestId, clearRequestContext } from '@/utils/context';
 
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function POST(req: NextRequest) {
   const requestId = generateRequestId();
 
@@ -14,12 +17,12 @@ export async function POST(req: NextRequest) {
     // Set context untuk service layer
     setRequestContext(requestId, { user });
 
-    const { id, isYard } = await req.json();
+    const { id, isYard, miscCategory } = await req.json();
 
     if (isYard) {
-      await startWeighingOut(id, requestId);
+      await startWeighingOut(id, requestId, miscCategory);
     } else {
-      await startWeighingIn(id, requestId);
+      await startWeighingIn(id, requestId, miscCategory);
     }
     return NextResponse.json({ ok: true });
   } catch (err: any) {

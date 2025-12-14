@@ -12,12 +12,12 @@ export class User {
   @Column({ name: 'password_hash', type: 'text' })
   passwordHash: string;
 
-  @Column({ name: 'full_name', type: 'varchar', length: 150 })
+  @Column({ name: 'full_name', type: 'varchar', length: 150, nullable: true })
   fullName: string;
 
-  @ManyToOne("Role", "users")
+  @ManyToOne(() => Role, (role) => role.users)
   @JoinColumn({ name: 'role_id' })
-  role: any;
+  role: Role;
 
   @Column({ name: 'last_login', type: 'timestamp', nullable: true })
   lastLogin: Date;

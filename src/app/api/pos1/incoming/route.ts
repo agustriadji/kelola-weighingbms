@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server';
 import { createIncoming, listIncoming } from '@/services/registering/incoming.service';
 import { RegisterDocType, RegisterDocTypeName } from '@/types/inbound.type';
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 // import { getInboundList } from '@/services/inbound/getInbound.service';
 
 export async function GET() {

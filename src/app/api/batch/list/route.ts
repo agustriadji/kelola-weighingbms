@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { listInbound2 } from '@/services/inbound/listQueueTruck.service';
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET(request: NextRequest) {
   // Menangkap query parameters
   const { searchParams } = new URL(request.url);

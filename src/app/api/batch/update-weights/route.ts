@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { updateBatchWeights } from '@/services/inbound/batch.service';
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { id, expectedNetto, actualNetto } = await req.json();

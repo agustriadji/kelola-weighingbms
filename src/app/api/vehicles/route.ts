@@ -2,6 +2,10 @@ import { NextResponse } from 'next/server'
 import { getDb } from '@/database/client'
 import { Vehicle } from '@/entities/Vehicle.entity'
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const db = await getDb()

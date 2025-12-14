@@ -1,7 +1,7 @@
 import { getDb } from '@/database/client';
-import { inboundRepository } from '@/repositories/inbound.repository';
+import { Batch } from '@/entities/Batch.entity';
 
 export const batchRepository = async () => {
   const db = await getDb();
-  return db.getRepository(inboundRepository);
+  return db.getRepository(Batch);
 };

@@ -65,8 +65,23 @@ export default function MiscFormPage({ onSuccess }: { onSuccess?: () => void }) 
     alert(`Validation errors in: ${Object.keys(errors).join(', ')}`);
   }
 
+  async function handlerSubmitForm(e: React.FormEvent) {
+    e.preventDefault();
+    // Check if reject button was clicked
+    const submitter = (e.nativeEvent as SubmitEvent)?.submitter as HTMLButtonElement;
+    const isRejectAction = submitter?.name === 'REJECT';
+
+    if (isRejectAction) {
+      setValue('status', 'rejected');
+    }
+    handleSubmit(onSubmit, onError)();
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-1 space-y-2  max-h-full mx-auto">
+    <form
+      onSubmit={handlerSubmitForm}
+      className="flex flex-col gap-1 space-y-2  max-h-full mx-auto"
+    >
       <div className="overflow-y-auto p-2 max-h-[60vh]">
         <DocumentMiscOrganism control={control} />
       </div>

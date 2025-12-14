@@ -3,12 +3,48 @@
 import { useEffect, useCallback } from 'react';
 import { useWeighingStore } from '@/store/weighing.store';
 import { useSysStore } from '@/store/sys.store';
-import { weighingContext } from '@/contexts/weighing.context';
+import { useApiWeighing } from '@/hooks/useApiWeight.hook';
+import { apiPost } from '@/utils/api';
 import { DocumentWbState, InboundStatus } from '@/types/inbound.type';
 
 export const useWeighing = () => {
   const store = useWeighingStore();
   const sysStore = useSysStore();
+  const apiWeighing = useApiWeighing();
+
+  // Gate Control
+  const toggleGate = useCallback(async () => {
+    store.setGateProcessing(true);
+
+    // Simulate gate operation delay
+    setTimeout(() => {
+      store.setGateStatus(store.gateStatus === 'open' ? 'closed' : 'open');
+      store.setGateProcessing(false);
+    }, 1500);
+  }, [store]);
+
+  // Reject Document
+  const rejectDocument = useCallback(
+    async (reason: string) => {
+      if (!store.currentBatch) return false;
+
+      try {
+        // TODO: Implement reject API call
+        console.log('Rejecting document:', store.currentBatch.id, 'Reason:', reason);
+
+        // Reset current batch after rejection
+        store.setCurrentBatch(null);
+        store.setBatchId(null);
+        store.resetWeights();
+
+        return true;
+      } catch (error) {
+        console.error('Error rejecting document:', error);
+        return false;
+      }
+    },
+    [store]
+  );
 
   // Initialize data on mount (only once per session)
   useEffect(() => {
@@ -20,9 +56,28 @@ export const useWeighing = () => {
       sessionStorage.setItem(sessionKey, 'true');
     }
 
-    startTimeUpdater();
-    startWeightSimulation();
+    const timeCleanup = startTimeUpdater();
+    return timeCleanup;
   }, []);
+
+  //Weight simulation with batchId dependency
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+
+    if (store.batchId && store.captureWeight === 0) {
+      console.log('🎯 Starting weight simulation for batchId:', store.batchId);
+      cleanup = startWeightSimulation();
+    } else {
+      console.log('⏸️ Weight simulation stopped - captureWeight:', store.captureWeight);
+    }
+
+    return () => {
+      if (cleanup) {
+        console.log('🧹 Cleaning up weight simulation');
+        cleanup();
+      }
+    };
+  }, [store.batchId, store.captureWeight]);
 
   const initializeData = useCallback(async () => {
     if (store.isLoading) return;
@@ -31,13 +86,13 @@ export const useWeighing = () => {
 
     try {
       // Load master data
-      const masterData = await weighingContext.loadMasterData();
-      store.setMasterData(masterData.suppliers, masterData.materials, masterData.vehicles);
+      // const masterData = await apiWeighing.loadMasterData();
+      // store.setMasterData(masterData.suppliers, masterData.materials, masterData.vehicles);
 
       // Load vehicle history if current batch exists
       if (store.currentBatch?.inbound) {
         const { vehicle_number } = store.currentBatch?.inbound;
-        const vehicleData = await weighingContext.loadVehicleHistory(vehicle_number);
+        const vehicleData = await apiWeighing.loadVehicleHistory(vehicle_number);
         store.setVehicleData(vehicleData.history, vehicleData.tarra);
       }
 
@@ -48,95 +103,158 @@ export const useWeighing = () => {
     } finally {
       store.setLoading(false);
     }
-  }, [store]);
+  }, [store, apiWeighing]);
 
   const startTimeUpdater = useCallback(() => {
+    console.log('🕒 Starting time updater', store.batchId, store.currentBatch);
     const updateTime = () => {
-      const now = new Date();
-      store.setCurrentTime(now.toLocaleTimeString('id-ID', { hour12: false }));
+      // Only update time if there's an active batch
+      if (store.batchId || store.currentBatch) {
+        const now = new Date();
+        store.setCurrentTime(now.toLocaleTimeString('id-ID', { hour12: false }));
+      }
     };
 
     updateTime();
-    const interval = setInterval(updateTime, 1000);
+    const interval = setInterval(updateTime, 3000);
 
     return () => clearInterval(interval);
   }, [store]);
 
   const startWeightSimulation = useCallback(() => {
     const simulateWeight = () => {
-      if (
-        store.currentBatch?.inbound.status === InboundStatus.WEIGHING_IN ||
-        store.currentBatch?.inbound.status === InboundStatus.WEIGHING_OUT
-      ) {
-        // Simulate realistic weight fluctuation
-        const baseWeight = 35000 + Math.random() * 1000;
-        const fluctuation = (Math.random() - 0.5) * 100;
-        const newWeight = Math.round(baseWeight + fluctuation);
-        const stable = Math.random() > 0.3; // 70% chance of stable reading
+      let baseWeight = 35000;
 
-        store.setWeightData({ currentWeight: newWeight, isStable: stable });
+      // Adjust base weight based on transaction type and status
+      if (store.currentBatch?.inbound) {
+        const { transactionType, status } = store.currentBatch.inbound;
+        const existingWeighIn = store.currentBatch.inbound.weighIn?.weight;
 
-        // Auto-capture weights when stable
-        if (stable) {
-          if (store.brutoWeight === 0) {
-            store.setWeightData({ brutoWeight: newWeight });
-          } else if (store.tarraWeight === 0 && newWeight < store.brutoWeight * 0.7) {
-            store.setWeightData({
-              tarraWeight: newWeight,
-              nettoWeight: store.brutoWeight - newWeight,
-            });
+        if (status === 'yard-processing' && existingWeighIn) {
+          if (transactionType === 'RAW_MATERIAL') {
+            // For incoming at yard, weight should be smaller than weighIn
+            baseWeight = existingWeighIn * 0.6 + Math.random() * (existingWeighIn * 0.2);
+          } else if (transactionType === 'DISPATCH') {
+            // For dispatch at yard, weight should be larger than weighIn
+            baseWeight = existingWeighIn * 1.1 + Math.random() * (existingWeighIn * 0.3);
+          } else if (transactionType === 'MISCELLANEOUS') {
+            if (store.miscCategory === 'TARRA') {
+              // For MISC TARRA at yard, weight should be larger than weighIn
+              baseWeight = existingWeighIn * 1.1 + Math.random() * (existingWeighIn * 0.3);
+            } else if (store.miscCategory === 'BRUTTO') {
+              // For MISC BRUTTO at yard, weight should be smaller than weighIn
+              baseWeight = existingWeighIn * 0.6 + Math.random() * (existingWeighIn * 0.2);
+            }
           }
+        } else {
+          baseWeight = 35000 + Math.random() * 1000;
         }
+      }
 
-        // Save weight record
-        //saveWeightRecord(newWeight, stable);
+      const fluctuation = (Math.random() - 0.5) * 100;
+      const newWeight = Math.round(baseWeight + fluctuation);
+      const stable = Math.random() > 0.3; // 70% chance of stable reading
+
+      store.setWeightData({ currentWeight: newWeight, isStable: stable });
+
+      // Auto-capture weights when stable
+      if (stable) {
+        if (store.brutoWeight === 0) {
+          store.setWeightData({ brutoWeight: newWeight });
+        } else if (store.tarraWeight === 0 && newWeight < store.brutoWeight * 0.7) {
+          store.setWeightData({
+            tarraWeight: newWeight,
+            nettoWeight: store.brutoWeight - newWeight,
+          });
+        }
       }
     };
 
-    const interval = setInterval(simulateWeight, 2000);
+    const interval = setInterval(simulateWeight, 3000);
     return () => clearInterval(interval);
   }, [store]);
 
-  const saveWeightRecordState = useCallback(
-    async (weight: number, stable: boolean) => {
+  const captureWeightRecordState = useCallback(async () => {
+    if (!store.currentBatch || !store.isStable) return false;
+
+    console.log('🎯 Capturing weight:', store.currentWeight);
+    store.setWeightData({ captureWeight: store.currentWeight, isCaptureWeight: true });
+    return true;
+  }, [store]);
+
+  const startWeightSimulationAgain = useCallback(() => {
+    console.log('🔄 Starting weight simulation again');
+    store.setWeightData({ captureWeight: 0, isCaptureWeight: false });
+  }, [store]);
+
+  const saveWeightRecordRejectedState = useCallback(
+    async (rejectReason: string) => {
       if (!store.currentBatch) return false;
 
       try {
-        const data = await weighingContext.saveWeightRecord(
+        sysStore.setLoadingState(true);
+        const data = await apiWeighing.saveWeightRecord(
           store.currentBatch?.inbound.id,
-          weight,
-          stable,
+          store.captureWeight,
+          store.isStable,
           store.currentBatch?.inbound.transactionType,
           store.currentBatch?.inbound.transactionId,
-          store.currentBatch?.inbound.status
+          'rejected',
+          rejectReason
         );
 
         // Update weight history
-        store.addWeightHistory({
-          weight,
-          timestamp: new Date(),
-          stable,
-        });
+        // store.addWeightHistory({
+        //   weight,
+        //   timestamp: new Date(),
+        //   stable,
+        // });
         store.setCurrentBatch(null);
         store.setBatchId(null);
         store.resetWeights();
-
+        sysStore.setLoadingState(false);
         return true;
       } catch (error) {
         console.error('Error saving weight record:', error);
         return false;
       }
     },
-    [store]
+    [store, apiWeighing]
   );
+
+  const saveWeightRecordState = useCallback(async () => {
+    if (!store.currentBatch) return false;
+
+    try {
+      sysStore.setLoadingState(true);
+      const data = await apiWeighing.saveWeightRecord(
+        store.currentBatch.inbound.id,
+        store.captureWeight,
+        store.isStable,
+        store.currentBatch.inbound.transactionType,
+        store.currentBatch.inbound.transactionId,
+        store.currentBatch.inbound.status
+      );
+
+      store.setCurrentBatch(null);
+      store.setBatchId(null);
+      store.resetWeights();
+      sysStore.setLoadingState(false);
+      return true;
+    } catch (error) {
+      console.error('Error saving weight record:', error);
+      sysStore.setLoadingState(false);
+      return false;
+    }
+  }, [store, apiWeighing, sysStore]);
 
   const createBatch = useCallback(async () => {
     try {
-      const success = await weighingContext.createBatch(store.formData);
+      const success = await apiWeighing.createBatch(store.formData);
 
       if (success) {
         alert('Batch created successfully');
-        const batches = await weighingContext.loadBatches();
+        const batches = await apiWeighing.loadBatches();
         store.setBatches(batches);
         store.resetWeights();
         store.resetForm();
@@ -147,18 +265,26 @@ export const useWeighing = () => {
       console.error('Error creating batch:', error);
       return false;
     }
-  }, [store]);
+  }, [store, apiWeighing]);
 
   const startBatch = useCallback(
     async (id: any, isYard?: boolean) => {
       try {
         store.setBatchId(id);
-        const success = await weighingContext.startBatch(id, isYard);
+        const success = await apiWeighing.startBatch(id, isYard, store.miscCategory);
 
         if (success) {
-          const batch = await weighingContext.loadDetailBatch(id);
-
+          const batch = await apiWeighing.loadDetailBatch(id);
           store.setCurrentBatch(batch);
+
+          // Load vehicle history by contract number
+          if (batch?.document?.contract_number) {
+            const vehicleData = await apiWeighing.loadVehicleHistory(
+              batch.document.contract_number
+            );
+            store.setVehicleData(vehicleData.history, vehicleData.tarra);
+          }
+
           return true;
         }
         return false;
@@ -167,14 +293,14 @@ export const useWeighing = () => {
         return false;
       }
     },
-    [store]
+    [store, apiWeighing]
   );
 
   const endBatch = useCallback(
     async (id: number) => {
       try {
         const expectedNetto = store.expectedNetto || store.nettoWeight;
-        const result = await weighingContext.endBatch(id, expectedNetto, store.nettoWeight);
+        const result = await apiWeighing.endBatch(id, expectedNetto, store.nettoWeight);
 
         store.setShrinkageData(result.shrinkage);
 
@@ -197,19 +323,19 @@ export const useWeighing = () => {
         return false;
       }
     },
-    [store]
+    [store, apiWeighing]
   );
 
   const loadVehicleHistory = useCallback(
-    async (vehicleId: number) => {
+    async (contractNumber: string) => {
       try {
-        const vehicleData = await weighingContext.loadVehicleHistory(vehicleId);
+        const vehicleData = await apiWeighing.loadVehicleHistory(contractNumber);
         store.setVehicleData(vehicleData.history, vehicleData.tarra);
       } catch (error) {
         console.error('Error loading vehicle history:', error);
       }
     },
-    [store]
+    [store, apiWeighing]
   );
 
   const loadListDocument = useCallback(
@@ -227,22 +353,25 @@ export const useWeighing = () => {
       }
 
       try {
-        const data = await weighingContext.loadListDocument(type);
+        const data = await apiWeighing.loadListDocument(type);
         store.setListDocument(data);
         store.setCacheInfo(type, now);
       } catch (error) {
         console.error(`Error loading ${type}:`, error);
       }
     },
-    [store]
+    [store, apiWeighing]
   );
 
   return {
     // State
     ...sysStore,
     ...store,
+    InboundStatus,
 
     // Actions
+    captureWeightRecordState,
+    startWeightSimulationAgain,
     createBatch,
     startBatch,
     endBatch,
@@ -250,5 +379,7 @@ export const useWeighing = () => {
     loadVehicleHistory,
     loadListDocument,
     initializeData,
+    toggleGate,
+    rejectDocument,
   };
 };

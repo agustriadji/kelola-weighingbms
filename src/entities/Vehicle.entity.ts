@@ -13,4 +13,10 @@ export class Vehicle {
 
   @Column({ name: 'owner', type: 'varchar', length: 200, nullable: true })
   owner: string;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
+
+  @Column({ name: 'is_deleted', type: 'boolean', default: false })
+  isDeleted: boolean;
 }

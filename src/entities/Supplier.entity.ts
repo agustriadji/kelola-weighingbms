@@ -11,9 +11,15 @@ export class Supplier {
   @Column({ name: 'name', type: 'varchar', length: 200 })
   name: string;
 
-  @Column({ type: 'varchar', length: 100, nullable: true, name: 'sap_id' })
+  @Column({ name: 'sap_id', type: 'varchar', length: 100, nullable: true })
   sapId: string;
 
-  @Column({ type: 'timestamp', nullable: true, name: 'last_sync_at' })
+  @Column({ name: 'last_sync_at', type: 'timestamp', nullable: true })
   lastSyncAt: Date;
+
+  @Column({ name: 'is_active', type: 'boolean', default: true })
+  isActive: boolean;
+
+  @Column({ name: 'is_deleted', type: 'boolean', default: false })
+  isDeleted: boolean;
 }

@@ -1,4 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
 import { Batch } from "./Batch.entity";
 
 @Entity("segments")
@@ -7,6 +7,7 @@ export class Segment {
   id: number;
 
   @ManyToOne(() => Batch)
+  @JoinColumn({ name: 'batch_id' })
   batch: Batch;
 
   @Column({ name: 'started_at', type: 'timestamp' })

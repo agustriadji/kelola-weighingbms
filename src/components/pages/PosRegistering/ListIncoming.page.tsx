@@ -176,11 +176,6 @@ export default function ListIncomingPage({
                   setShowModal(false);
                   setDetailId(null);
                 }}
-                detail={detailId}
-                onClose={() => {
-                  setShowModal(false);
-                  setDetailId(null);
-                }}
               />
             </div>
           </Dialog.Content>

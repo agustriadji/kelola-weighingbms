@@ -6,36 +6,30 @@ import { RegisterDocType } from '@/types/inbound.type';
 export async function listIncoming() {
   const repo = await inboundRepository();
 
-  const list = await repo.manager.query(
-    `
-    SELECT
-      inbound_ticket.id,
-      inbound_ticket.transaction_type,
-      inbound_ticket.transaction_id,
-      inbound_ticket.status,
-      incoming_detail.contract_number,
-      incoming_detail.supplier,
-      incoming_detail.material,
-      incoming_detail.certificate,
-      incoming_detail.vehicle_number,
-      incoming_detail.vehicle_type,
-      incoming_detail.driver_name,
-      incoming_detail.transporter,
-      incoming_detail.spb_number,
-      incoming_detail.spb_date,
-      inbound_ticket.created_at
-    FROM
-      inbound_ticket
-    INNER JOIN
-      incoming_detail
-    ON
-      inbound_ticket.transaction_id = incoming_detail.id
-    WHERE
-      inbound_ticket.transaction_type = $1
-  `,
-    [RegisterDocType.RAW_MATERIAL],
-    { cache: { id: 'list_incoming', milliseconds: 30000 } }
-  );
+  const list = await repo
+    .createQueryBuilder('inbound')
+    .select([
+      'inbound.id AS id',
+      'inbound.transactionType AS transaction_type',
+      'inbound.transactionId AS transaction_id',
+      'inbound.status AS status',
+      'inbound.createdAt AS created_at',
+      'incoming.contractNumber AS contract_number',
+      'incoming.supplier AS supplier',
+      'incoming.material AS material',
+      'incoming.certificate AS certificate',
+      'incoming.vehicleNumber AS vehicle_number',
+      'incoming.vehicleType AS vehicle_type',
+      'incoming.driverName AS driver_name',
+      'incoming.transporter AS transporter',
+      'incoming.spbNumber AS spb_number',
+      'incoming.spbDate AS spb_date',
+    ])
+    .innerJoin('incoming_detail', 'incoming', 'inbound.transactionId = incoming.id')
+    .where('inbound.transactionType = :type', { type: RegisterDocType.RAW_MATERIAL })
+    .cache('list_incoming', 30000)
+    .getRawMany();
+
   return list;
 }
 
@@ -43,12 +37,12 @@ export async function createIncoming(data) {
   const repo = await incomingRepository();
 
   const detail = repo.create(data);
+  const savedDetail: any = await repo.save(detail);
 
-  const savedDetail = await repo.save(detail);
-
-  const inbound = await createInbound({
+  const inbound: any = await createInbound({
     transactionType: RegisterDocType.RAW_MATERIAL,
-    transactionId: savedDetail?.id,
+    transactionId: savedDetail.id,
+    statusInbound: data.status || null,
   });
 
   return {

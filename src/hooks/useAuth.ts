@@ -57,7 +57,7 @@ export const useAuth = () => {
 
   const hasAnyPermission = (permissions: Permissions[]): boolean => {
     const result = permissions.some((p) => authState.permissions.includes(p));
-    console.log('🔍 Checking permissions:', permissions, 'User has:', authState.permissions, 'Result:', result);
+    //console.log('🔍 Checking permissions:', permissions, 'User has:', authState.permissions, 'Result:', result);
     return result;
   };
 

@@ -1,6 +1,7 @@
 import { User } from '@/entities/User.entity'
 import { Role } from '@/entities/Role.entity'
 import { Permission } from '@/entities/Permission.entity'
+import { RolePermission } from '@/entities/RolePermission.entity'
 import { Permissions } from '@/types/rbac'
 import { getDb } from '@/database/client'
 
@@ -19,18 +20,17 @@ export class RBACService {
     return RBACService.instance
   }
 
-  checkPermission(user: User | null, permission: Permissions): PermissionCheck {
+  async checkPermission(user: User | null, permission: Permissions): Promise<PermissionCheck> {
     if (!user) {
       return { hasPermission: false, reason: 'User not authenticated' }
     }
 
-    if (!user.role || !user.role.permissions) {
-      return { hasPermission: false, reason: 'User has no role or permissions' }
+    if (!user.role) {
+      return { hasPermission: false, reason: 'User has no role' }
     }
 
-    const hasPermission = user.role.permissions.some(rp => 
-      rp.permission && rp.permission.name === permission
-    )
+    const permissions = await this.getUserPermissions(user)
+    const hasPermission = permissions.includes(permission)
     
     return {
       hasPermission,
@@ -38,19 +38,18 @@ export class RBACService {
     }
   }
 
-  checkAnyPermission(user: User | null, permissions: Permissions[]): PermissionCheck {
+  async checkAnyPermission(user: User | null, permissions: Permissions[]): Promise<PermissionCheck> {
     if (!user) {
       return { hasPermission: false, reason: 'User not authenticated' }
     }
 
-    if (!user.role || !user.role.permissions) {
-      return { hasPermission: false, reason: 'User has no role or permissions' }
+    if (!user.role) {
+      return { hasPermission: false, reason: 'User has no role' }
     }
 
+    const userPermissions = await this.getUserPermissions(user)
     const hasAnyPermission = permissions.some(permission => 
-      user.role.permissions.some(rp => 
-        rp.permission && rp.permission.name === permission
-      )
+      userPermissions.includes(permission)
     )
 
     return {
@@ -76,17 +75,30 @@ export class RBACService {
     }
   }
 
-  getUserPermissions(user: User | null): string[] {
-    if (!user || !user.role || !user.role.permissions) {
+  async getUserPermissions(user: User | null): Promise<string[]> {
+    if (!user || !user.role) {
       return []
     }
 
-    return user.role.permissions
-      .filter(rp => rp.permission)
-      .map(rp => rp.permission.name)
+    try {
+      const db = await getDb()
+      const rolePermissionRepo = db.getRepository(RolePermission)
+      
+      const rolePermissions = await rolePermissionRepo.find({
+        where: { role: { id: user.role.id } },
+        relations: ['permission']
+      })
+
+      return rolePermissions
+        .filter(rp => rp.permission)
+        .map(rp => rp.permission.name)
+    } catch (error) {
+      console.error('Error fetching user permissions:', error)
+      return []
+    }
   }
 
-  canAccessWeighing(user: User | null, action: 'view' | 'create' | 'update' | 'delete'): PermissionCheck {
+  async canAccessWeighing(user: User | null, action: 'view' | 'create' | 'update' | 'delete'): Promise<PermissionCheck> {
     const permissionMap = {
       view: Permissions.VIEW_WEIGHING,
       create: Permissions.CREATE_WEIGHING,
@@ -97,7 +109,7 @@ export class RBACService {
     return this.checkPermission(user, permissionMap[action])
   }
 
-  canAccessUsers(user: User | null, action: 'view' | 'create' | 'update' | 'delete'): PermissionCheck {
+  async canAccessUsers(user: User | null, action: 'view' | 'create' | 'update' | 'delete'): Promise<PermissionCheck> {
     const permissionMap = {
       view: Permissions.VIEW_USERS,
       create: Permissions.CREATE_USERS,
@@ -108,7 +120,7 @@ export class RBACService {
     return this.checkPermission(user, permissionMap[action])
   }
 
-  canAccessReports(user: User | null, action: 'view' | 'export'): PermissionCheck {
+  async canAccessReports(user: User | null, action: 'view' | 'export'): Promise<PermissionCheck> {
     const permissionMap = {
       view: Permissions.VIEW_REPORTS,
       export: Permissions.EXPORT_REPORTS
@@ -117,31 +129,31 @@ export class RBACService {
     return this.checkPermission(user, permissionMap[action])
   }
 
-  canManageSystem(user: User | null): PermissionCheck {
+  async canManageSystem(user: User | null): Promise<PermissionCheck> {
     return this.checkPermission(user, Permissions.MANAGE_SYSTEM)
   }
 
-  getAccessibleRoutes(user: User | null): string[] {
+  async getAccessibleRoutes(user: User | null): Promise<string[]> {
     if (!user) return ['/login']
 
     const routes: string[] = []
     
-    if (this.checkPermission(user, Permissions.VIEW_DASHBOARD).hasPermission) {
+    if ((await this.checkPermission(user, Permissions.VIEW_DASHBOARD)).hasPermission) {
       routes.push('/dashboard')
     }
     
-    if (this.checkPermission(user, Permissions.VIEW_USERS).hasPermission) {
+    if ((await this.checkPermission(user, Permissions.VIEW_USERS)).hasPermission) {
       routes.push('/user')
     }
     
-    if (this.checkPermission(user, Permissions.VIEW_REPORTS).hasPermission) {
+    if ((await this.checkPermission(user, Permissions.VIEW_REPORTS)).hasPermission) {
       routes.push('/reports')
     }
 
     return routes
   }
 
-  validateRouteAccess(user: User | null, route: string): PermissionCheck {
+  async validateRouteAccess(user: User | null, route: string): Promise<PermissionCheck> {
     const routePermissions = {
       '/dashboard': Permissions.VIEW_DASHBOARD,
       '/user': Permissions.VIEW_USERS,

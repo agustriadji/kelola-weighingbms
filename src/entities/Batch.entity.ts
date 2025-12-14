@@ -9,7 +9,7 @@ export class Batch {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({ type: 'varchar', length: 100, name: 'batch_name' })
+  @Column({ name: 'batch_name', type: 'varchar', length: 100 })
   batchName: string;
 
   @ManyToOne(() => Vehicle)
@@ -29,23 +29,11 @@ export class Batch {
   createdBy: User;
 
   @Column({ name: 'status', type: 'varchar', length: 50 })
-  status: string; // pending, ongoing, finished
+  status: string;
 
-  @Column({ type: 'timestamp', nullable: true, name: 'ended_at' })
+  @Column({ name: 'started_at', type: 'timestamp', nullable: true })
+  startedAt: Date;
+
+  @Column({ name: 'ended_at', type: 'timestamp', nullable: true })
   endedAt: Date;
-
-  @Column({ type: 'float', nullable: true, name: 'expected_netto' })
-  expectedNetto: number;
-
-  @Column({ type: 'float', nullable: true, name: 'actual_netto' })
-  actualNetto: number;
-
-  @Column({ type: 'float', nullable: true, name: 'shrinkage_value' })
-  shrinkageValue: number;
-
-  @Column({ type: 'float', nullable: true, name: 'shrinkage_percent' })
-  shrinkagePercent: number;
-
-  @Column({ type: 'boolean', nullable: true, name: 'warning_flag' })
-  warningFlag: boolean;
 }

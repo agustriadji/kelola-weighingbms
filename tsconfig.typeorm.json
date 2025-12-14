@@ -1,20 +1,37 @@
 {
-  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "dist",
-    "rootDir": "src",
-
-    // TypeORM BUTUH emit JS
-    "noEmit": false,
-
+    "target": "ES2020",
     "module": "CommonJS",
     "moduleResolution": "node",
-    "target": "ES2020",
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
     "esModuleInterop": true,
     "skipLibCheck": true,
-
-    // WAJIB OFF: kalau tidak, TS5096 error
-    "allowImportingTsExtensions": false
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "noEmit": false,
+    "declaration": false,
+    "sourceMap": false,
+    "removeComments": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
   },
-  "include": ["src/entities/**/*.ts", "src/database/**/*.ts"]
+  "include": [
+    "src/entities/**/*.ts",
+    "src/database/**/*.ts",
+    "src/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    ".next",
+    "**/*.test.ts",
+    "**/*.spec.ts"
+  ]
 }

@@ -1,15 +1,20 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, lazy, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
-import Footer from '@/components/templates/Footer';
-import WeighingDisplay from '@/components/pages/Weighing/WeighingDisplay.page';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
-import { useAuth } from '@/hooks/useAuth';
-import { Permissions } from '@/types/rbac';
-
+import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import NavbarTemplate from '@/components/templates/NavbarTemplate';
+import { Permissions } from '@/types/rbac';
 import { useSysStore } from '@/store/sys.store';
+import HardwareControlSidebar from '@/components/organisms/HardwareControlSidebar';
+
+// Lazy load components
+const Footer = lazy(() => import('@/components/templates/Footer'));
+const WeighingDisplay = lazy(() => import('@/components/pages/Weighing/WeighingDisplay.page'));
+const HardwareControlSidebarLazy = lazy(
+  () => import('@/components/organisms/HardwareControlSidebar')
+);
 
 interface LoginData {
   username: string;
@@ -49,7 +54,7 @@ export default function DashboardPage() {
 
   return (
     <ProtectedRoute requiredPermissions={[Permissions.VIEW_DASHBOARD, Permissions.CREATE_WEIGHING]}>
-      <div className="min-h-screen bg-gray-100">
+      <div className="min-h-screen bg-gray-100 z-999">
         <div className="bg-white shadow-sm">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <NavbarTemplate />
@@ -57,11 +62,31 @@ export default function DashboardPage() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-          <div className="bg-cyan-200 rounded-lg shadow-md p-1">
-            <WeighingDisplay />
+          <div className="p-1">
+            <Suspense
+              fallback={
+                <div className="h-96 flex items-center justify-center">
+                  <LoadingSpinner size="lg" text="Loading weighing display..." />
+                </div>
+              }
+            >
+              <div className="flex flex-col-4 space-x-4">
+                <WeighingDisplay />
+                <div></div>
+                <HardwareControlSidebarLazy />
+              </div>
+            </Suspense>
           </div>
         </div>
-        <Footer />
+        <Suspense
+          fallback={
+            <div className="h-16 flex items-center justify-center">
+              <LoadingSpinner size="sm" />
+            </div>
+          }
+        >
+          <Footer />
+        </Suspense>
       </div>
     </ProtectedRoute>
   );

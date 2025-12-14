@@ -4,6 +4,10 @@ import { Role } from '@/entities/Role.entity'
 import { Permission } from '@/entities/Permission.entity'
 import { RolePermission } from '@/entities/RolePermission.entity'
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function PUT(request: NextRequest) {
   try {
     const { roleId, permissionIds } = await request.json()

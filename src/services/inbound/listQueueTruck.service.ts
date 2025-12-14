@@ -50,12 +50,19 @@ export async function listInbound2(status) {
 
     inbound_ticket.status,
     inbound_ticket.created_at,
-    inbound_ticket.updated_at
+    inbound_ticket.updated_at,
+    
+    -- weight data for closed WB
+    weigh_in.weight as brutto_weight,
+    weigh_out.weight as tarra_weight,
+    weigh_out.netto as netto_weight
 
     FROM inbound_ticket
     LEFT join incoming_detail ON inbound_ticket.transaction_id = incoming_detail.id
     LEFT join outgoing_detail ON inbound_ticket.transaction_id = outgoing_detail.id
     LEFT join misc_detail ON inbound_ticket.transaction_id = misc_detail.id
+    LEFT join weigh_in ON inbound_ticket.weigh_in_id = weigh_in.id
+    LEFT join weigh_out ON inbound_ticket.weigh_out_id = weigh_out.id
 
     WHERE inbound_ticket.status = $1
     ORDER BY inbound_ticket.created_at DESC

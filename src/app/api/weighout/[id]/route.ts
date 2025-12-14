@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import { startWeighOut } from '@/services/weighing/weighOut.service';
 
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 export async function POST(_req: Request, { params }: { params: { id: string } }) {
   try {
     const result = await startWeighOut(Number(params.id));

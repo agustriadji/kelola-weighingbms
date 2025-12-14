@@ -1,52 +1,27 @@
-// inbound-ticket.entity.ts
 import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  //ManyToOne,
+  ManyToOne,
   OneToOne,
   JoinColumn,
 } from 'typeorm';
 import { WeighIn } from './WeighIn.entity';
 import { WeighOut } from './WeighOut.entity';
-import { InboundStatus, RegisterDocType } from '../types/inbound.type';
+import { User } from './User.entity';
 
 @Entity('inbound_ticket')
 export class InboundTicket {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @Column({
-    name: 'transaction_type',
-    type: 'enum',
-    enum: [RegisterDocType.RAW_MATERIAL, RegisterDocType.DISPATCH, RegisterDocType.MISCELLANEOUS],
-  })
-  transactionType:
-    | RegisterDocType.RAW_MATERIAL
-    | RegisterDocType.DISPATCH
-    | RegisterDocType.MISCELLANEOUS;
+  @Column({ name: 'transaction_type', type: 'varchar' })
+  transactionType: string;
 
   @Column({ name: 'transaction_id', type: 'int' })
-  transactionId: number; // FK ke incoming_detail/outgoing_detail/misc_detail
+  transactionId: number;
 
-  @Column({
-    name: 'status',
-    type: 'enum',
-    enum: [
-      InboundStatus.REGISTERED,
-      InboundStatus.QUEUE_IN,
-      InboundStatus.WEIGHING_IN,
-      InboundStatus.WEIGHED_IN,
-      InboundStatus.YARD,
-      InboundStatus.QUEUE_OUT,
-      InboundStatus.WEIGHING_OUT,
-      InboundStatus.WEIGHED_OUT,
-      InboundStatus.FINISHED,
-    ],
-    default: InboundStatus.QUEUE_IN,
-  })
+  @Column({ name: 'status', type: 'varchar', default: 'registered' })
   status: string;
 
   @OneToOne(() => WeighIn)
@@ -63,9 +38,19 @@ export class InboundTicket {
   @Column({ name: 'weigh_out_id', type: 'int', nullable: true })
   weighOutId: number;
 
-  @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
+  @Column({ name: 'created_at', type: 'timestamp', default: () => 'now()' })
   createdAt: Date;
 
-  @UpdateDateColumn({ name: 'updated_at', type: 'timestamp' })
+  @Column({ name: 'updated_at', type: 'timestamp', default: () => 'now()' })
   updatedAt: Date;
+
+  @Column({ name: 'started_at', type: 'timestamp', nullable: true })
+  startedAt: Date;
+
+  @Column({ name: 'remark', type: 'varchar', length: 200, nullable: true })
+  remark: string;
+
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'created_by' })
+  createdBy: User;
 }
