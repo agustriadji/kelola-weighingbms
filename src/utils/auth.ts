@@ -1,12 +1,15 @@
-export const getUserFromHeader = (req: Request) => {
-  const header = req.headers.get("x-user");
-  return header ? JSON.parse(header) : null;
-};
+import { NextRequest } from 'next/server';
+import jwt from 'jsonwebtoken';
 
-export const hasRole = (user: any, role: string) => {
-  return user?.role === role;
-};
-
-export const hasPermission = (user: any, perm: string) => {
-  return user?.permissions?.includes(perm);
-};
+export function getUser(req: NextRequest) {
+  const auth = req.headers.get('authorization');
+  if (!auth) return null;
+  
+  try {
+    const token = auth.replace('Bearer ', '');
+    return jwt.verify(token, process.env.JWT_SECRET!);
+  } catch (e) {
+    console.error('Token verification failed:', e);
+    return null;
+  }
+}

@@ -9,6 +9,9 @@ export class Role {
   @Column({ name: 'name', type: 'varchar', length: 100, unique: true })
   name: string;
 
+  @Column({ name: 'fullname', type: 'varchar', length: 200, nullable: true })
+  fullname: string;
+
   @OneToMany("User", "role")
   users: any[];
 

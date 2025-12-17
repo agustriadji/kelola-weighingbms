@@ -102,26 +102,11 @@ export class Init1764255686686 implements MigrationInterface {
       );
     `);
 
-    // ---------- BATCHES ----------
-    await queryRunner.query(`
-      CREATE TABLE IF NOT EXISTS batches (
-        id SERIAL PRIMARY KEY,
-        batch_name VARCHAR(100) NOT NULL,
-        vehicle_id INTEGER REFERENCES vehicles(id),
-        supplier_id INTEGER REFERENCES suppliers(id),
-        material_id INTEGER REFERENCES materials(id),
-        created_by INTEGER REFERENCES users(id),
-        status VARCHAR(50) NOT NULL,
-        started_at TIMESTAMP,
-        ended_at TIMESTAMP
-      );
-    `);
-
     // ---------- SEGMENTS (optional pause/resume support) ----------
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS segments (
         id SERIAL PRIMARY KEY,
-        batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE,
+        -- inbound_id INTEGER REFERENCES inbound_ticket(id) ON DELETE CASCADE,
         started_at TIMESTAMP NOT NULL,
         ended_at TIMESTAMP,
         reason VARCHAR(200)
@@ -132,7 +117,7 @@ export class Init1764255686686 implements MigrationInterface {
     await queryRunner.query(`
       CREATE TABLE IF NOT EXISTS records (
         id SERIAL PRIMARY KEY,
-        batch_id INTEGER REFERENCES batches(id) ON DELETE CASCADE,
+        -- inbound_id INTEGER REFERENCES inbound_ticket(id) ON DELETE CASCADE,
         segment_id INTEGER REFERENCES segments(id),
         weight FLOAT NOT NULL,
         timestamp TIMESTAMP NOT NULL,
@@ -176,6 +161,8 @@ export class Init1764255686686 implements MigrationInterface {
         last_sync_at TIMESTAMP
       );
     `);
+
+
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {

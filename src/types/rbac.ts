@@ -1,3 +1,30 @@
+export interface CreateRoleRequest {
+  name: string;
+  permissionIds?: number[];
+}
+
+export interface AssignPermissionsRequest {
+  roleId: number;
+  permissionIds: number[];
+}
+
+export interface AssignRoleToUserRequest {
+  userId: number;
+  roleId: number;
+}
+
+export interface RoleResponse {
+  success: boolean;
+  role?: Role;
+  roles?: Role[];
+  message?: string;
+}
+
+export interface RoleListResponse {
+  success: boolean;
+  roles?: Role[];
+  message?: string;
+}
 export interface Permission {
   id: number;
   name: string;
@@ -6,7 +33,8 @@ export interface Permission {
 export interface Role {
   id: number;
   name: string;
-  permissions: Permission[];
+  fullname: string;
+  permissions?: Permission[];
 }
 
 export interface User {
@@ -64,7 +92,8 @@ export enum Permissions {
 export enum Roles {
   ADMIN = 'Admin',
   SUPERVISOR = 'Supervisor',
-  OPERATOR_WEIGHING = 'Operator Weighing',
-  OPERATOR_REGISTER = 'Operator Registering',
+  OPERATOR_WEIGHING_IN = 'Operator Weighing In',
+  OPERATOR_WEIGHING_OUT = 'Operator Weighing Out',
+  OPERATOR_REGISTERING = 'Operator Registering',
   VIEWER = 'Viewer',
 }

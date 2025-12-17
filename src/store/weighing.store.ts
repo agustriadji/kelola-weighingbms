@@ -157,6 +157,8 @@ export const useWeighingStore = create<WeighingState>()(
         listDocument: state.listDocument,
         lastDocumentType: state.lastDocumentType,
         documentCacheTime: state.documentCacheTime,
+        // vehicleHistory: state.vehicleHistory,
+        // tarraHistory: state.tarraHistory,
       }),
     }
   )

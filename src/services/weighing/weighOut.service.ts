@@ -4,7 +4,7 @@ import { getRequestContext } from '@/utils/context';
 import { calculateShrinkage } from '../shared/shrinkage.util';
 import { RegisterDocType, InboundStatus } from '@/types/inbound.type';
 
-export const startWeighOut = async (inboundId: number, miscCategory?: string) => {
+export const startWeighOut = async (inboundId: number, miscCategory?: string, user?: any) => {
   const inboundRepo = await inboundRepository();
   const weighOutRepo = await weighOutRepository();
 
@@ -21,13 +21,15 @@ export const startWeighOut = async (inboundId: number, miscCategory?: string) =>
     } else if (miscCategory === 'unloading') {
       weightType = 'TARRA'; // Like RAW_MATERIAL
     } else {
-      throw new Error('Miscellaneous category must be specified');
+      weightType = 'BRUTTO';
+      //throw new Error('Miscellaneous category must be specified');
     }
   }
 
   const wo = weighOutRepo.create({
     inbound,
     weightType,
+    createdBy: user || null,
   });
   return await weighOutRepo.save(wo);
 };

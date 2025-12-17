@@ -106,3 +106,30 @@ body {
 .markdown-container strong {
   color: #ff4500;
 }
+
+/* Button styles */
+@layer components {
+  .btn {
+    @apply px-4 py-2 rounded text-white font-medium transition-colors duration-200 text-sm;
+  }
+  
+  .btn-primary {
+    @apply btn bg-blue-600 hover:bg-blue-700;
+  }
+  
+  .btn-success {
+    @apply btn bg-green-600 hover:bg-green-700;
+  }
+  
+  .btn-danger {
+    @apply btn bg-red-600 hover:bg-red-700;
+  }
+  
+  .btn-secondary {
+    @apply btn bg-gray-600 hover:bg-gray-700;
+  }
+  
+  .btn-sm {
+    @apply w-24;
+  }
+}

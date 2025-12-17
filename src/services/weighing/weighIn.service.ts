@@ -1,42 +1,41 @@
 import { weighInRepository } from '@/repositories/weighIn.repository';
 import { inboundRepository } from '@/repositories/inbound.repository';
-import { getRequestContext } from '@/utils/context';
 import { RegisterDocType, InboundStatus } from '@/types/inbound.type';
 
-export const startWeighIn = async (
-  inboundId: number,
-  requestId?: string,
-  miscCategory?: string
-) => {
+export const startWeighIn = async (inboundId: number, miscCategory?: string, user?: any) => {
   const weighInRepo = await weighInRepository();
   const inboundRepo = await inboundRepository();
-  const context = getRequestContext(requestId);
-  const weighingInBy = context.user?.username || 'system';
+  const weighingInBy = user || null;
+  try {
+    const inbound = await inboundRepo.findOne({ where: { id: inboundId } });
+    if (!inbound) throw new Error('Inbound not found');
 
-  const inbound = await inboundRepo.findOne({ where: { id: inboundId } });
-  if (!inbound) throw new Error('Inbound not found');
-
-  // Determine weight type based on transaction type and misc category
-  let weightType = 'BRUTTO';
-  if (inbound.transactionType === RegisterDocType.DISPATCH) {
-    weightType = 'TARRA';
-  } else if (inbound.transactionType === RegisterDocType.MISCELLANEOUS) {
-    if (miscCategory === 'loading') {
-      weightType = 'TARRA'; // Like DISPATCH
-    } else if (miscCategory === 'unloading') {
-      weightType = 'BRUTTO'; // Like RAW_MATERIAL
-    } else {
-      throw new Error('Miscellaneous category must be specified');
+    // Determine weight type based on transaction type and misc category
+    let weightType = 'BRUTTO';
+    if (inbound.transactionType === RegisterDocType.DISPATCH) {
+      weightType = 'TARRA';
+    } else if (inbound.transactionType === RegisterDocType.MISCELLANEOUS) {
+      if (miscCategory === 'loading') {
+        weightType = 'TARRA'; // Like DISPATCH
+      } else if (miscCategory === 'unloading') {
+        weightType = 'BRUTTO'; // Like RAW_MATERIAL
+      } else {
+        weightType = 'BRUTTO';
+        //throw new Error('Miscellaneous category must be specified');
+      }
     }
+
+    // create weigh-in record
+    const wi = weighInRepo.create({
+      inbound: inbound,
+      weightType,
+      createdBy: weighingInBy,
+    });
+
+    return await weighInRepo.save(wi);
+  } catch (error) {
+    throw error;
   }
-
-  // create weigh-in record
-  const wi = weighInRepo.create({
-    inbound: inbound,
-    weightType,
-  });
-
-  return await weighInRepo.save(wi);
 };
 
 export const saveBruttoWeight = async (

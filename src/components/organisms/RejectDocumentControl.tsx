@@ -50,6 +50,7 @@ export default function RejectDocumentControl() {
   };
 
   const handleSaveWeighing = async () => {
+    setMiscCategory('unloading');
     const success = await saveWeightRecordState();
     if (success) {
       alert('Weight saved successfully');
@@ -67,27 +68,28 @@ export default function RejectDocumentControl() {
 
         {/* MISCELLANEOUS Category Selection */}
         {currentBatch?.inbound?.transactionType === 'MISCELLANEOUS' && (
-          <div className="mb-3">
-            <label className="block text-xs font-medium mb-2 text-purple-700">
-              Weighing Category:
-            </label>
-            <select
-              value={miscCategory}
-              onChange={(e) => setMiscCategory(e.target.value as 'loading' | 'unloading')}
-              className="w-full border border-purple-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
-            >
-              <option value="">Select Category</option>
-              <option value="loading">Loading (Empty → Loaded)</option>
-              <option value="unloading">Unloading (Loaded → Empty)</option>
-            </select>
-          </div>
+          <></>
+          // <div className="mb-3">
+          //   <label className="block text-xs font-medium mb-2 text-purple-700">
+          //     Weighing Category:
+          //   </label>
+          //   <select
+          //     value={miscCategory || 'unloading'}
+          //     onChange={(e) => setMiscCategory(e.target.value as 'loading' | 'unloading')}
+          //     className="w-full border border-purple-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-purple-500"
+          //   >
+          //     <option value="">Select Category</option>
+          //     <option value="loading">Loading (Empty → Loaded)</option>
+          //     <option value="unloading">Unloading (Loaded → Empty)</option>
+          //   </select>
+          // </div>
         )}
 
         <button
           onClick={handleCaptureWeight}
-          disabled={currentBatch?.inbound?.transactionType === 'MISCELLANEOUS' && !miscCategory}
+          disabled={currentBatch?.inbound?.transactionType === 'MISCELLANEOUSs' && !miscCategory}
           className={`w-full px-4 py-2 rounded text-sm font-medium transition-colors ${
-            currentBatch?.inbound?.transactionType === 'MISCELLANEOUS' && !miscCategory
+            currentBatch?.inbound?.transactionType === 'MISCELLANEOUSs' && !miscCategory
               ? 'bg-gray-400 text-gray-600 cursor-not-allowed'
               : 'bg-purple-600 hover:bg-purple-700 text-white'
           }`}

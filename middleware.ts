@@ -7,38 +7,34 @@ const PUBLIC_PATHS = ['/api/auth/login', '/login', '/'];
 export function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // console.log('=== MIDDLEWARE CALLED ===');
-  // console.log('Pathname:', pathname);
-  // console.log('All headers:', Object.fromEntries(req.headers.entries()));
+  console.info('=== MIDDLEWARE CALLED ===');
+  console.info('Pathname:', pathname);
 
   // 1. if public route → allow
   if (PUBLIC_PATHS.some((p) => pathname.startsWith(p))) {
-    // console.log('Public path, allowing');
+    console.info('Public path, allowing');
     return NextResponse.next();
   }
 
   const auth = req.headers.get('authorization');
-  // console.log('Auth header:', auth);
+  console.info('Auth header:', auth);
 
   if (!auth) {
-    // console.log('No auth header');
+    console.info('No auth header');
     return new NextResponse(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
   }
 
   const token = auth.replace('Bearer ', '');
-  // console.log('Token:', token.substring(0, 20) + '...');
+  console.info('Token:', token.substring(0, 20) + '...');
 
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    // console.log('Token decoded successfully:', decoded);
+    console.info('Token decoded successfully:', decoded);
 
-    // inject user data to request
-    const response = NextResponse.next();
-    response.headers.set('x-user', JSON.stringify(decoded));
-
-    // Also try setting it in request headers
+    // inject user data to request headers
     const requestHeaders = new Headers(req.headers);
     requestHeaders.set('x-user', JSON.stringify(decoded));
+    console.info('Setting x-user header:', JSON.stringify(decoded));
 
     return NextResponse.next({
       request: {
@@ -46,17 +42,11 @@ export function middleware(req: NextRequest) {
       },
     });
   } catch (e) {
-    console.log('Token verification failed:', e);
+    console.info('Token verification failed:', e);
     return new NextResponse(JSON.stringify({ error: 'Invalid token' }), { status: 401 });
   }
 }
 
 export const config = {
-  matcher: [
-    '/api/:path*',
-    '/dashboard/:path*',
-    '/pos-one/:path*',
-    '/pos-weighing/:path*',
-    '/user/:path*',
-  ],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

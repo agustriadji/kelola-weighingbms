@@ -1,14 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from "typeorm";
-import { Batch } from "./Batch.entity";
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import { InboundTicket } from './inboundTicket.entity';
 
-@Entity("segments")
+@Entity('segments')
 export class Segment {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @ManyToOne(() => Batch)
-  @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  @ManyToOne(() => InboundTicket)
+  @JoinColumn({ name: 'inbound_id' })
+  inboundTicket: InboundTicket;
 
   @Column({ name: 'started_at', type: 'timestamp' })
   startedAt: Date;

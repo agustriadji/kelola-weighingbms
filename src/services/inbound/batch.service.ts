@@ -7,21 +7,23 @@ import { weighOutRepository } from '@/repositories/weighOut.repository';
 import { InboundStatus } from './inboundStateMechine.service';
 import { startWeighIn, saveBruttoWeight } from '../weighing/weighIn.service';
 import { startWeighOut, saveTarraWeight } from '../weighing/weighOut.service';
-import { getRequestContext } from '@/utils/context';
 import { RegisterDocType } from '@/types/inbound.type';
 
 // W-IN
-export const startWeighingIn = async (id: number, requestId?: string, miscCategory?: string) => {
-  const repo = await inboundRepository();
-  const context = getRequestContext(requestId);
-  const weighingInBy = context.user?.username || 'system';
+export const startWeighingIn = async (id: number, miscCategory?: string, user?: any) => {
+  try {
+    const repo = await inboundRepository();
+    const weighIn: any = await startWeighIn(id, miscCategory, user);
 
-  const weighIn: any = await startWeighIn(id, requestId, miscCategory);
-  return repo.update(id, {
-    weighInId: weighIn.id,
-    status: InboundStatus.WEIGHING_IN,
-    updatedAt: new Date(),
-  });
+    return repo.update(id, {
+      weighInId: weighIn.id,
+      status: InboundStatus.WEIGHING_IN,
+      updatedAt: new Date(),
+    });
+  } catch (error) {
+    console.info(error, '---------');
+    throw error;
+  }
 };
 
 export const saveBruttoWeighing = async (
@@ -46,10 +48,10 @@ export const saveBruttoWeighing = async (
 // END W-IN
 
 // W-OUT
-export const startWeighingOut = async (id: number, weighingInBy: string, miscCategory?: string) => {
+export const startWeighingOut = async (id: number, miscCategory?: string, user?: any) => {
   const repo = await inboundRepository();
+  const weighOut: any = await startWeighOut(id, miscCategory, user);
 
-  const weighOut: any = await startWeighOut(id, miscCategory);
   return repo.update(id, {
     weighOutId: weighOut.id,
     status: InboundStatus.WEIGHING_OUT,
@@ -205,73 +207,106 @@ export const calculateShrinkage = (expectedNet: number, actualNet: number) => {
   };
 };
 
-export const getVehicleHistoryByContract = async (contractNumber: string) => {
+export const getVehicleHistoryByContract = async (contractNumber?: string) => {
   const repo = await inboundRepository();
-  
+
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  const query = repo.createQueryBuilder('it')
+  const query = repo
+    .createQueryBuilder('it')
     .select([
-      'detail.driver_number as driver_number',
-      'wi.weight as brutto', 
+      'detail.vehicle_number as vehicle_number',
+      'wi.weight as brutto',
       'wo.weight as tarra',
-      'wo.netto as netto'
+      'wo.netto as netto',
     ])
     .innerJoin('weigh_in', 'wi', 'it.weigh_in_id = wi.id')
     .innerJoin('weigh_out', 'wo', 'it.weigh_out_id = wo.id')
     .where('it.status = :status', { status: InboundStatus.FINISHED })
-    .andWhere('it.created_at >= :threeMonthsAgo', { threeMonthsAgo })
-    .andWhere('wi.weight_type = :bruttoType', { bruttoType: 'BRUTTO' })
-    .andWhere('wo.weight_type = :tarraType', { tarraType: 'TARRA' })
+    //.andWhere('it.created_at >= :threeMonthsAgo', { threeMonthsAgo })
     .orderBy('(wi.weight + wo.weight + wo.netto)', 'DESC')
     .limit(20)
     .cache(300000); // 5 minutes cache
 
   // Dynamic join based on transaction type
   query.leftJoin(
-    '(SELECT id, driver_number, contract_number, "RAW_MATERIAL" as type FROM incoming_detail ' +
-    'UNION ALL SELECT id, driver_number, contract_number, "DISPATCH" as type FROM outgoing_detail ' +
-    'UNION ALL SELECT id, driver_number, contract_number, "MISCELLANEOUS" as type FROM misc_detail)',
+    `(SELECT id, vehicle_number, contract_number, 'RAW_MATERIAL' as type FROM incoming_detail ` +
+      `UNION ALL SELECT id, vehicle_number, contract_number, 'DISPATCH' as type FROM outgoing_detail ` +
+      `UNION ALL SELECT id, vehicle_number, contract_number, 'MISCELLANEOUS' as type FROM misc_detail)`,
     'detail',
-    'it.transaction_id = detail.id AND it.transaction_type = detail.type'
+    'it.transaction_id = detail.id AND it.transaction_type::text = detail.type'
   );
-  
-  query.andWhere('detail.contract_number = :contractNumber', { contractNumber });
+
+  // query.andWhere('detail.contract_number = :contractNumber', { contractNumber });
 
   return query.getRawMany();
 };
 
-export const getVehicleTarraHistoryByContract = async (contractNumber: string) => {
+export const getVehicleHistoryAll = async () => {
   const repo = await inboundRepository();
-  
+
   const threeMonthsAgo = new Date();
   threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
 
-  const query = repo.createQueryBuilder('it')
+  const query = repo
+    .createQueryBuilder('it')
     .select([
-      'detail.driver_number as driver_number',
+      'detail.vehicle_number as vehicleNumber',
+      'detail.driver_name as driverName',
+      'detail.contract_number as contractNumber',
+      'wi.weight as brutto',
+      'wo.weight as tarra',
+      'wo.netto as netto',
+      'it.created_at as createdAt',
+    ])
+    .innerJoin('weigh_in', 'wi', 'it.weigh_in_id = wi.id')
+    .innerJoin('weigh_out', 'wo', 'it.weigh_out_id = wo.id')
+    .where('it.status = :status', { status: InboundStatus.FINISHED })
+    //.andWhere('it.created_at >= :threeMonthsAgo', { threeMonthsAgo })
+    .orderBy('it.created_at', 'DESC')
+    .limit(50);
+
+  // Dynamic join based on transaction type
+  query.leftJoin(
+    '(SELECT id, vehicle_number, driver_name, contract_number, "RAW_MATERIAL" as type FROM incoming_detail ' +
+      'UNION ALL SELECT id, vehicle_number, driver_name, contract_number, "DISPATCH" as type FROM outgoing_detail ' +
+      'UNION ALL SELECT id, vehicle_number, driver_name, contract_number, "MISCELLANEOUS" as type FROM misc_detail)',
+    'detail',
+    'it.transaction_id = detail.id AND it.transaction_type::text = detail.type'
+  );
+
+  return query.getRawMany();
+};
+
+export const getVehicleTarraHistoryByContract = async (contractNumber?: string) => {
+  const repo = await inboundRepository();
+
+  const threeMonthsAgo = new Date();
+  threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+
+  const query = repo
+    .createQueryBuilder('it')
+    .select([
+      'detail.vehicle_number as vehicle_number',
       'MIN(wo.weight) as tarra_terendah',
       'MAX(wo.weight) as tarra_tertinggi',
-      'FIRST_VALUE(wo.weight) OVER (ORDER BY it.created_at ASC) as tarra_awal'
+      "(SELECT CASE WHEN it2.transaction_type = 'DISPATCH' THEN wi2.weight ELSE wo2.weight END FROM inbound_ticket it2 INNER JOIN weigh_out wo2 ON it2.weigh_out_id = wo2.id INNER JOIN weigh_in wi2 ON it2.weigh_in_id = wi2.id LEFT JOIN (SELECT id, vehicle_number, contract_number, 'RAW_MATERIAL' as type FROM incoming_detail UNION ALL SELECT id, vehicle_number, contract_number, 'DISPATCH' as type FROM outgoing_detail UNION ALL SELECT id, vehicle_number, contract_number, 'MISCELLANEOUS' as type FROM misc_detail) detail2 ON it2.transaction_id = detail2.id AND it2.transaction_type::text = detail2.type WHERE detail2.vehicle_number = detail.vehicle_number AND it2.status = 'finished' ORDER BY it2.created_at ASC LIMIT 1) as tarra_awal",
     ])
     .innerJoin('weigh_out', 'wo', 'it.weigh_out_id = wo.id')
     .where('it.status = :status', { status: InboundStatus.FINISHED })
-    .andWhere('it.created_at >= :threeMonthsAgo', { threeMonthsAgo })
-    .andWhere('wo.weight_type = :tarraType', { tarraType: 'TARRA' })
-    .groupBy('detail.driver_number')
+    // .andWhere('it.created_at >= :threeMonthsAgo', { threeMonthsAgo })
+    .groupBy('detail.vehicle_number')
     .cache(300000); // 5 minutes cache
 
   // Dynamic join based on transaction type
   query.leftJoin(
-    '(SELECT id, driver_number, contract_number, "RAW_MATERIAL" as type FROM incoming_detail ' +
-    'UNION ALL SELECT id, driver_number, contract_number, "DISPATCH" as type FROM outgoing_detail ' +
-    'UNION ALL SELECT id, driver_number, contract_number, "MISCELLANEOUS" as type FROM misc_detail)',
+    `(SELECT id, vehicle_number, contract_number, 'RAW_MATERIAL' as type FROM incoming_detail ` +
+      `UNION ALL SELECT id, vehicle_number, contract_number, 'DISPATCH' as type FROM outgoing_detail ` +
+      `UNION ALL SELECT id, vehicle_number, contract_number, 'MISCELLANEOUS' as type FROM misc_detail)`,
     'detail',
-    'it.transaction_id = detail.id AND it.transaction_type = detail.type'
+    'it.transaction_id = detail.id AND it.transaction_type::text = detail.type'
   );
-  
-  query.andWhere('detail.contract_number = :contractNumber', { contractNumber });
 
   const result = await query.getRawOne();
   return result || null;

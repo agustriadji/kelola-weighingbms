@@ -5,6 +5,8 @@ import {
   ManyToOne,
   OneToOne,
   JoinColumn,
+  CreateDateColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 import { WeighIn } from './WeighIn.entity';
 import { WeighOut } from './WeighOut.entity';
@@ -38,14 +40,11 @@ export class InboundTicket {
   @Column({ name: 'weigh_out_id', type: 'int', nullable: true })
   weighOutId: number;
 
-  @Column({ name: 'created_at', type: 'timestamp', default: () => 'now()' })
+  @CreateDateColumn({ name: 'created_at', type: 'timestamptz' })
   createdAt: Date;
 
-  @Column({ name: 'updated_at', type: 'timestamp', default: () => 'now()' })
+  @UpdateDateColumn({ name: 'updated_at', type: 'timestamptz' })
   updatedAt: Date;
-
-  @Column({ name: 'started_at', type: 'timestamp', nullable: true })
-  startedAt: Date;
 
   @Column({ name: 'remark', type: 'varchar', length: 200, nullable: true })
   remark: string;

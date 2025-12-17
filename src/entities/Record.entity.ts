@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
-import { Batch } from './Batch.entity';
+import { InboundTicket } from './inboundTicket.entity';
 import { Segment } from './Segment.entity';
 
 @Entity('records')
@@ -7,9 +7,9 @@ export class Record {
   @PrimaryGeneratedColumn({ name: 'id', type: 'int' })
   id: number;
 
-  @ManyToOne(() => Batch)
-  @JoinColumn({ name: 'batch_id' })
-  batch: Batch;
+  @ManyToOne(() => InboundTicket)
+  @JoinColumn({ name: 'inbound_id' })
+  inboundTicket: InboundTicket;
 
   @ManyToOne(() => Segment)
   @JoinColumn({ name: 'segment_id' })

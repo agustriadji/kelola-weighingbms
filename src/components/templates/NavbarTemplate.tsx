@@ -33,7 +33,7 @@ export default function NavbarTemplate() {
   return (
     <div className="flex justify-between items-center py-4">
       <div className="flex items-center">
-        <Image src="/logo.png" alt="Evyap" width={120} height={60} />
+        <Image src="/logo_B.png" alt="Evyap" width={120} height={60} />
       </div>
       <div className="flex items-center space-x-4">
         <PermissionGate permissions={[Permissions.CREATE_USERS]}>

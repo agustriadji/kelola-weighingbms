@@ -19,7 +19,7 @@ export const statusColor = (status: string) => {
     case InboundStatus.WEIGHED_OUT:
       return 'text-white bg-green-600';
     case InboundStatus.FINISHED:
-      return 'text-white bg-black-600';
+      return 'text-black bg-gray-200';
     default:
       return 'text-black';
   }

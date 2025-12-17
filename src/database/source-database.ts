@@ -8,7 +8,6 @@ import { User } from '../entities/User.entity';
 import { Role } from '../entities/Role.entity';
 import { Permission } from '../entities/Permission.entity';
 import { RolePermission } from '../entities/RolePermission.entity';
-import { Batch } from '../entities/Batch.entity';
 import { Vehicle } from '../entities/Vehicle.entity';
 import { Supplier } from '../entities/Supplier.entity';
 import { Material } from '../entities/Material.entity';
@@ -56,7 +55,6 @@ export const AppDataSource = new DataSource({
     Role,
     Permission,
     RolePermission,
-    Batch,
     Vehicle,
     Supplier,
     Material,

@@ -22,8 +22,6 @@ export const useAuth = () => {
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
-        console.log('🔐 Auth payload:', payload);
-        console.log('✅ Permissions:', payload.permissions);
 
         setAuthState({
           user: payload,

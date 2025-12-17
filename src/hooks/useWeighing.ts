@@ -48,13 +48,21 @@ export const useWeighing = () => {
 
   // Initialize data on mount (only once per session)
   useEffect(() => {
-    const sessionKey = 'weighing-initialized';
-    const isSessionInitialized = sessionStorage.getItem(sessionKey);
+    const cacheKey = 'weighing-cache';
+    const cached = localStorage.getItem(cacheKey);
+    const now = Date.now();
+    const cacheExpiry = 3 * 60 * 1000; // 3 minutes
 
-    if (!isSessionInitialized && !store.isLoading) {
-      initializeData();
-      sessionStorage.setItem(sessionKey, 'true');
-    }
+    // let shouldInit = true;
+    // if (cached) {
+    //   const { timestamp } = JSON.parse(cached);
+    //   shouldInit = now - timestamp > cacheExpiry;
+    // }
+
+    //if (shouldInit && !store.isLoading) {
+    initializeData();
+    //localStorage.setItem(cacheKey, JSON.stringify({ timestamp: now }));
+    //}
 
     const timeCleanup = startTimeUpdater();
     return timeCleanup;
@@ -65,15 +73,15 @@ export const useWeighing = () => {
     let cleanup: (() => void) | undefined;
 
     if (store.batchId && store.captureWeight === 0) {
-      console.log('🎯 Starting weight simulation for batchId:', store.batchId);
+      //console.log('🎯 Starting weight simulation for batchId:', store.batchId);
       cleanup = startWeightSimulation();
     } else {
-      console.log('⏸️ Weight simulation stopped - captureWeight:', store.captureWeight);
+      //console.log('⏸️ Weight simulation stopped - captureWeight:', store.captureWeight);
     }
 
     return () => {
       if (cleanup) {
-        console.log('🧹 Cleaning up weight simulation');
+        //console.log('🧹 Cleaning up weight simulation');
         cleanup();
       }
     };
@@ -85,21 +93,15 @@ export const useWeighing = () => {
     store.setLoading(true);
 
     try {
-      // Load master data
-      // const masterData = await apiWeighing.loadMasterData();
-      // store.setMasterData(masterData.suppliers, masterData.materials, masterData.vehicles);
-
-      // Load vehicle history if current batch exists
-      if (store.currentBatch?.inbound) {
-        const { vehicle_number } = store.currentBatch?.inbound;
-        const vehicleData = await apiWeighing.loadVehicleHistory(vehicle_number);
-        store.setVehicleData(vehicleData.history, vehicleData.tarra);
-      }
+      // Load vehicle history with cache check
+      //if (store.vehicleHistory.length === 0) {
+      await loadVehicleHistory();
+      //}
 
       store.setInitialized(true);
     } catch (error) {
       console.error('❌ Error initializing weighing data:', error);
-      sessionStorage.removeItem('weighing-initialized'); // Reset on error
+      localStorage.removeItem('weighing-cache');
     } finally {
       store.setLoading(false);
     }
@@ -277,12 +279,9 @@ export const useWeighing = () => {
           const batch = await apiWeighing.loadDetailBatch(id);
           store.setCurrentBatch(batch);
 
-          // Load vehicle history by contract number
-          if (batch?.document?.contract_number) {
-            const vehicleData = await apiWeighing.loadVehicleHistory(
-              batch.document.contract_number
-            );
-            store.setVehicleData(vehicleData.history, vehicleData.tarra);
+          // Only load vehicle history if not already loaded
+          if (store.vehicleHistory.length === 0) {
+            await loadVehicleHistory();
           }
 
           return true;
@@ -326,17 +325,19 @@ export const useWeighing = () => {
     [store, apiWeighing]
   );
 
-  const loadVehicleHistory = useCallback(
-    async (contractNumber: string) => {
-      try {
-        const vehicleData = await apiWeighing.loadVehicleHistory(contractNumber);
-        store.setVehicleData(vehicleData.history, vehicleData.tarra);
-      } catch (error) {
-        console.error('Error loading vehicle history:', error);
-      }
-    },
-    [store, apiWeighing]
-  );
+  const loadVehicleHistory = useCallback(async () => {
+    // Check if data is already loaded in store
+    if (store.vehicleHistory.length > 0 && store.tarraHistory) {
+      return;
+    }
+
+    try {
+      const vehicleData = await apiWeighing.loadVehicleHistory();
+      store.setVehicleData(vehicleData.history, vehicleData.tarra);
+    } catch (error) {
+      console.error('Error loading vehicle history:', error);
+    }
+  }, [store, apiWeighing]);
 
   const loadListDocument = useCallback(
     async (type: DocumentWbState) => {

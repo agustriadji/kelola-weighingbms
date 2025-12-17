@@ -3,17 +3,7 @@ import { getVehicleTarraHistoryByContract } from '@/services/inbound/batch.servi
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const contractNumber = searchParams.get('contractNumber');
-
-    if (!contractNumber) {
-      return NextResponse.json(
-        { success: false, message: 'Contract number is required' },
-        { status: 400 }
-      );
-    }
-
-    const data = await getVehicleTarraHistoryByContract(contractNumber);
+    const data = await getVehicleTarraHistoryByContract();
 
     return NextResponse.json({
       success: true,
@@ -21,9 +11,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error fetching vehicle tarra history:', error);
-    return NextResponse.json(
-      { success: false, message: 'Internal server error' },
-      { status: 500 }
-    );
+    return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
 }

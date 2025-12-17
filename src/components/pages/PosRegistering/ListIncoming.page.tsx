@@ -106,14 +106,40 @@ export default function ListIncomingPage({
 
           <tbody>
             {isLoading ? (
-              <tr className="border-t">
-                <td colSpan={12} className="px-4 py-8 text-center">
-                  <div className="flex items-center justify-center gap-2">
-                    <div className="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                    <span className="text-gray-600">Loading data...</span>
-                  </div>
-                </td>
-              </tr>
+              Array.from({ length: 5 }).map((_, i) => (
+                <tr key={i} className="border-t">
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                  <td className="px-4 py-2">
+                    <div className="h-4 bg-gray-200 rounded animate-pulse"></div>
+                  </td>
+                </tr>
+              ))
             ) : filteredData.length === 0 ? (
               <tr className="border-t">
                 <td colSpan={12} className="px-4 py-8 text-center text-gray-500">

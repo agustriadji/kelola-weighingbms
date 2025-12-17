@@ -7,22 +7,22 @@ import { DocumentWbState, ListDocumentState, InboundStatus } from '@/types/inbou
 export const useApiWeighing = () => {
   const loadMasterData = useCallback(async () => {
     try {
-      const [suppliersRes, materialsRes, vehiclesRes] = await Promise.all([
-        apiGet('/api/suppliers'),
-        apiGet('/api/materials'),
-        apiGet('/api/vehicles'),
-      ]);
+      // const [suppliersRes, materialsRes, vehiclesRes] = await Promise.all([
+      //   apiGet('/api/suppliers'),
+      //   apiGet('/api/materials'),
+      //   apiGet('/api/vehicles'),
+      // ]);
 
-      const [suppliersData, materialsData, vehiclesData] = await Promise.all([
-        suppliersRes.json(),
-        materialsRes.json(),
-        vehiclesRes.json(),
-      ]);
+      // const [suppliersData, materialsData, vehiclesData] = await Promise.all([
+      //   suppliersRes.json(),
+      //   materialsRes.json(),
+      //   vehiclesRes.json(),
+      // ]);
 
       return {
-        suppliers: suppliersData.suppliers || [],
-        materials: materialsData.materials || [],
-        vehicles: vehiclesData.vehicles || [],
+        suppliers: [],
+        materials: [],
+        vehicles: [],
       };
     } catch (error) {
       console.error('Error loading master data:', error);
@@ -64,7 +64,7 @@ export const useApiWeighing = () => {
 
   const startBatch = useCallback(async (id: number, isYard?: boolean, miscCategory?: string) => {
     try {
-      const response = await apiPost('/api/batch/start', { id, isYard, miscCategory });
+      const response = await apiPost('/api/inbound/start', { id, isYard, miscCategory });
       return response.ok;
     } catch (error) {
       console.error('Error starting batch:', error);
@@ -90,18 +90,18 @@ export const useApiWeighing = () => {
     }
   }, []);
 
-  const loadVehicleHistory = useCallback(async (contractNumber: string) => {
+  const loadVehicleHistory = useCallback(async (contractNumber?: string) => {
     try {
       const [historyRes, tarraRes] = await Promise.all([
-        apiGet(`/api/vehicles/history?contractNumber=${contractNumber}`),
-        apiGet(`/api/vehicles/tarra?contractNumber=${contractNumber}`),
+        apiGet(`/api/vehicles/history`),
+        apiGet(`/api/vehicles/tarra`),
       ]);
 
       const [historyData, tarraData] = await Promise.all([historyRes.json(), tarraRes.json()]);
 
       return {
         history: historyData.data || [],
-        tarra: tarraData.data,
+        tarra: tarraData.data || [],
       };
     } catch (error) {
       console.error('Error loading vehicle history:', error);
@@ -116,19 +116,20 @@ export const useApiWeighing = () => {
       stable: boolean,
       transactionType: string,
       transactionId: any,
-      status: string
+      status: string,
+      rejectReason?: string
     ) => {
       try {
         let response;
         if (status === InboundStatus.WEIGHING_IN) {
           response = await apiPost(`/api/weighin/${batchId}/brutto`, {
             brutto: weight,
-            cctvUrl: null
+            cctvUrl: null,
           });
         } else if (status === InboundStatus.WEIGHING_OUT) {
           response = await apiPost(`/api/weighout/${batchId}/tarra`, {
             tarra: weight,
-            cctvUrl: null
+            cctvUrl: null,
           });
         } else {
           throw new Error('Invalid batch status for weight saving');

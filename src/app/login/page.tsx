@@ -81,7 +81,7 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Image src="/logo.png" alt="Evyap" width={100} height={50} className="mx-auto mb-2" />
+          <Image src="/logo_B.png" alt="Evyap" width={100} height={50} className="mx-auto mb-2" />
         </div>
 
         {/* Error Message */}

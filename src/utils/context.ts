@@ -3,8 +3,11 @@ export interface RequestContext {
   user?: {
     id: number;
     username: string;
+    fullname: string;
     role: string;
     permissions: string[];
+    iat: number;
+    exp: number;
   };
 }
 

@@ -50,7 +50,7 @@ export default function WeighingInfoTemplate() {
             {vehicleHistory.length > 0 ? (
               vehicleHistory.map((record, index) => (
                 <tr key={index}>
-                  <td className="border border-gray-400 px-1 py-1">{record?.driver_number}</td>
+                  <td className="border border-gray-400 px-1 py-1">{record?.vehicle_number}</td>
                   <td className="border border-gray-400 px-1 py-1">{record?.brutto}</td>
                   <td className="border border-gray-400 px-1 py-1">{record?.tarra}</td>
                   <td className="border border-gray-400 px-1 py-1">{record?.netto}</td>
@@ -82,7 +82,7 @@ export default function WeighingInfoTemplate() {
           <tbody>
             {tarraHistory ? (
               <tr>
-                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.driver_number}</td>
+                <td className="border border-gray-400 px-1 py-1">{tarraHistory?.vehicle_number}</td>
                 <td className="border border-gray-400 px-1 py-1">{tarraHistory?.tarra_awal}</td>
                 <td className="border border-gray-400 px-1 py-1">{tarraHistory?.tarra_terendah}</td>
                 <td className="border border-gray-400 px-1 py-1">

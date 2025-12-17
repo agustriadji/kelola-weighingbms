@@ -57,18 +57,28 @@ export class RBACSeeder {
       'Supervisor',
       'Operator_Registering',
       'Operator_WeighingIn',
-      'Operator_Weighingout',
+      'Operator_WeighingOut',
       'Viewer',
     ];
 
     for (const roleName of roles) {
-      const existing = await roleRepo.findOne({ where: { name: roleName } });
-      if (!existing) {
-        const role = new Role();
+      let role = await roleRepo.findOne({ where: { name: roleName } });
+      if (!role) {
+        role = new Role();
         role.name = roleName;
         await roleRepo.save(role);
         console.log(`👤 Created role: ${roleName}`);
+      } else {
+        console.log(`👤 Role already exists: ${roleName}`);
       }
+    }
+
+    // Handle old role name migration
+    const oldRole = await roleRepo.findOne({ where: { name: 'Operator_Weighingout' } });
+    if (oldRole) {
+      oldRole.name = 'Operator_WeighingOut';
+      await roleRepo.save(oldRole);
+      console.log(`🔄 Updated role name: Operator_Weighingout -> Operator_WeighingOut`);
     }
   }
 
@@ -108,7 +118,7 @@ export class RBACSeeder {
         Permissions.VIEW_WEIGHING,
         Permissions.CREATE_WEIGHING,
         Permissions.UPDATE_WEIGHING,
-        Permissions.POS_WEIGHINGOUT,
+        Permissions.POS_WEIGHINGIN,
       ],
       Operator_WeighingOut: [
         Permissions.VIEW_DASHBOARD,
@@ -120,18 +130,22 @@ export class RBACSeeder {
       Viewer: [Permissions.VIEW_DASHBOARD, Permissions.VIEW_WEIGHING, Permissions.VIEW_REPORTS],
     };
 
+    // Always refresh all role permissions to ensure consistency
     for (const [roleName, permissionNames] of Object.entries(rolePermissionMap)) {
       const role = await roleRepo.findOne({ where: { name: roleName } });
-      if (!role) continue;
+      if (!role) {
+        console.log(`⚠️ Role not found: ${roleName}`);
+        continue;
+      }
 
-      // Clear existing permissions
+      // Clear existing permissions for this role
       await rolePermissionRepo
         .createQueryBuilder()
         .delete()
         .where('role_id = :roleId', { roleId: role.id })
         .execute();
 
-      // Add new permissions
+      // Add all permissions for this role
       for (const permName of permissionNames) {
         const permission = await permissionRepo.findOne({ where: { name: permName } });
         if (permission) {
@@ -139,10 +153,12 @@ export class RBACSeeder {
           rp.role = role;
           rp.permission = permission;
           await rolePermissionRepo.save(rp);
+        } else {
+          console.log(`⚠️ Permission not found: ${permName}`);
         }
       }
 
-      console.log(`🔗 Assigned ${permissionNames.length} permissions to ${roleName}`);
+      console.log(`🔗 Updated ${permissionNames.length} permissions for ${roleName}`);
     }
   }
 
@@ -185,17 +201,21 @@ export class RBACSeeder {
     ];
 
     for (const userData of defaultUsers) {
-      const existing = await userRepo.findOne({ where: { username: userData.username } });
-
-      // Delete existing user to recreate with hashed password
-      if (existing) {
-        await userRepo.remove(existing);
-        console.log(`🗑️ Removed existing user: ${userData.username}`);
-      }
-
+      let user = await userRepo.findOne({ where: { username: userData.username } });
       const role = await roleRepo.findOne({ where: { name: userData.roleName } });
-      if (role) {
-        const user = new User();
+
+      if (!role) continue;
+
+      if (user) {
+        // Update existing user
+        user.passwordHash = await bcrypt.hash(userData.password, 10);
+        user.fullName = userData.fullName;
+        user.role = role;
+        await userRepo.save(user);
+        console.log(`🔄 Updated user: ${userData.username} (${userData.roleName})`);
+      } else {
+        // Create new user
+        user = new User();
         user.username = userData.username;
         user.passwordHash = await bcrypt.hash(userData.password, 10);
         user.fullName = userData.fullName;

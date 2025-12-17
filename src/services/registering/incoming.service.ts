@@ -37,6 +37,7 @@ export async function createIncoming(data) {
   const repo = await incomingRepository();
 
   const detail = repo.create(data);
+  console.info(detail, '1234');
   const savedDetail: any = await repo.save(detail);
 
   const inbound: any = await createInbound({

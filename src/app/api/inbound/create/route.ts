@@ -1,19 +1,18 @@
-import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
+import { NextRequest, NextResponse } from 'next/server';
+import jwt from 'jsonwebtoken';
 
-
-export const runtime = "nodejs";
-export const dynamic = "force-dynamic";
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 export async function POST(req: NextRequest) {
   try {
-    const auth = req.headers.get("authorization");
+    const auth = req.headers.get('authorization');
 
     if (!auth || !auth.startsWith('Bearer ')) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = auth.replace("Bearer ", "");
+    const token = auth.replace('Bearer ', '');
 
     let user;
     try {
@@ -25,7 +24,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
 
     // Generate ID untuk inbound transaction
-    const inboundId = `TRX-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(Date.now()).slice(-3)}`;
+    const inboundId = `TRX-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}-${String(
+      Date.now()
+    ).slice(-3)}`;
 
     const inboundData = {
       id: inboundId,
@@ -35,13 +36,11 @@ export async function POST(req: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-
     return NextResponse.json({
       success: true,
       data: inboundData,
-      message: 'Inbound transaction created successfully'
+      message: 'Inbound transaction created successfully',
     });
-
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 400 });
   }
