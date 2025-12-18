@@ -220,6 +220,7 @@ export function CertificateIncomingMolecule({ control, Controller }) {
             onChange={field.onChange}
             placeholder="Certificate"
             items={[
+              { value: 'NONE', label: 'NONE' },
               { value: 'RSPO', label: 'RSPO' },
               { value: 'ISCC', label: 'ISCC' },
             ]}
