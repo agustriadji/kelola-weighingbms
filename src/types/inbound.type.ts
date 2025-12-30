@@ -175,6 +175,7 @@ export interface WeighingState {
   setInitialized: (initialized: boolean) => void;
   setCacheInfo: (type: string, time: number) => void;
   resetWeights: () => void;
+  clearAllState: () => void;
   resetForm: () => void;
   saveWeightState: (brutoWeight: number) => any;
 
@@ -192,4 +193,8 @@ export interface WeighingState {
 
   // Miscellaneous Category
   setMiscCategory: (category: string) => void;
+
+  // Button States
+  isSaved: boolean;
+  setIsSaved: (saved: boolean) => void;
 }

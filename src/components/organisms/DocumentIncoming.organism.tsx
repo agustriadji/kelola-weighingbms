@@ -15,13 +15,14 @@ import {
   FFAMolecule,
   MoistMolecule,
   ImpuritiesMolecule,
+  RFIDMolecule,
 } from '../molecules/Document.molecules';
 import { MaterialMolecule } from '../molecules/Material.molecules';
 import { VehicleNumberMolecule, VehicleTypeIncomingMolecule } from '../molecules/Vehicle.molecules';
 import { DriverIdMolecule, DriverNameMolecule } from '../molecules/Driver.molecules';
 import { TransporterMolecule } from '../molecules/Transporter.molecules';
 import { SealNumberMolecules } from '../molecules/CheckCondition.molecules';
-// import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
+import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
 
 export function DocumentIncomingOrganism({ control }) {
   return (
@@ -58,13 +59,15 @@ export function DocumentIncomingOrganism({ control }) {
           <BCNumberMolecule control={control} Controller={Controller} />
           <BCTypeMolecule control={control} Controller={Controller} />
           <BCStatusMolecule control={control} Controller={Controller} />
+          <FFAMolecule control={control} Controller={Controller} />
+          <MoistMolecule control={control} Controller={Controller} />
         </div>
 
         {/* ==== Other ==== */}
         <div className="space-y-6">
-          <FFAMolecule control={control} Controller={Controller} />
-          <MoistMolecule control={control} Controller={Controller} />
           <ImpuritiesMolecule control={control} Controller={Controller} />
+          <RFIDMolecule control={control} Controller={Controller} />
+          <CCTVStreamMolecule control={control} Controller={Controller} />
         </div>
       </div>
     </section>

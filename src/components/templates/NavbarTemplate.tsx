@@ -1,49 +1,41 @@
 import Image from 'next/image';
 import PermissionGate from '../shared/PermissionGate';
 import { Permissions } from '@/types/rbac';
+import { useNav } from '@/hooks/useNav.hook';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/hooks/useAuth';
-import { useEffect, useState } from 'react';
-import RolePermissionManager from '../shared/RolePermissionManager';
 
 export default function NavbarTemplate() {
+  const { handlerLogout, changeActive, menuHeaderState } = useNav();
   const router = useRouter();
-  const { user, logout: authLogout } = useAuth();
-  const [activeState, setActiveState] = useState('');
-  const [showRoleManager, setShowRoleManager] = useState(false);
-  const handleLogout = () => {
-    authLogout();
-    localStorage.removeItem('token');
-    localStorage.removeItem('loginData');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('user');
-    router.push('/login');
-  };
 
-  const changeActive = (url) => {
-    setActiveState(url);
-    if (url === '/role') {
-      setShowRoleManager(true);
-    } else {
-      setShowRoleManager(false);
-      router.push(url);
-    }
-  };
+  async function handleChangeMenu(url) {
+    url = await changeActive(url);
+    if (url && menuHeaderState !== url) router.push(url);
+  }
+
+  async function handleLogoutAction() {
+    await handlerLogout();
+    router.push('/login');
+  }
 
   return (
-    <div className="flex justify-between items-center py-4">
+    <div className="flex justify-between items-center">
       <div className="flex items-center">
-        <Image src="/logo_B.png" alt="Evyap" width={120} height={60} />
+        <Image src="/images/logo_B.png" alt="Evyap" width={120} height={60} />
       </div>
       <div className="flex items-center space-x-4">
         <PermissionGate permissions={[Permissions.CREATE_USERS]}>
           <button
             onClick={() => {
-              changeActive('/dashboard');
+              handleChangeMenu('/pos-weighing');
             }}
             className={`
                 text-gray-600 px-3 py-2 rounded-md transition duration-200 text-sm 
-                ${activeState === '/dashboard' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
+                ${
+                  menuHeaderState === '/pos-weighing'
+                    ? 'bg-blue-600 text-white'
+                    : 'hover:text-blue-600'
+                }
               `}
           >
             Weighing
@@ -52,11 +44,11 @@ export default function NavbarTemplate() {
         <PermissionGate permission={Permissions.CREATE_INCOMING}>
           <button
             onClick={() => {
-              changeActive('/pos-one');
+              handleChangeMenu('/pos-one');
             }}
             className={`
                 text-gray-600 px-3 py-2 rounded-md transition duration-200 text-sm 
-                ${activeState === '/pos-one' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
+                ${menuHeaderState === '/pos-one' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
               `}
           >
             Registering
@@ -65,36 +57,38 @@ export default function NavbarTemplate() {
         <PermissionGate permission={Permissions.CREATE_USERS}>
           <button
             onClick={() => {
-              changeActive('/user');
+              handleChangeMenu('/user');
             }}
             className={`
                 text-gray-600 px-3 py-2 rounded-md transition duration-200 text-sm 
-                ${activeState === '/user' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
+                ${menuHeaderState === '/user' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
               `}
           >
-            User
+            User & Role
           </button>
           <button
             onClick={() => {
-              changeActive('/role');
+              handleChangeMenu('/hw-configuration');
             }}
             className={`
                 text-gray-600 px-3 py-2 rounded-md transition duration-200 text-sm 
-                ${activeState === '/role' ? 'bg-blue-600 text-white' : 'hover:text-blue-600'}
+                ${
+                  menuHeaderState === '/hw-configuration'
+                    ? 'bg-blue-600 text-white'
+                    : 'hover:text-blue-600'
+                }
               `}
           >
-            Roles
+            HW/Configuration
           </button>
         </PermissionGate>
         <button
-          onClick={handleLogout}
+          onClick={handleLogoutAction}
           className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition duration-200 text-sm"
         >
           Logout
         </button>
       </div>
-
-      {showRoleManager && <RolePermissionManager onClose={() => setShowRoleManager(false)} />}
     </div>
   );
 }

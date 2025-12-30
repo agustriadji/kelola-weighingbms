@@ -1,0 +1,20 @@
+broker:
+  - weighingOut:
+      - name: 'weighing-out'
+      - api: 'http://localhost:3400/weighing-out'
+      - paramters:
+          - name: 'id'
+            value: '1'
+          - name: 'weight'
+            value: '100'
+      - method: 'POST'
+
+  - weighingIn:
+      - name: 'weighing-in'
+      - api: 'http://localhost:3400/weighing-in'
+      - method: 'POST'
+
+  - weighingRegistering:
+      - name: 'registering'
+      - api: 'http://localhost:3400/weighing-reg'
+      - method: 'POST'

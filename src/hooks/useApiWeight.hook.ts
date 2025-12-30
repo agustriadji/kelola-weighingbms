@@ -4,6 +4,22 @@ import { useCallback } from 'react';
 import { apiGet, apiPost } from '@/utils/api';
 import { DocumentWbState, ListDocumentState, InboundStatus } from '@/types/inbound.type';
 
+// ✅ Global singleton for request deduplication
+const globalPendingRequests = new Map<string, Promise<any>>();
+
+const dedupeRequest = async <T>(key: string, requestFn: () => Promise<T>): Promise<T> => {
+  if (globalPendingRequests.has(key)) {
+    return globalPendingRequests.get(key)!;
+  }
+
+  const promise = requestFn().finally(() => {
+    globalPendingRequests.delete(key);
+  });
+
+  globalPendingRequests.set(key, promise);
+  return promise;
+};
+
 export const useApiWeighing = () => {
   const loadMasterData = useCallback(async () => {
     try {
@@ -91,22 +107,26 @@ export const useApiWeighing = () => {
   }, []);
 
   const loadVehicleHistory = useCallback(async (contractNumber?: string) => {
-    try {
-      const [historyRes, tarraRes] = await Promise.all([
-        apiGet(`/api/vehicles/history`),
-        apiGet(`/api/vehicles/tarra`),
-      ]);
+    const requestKey = `vehicle-history-${contractNumber || 'default'}`;
+    
+    return dedupeRequest(requestKey, async () => {
+      try {
+        const [historyRes, tarraRes] = await Promise.all([
+          apiGet(`/api/vehicles/history`),
+          apiGet(`/api/vehicles/tarra`),
+        ]);
 
-      const [historyData, tarraData] = await Promise.all([historyRes.json(), tarraRes.json()]);
+        const [historyData, tarraData] = await Promise.all([historyRes.json(), tarraRes.json()]);
 
-      return {
-        history: historyData.data || [],
-        tarra: tarraData.data || [],
-      };
-    } catch (error) {
-      console.error('Error loading vehicle history:', error);
-      throw error;
-    }
+        return {
+          history: historyData.data || [],
+          tarra: tarraData.data || [],
+        };
+      } catch (error) {
+        console.error('Error loading vehicle history:', error);
+        throw error;
+      }
+    });
   }, []);
 
   const saveWeightRecord = useCallback(
@@ -178,31 +198,35 @@ export const useApiWeighing = () => {
 
   const loadListDocument = useCallback(
     async (type: DocumentWbState): Promise<ListDocumentState[]> => {
-      try {
-        let endpoint = '/api/batch/list';
+      const requestKey = `list-document-${type}`;
+      
+      return dedupeRequest(requestKey, async () => {
+        try {
+          let endpoint = '/api/batch/list';
 
-        switch (type) {
-          case DocumentWbState.WEIGHING_QUEUE:
-            endpoint = `/api/batch/list?status=${InboundStatus.QUEUE_IN}`;
-            break;
-          case DocumentWbState.YARD_QUEUE:
-            endpoint = `/api/batch/list?status=${InboundStatus.YARD}`;
-            break;
-          case DocumentWbState.WB_REJECT:
-            endpoint = `/api/batch/list?status=rejected`;
-            break;
-          case DocumentWbState.CLOSE_WB:
-            endpoint = `/api/batch/list?status=${InboundStatus.FINISHED}`;
-            break;
+          switch (type) {
+            case DocumentWbState.WEIGHING_QUEUE:
+              endpoint = `/api/batch/list?status=${InboundStatus.QUEUE_IN}`;
+              break;
+            case DocumentWbState.YARD_QUEUE:
+              endpoint = `/api/batch/list?status=${InboundStatus.YARD}`;
+              break;
+            case DocumentWbState.WB_REJECT:
+              endpoint = `/api/batch/list?status=rejected`;
+              break;
+            case DocumentWbState.CLOSE_WB:
+              endpoint = `/api/batch/list?status=${InboundStatus.FINISHED}`;
+              break;
+          }
+
+          const response = await apiGet(endpoint);
+          const data = await response.json();
+          return data || [];
+        } catch (error) {
+          console.error(`Error loading ${type}:`, error);
+          throw error;
         }
-
-        const response = await apiGet(endpoint);
-        const data = await response.json();
-        return data || [];
-      } catch (error) {
-        console.error(`Error loading ${type}:`, error);
-        throw error;
-      }
+      });
     },
     []
   );

@@ -1,4 +1,6 @@
-// Request context untuk pass user info ke service layer
+import { NextRequest } from 'next/server';
+import { getUser } from '@/utils/auth';
+
 export interface RequestContext {
   user?: {
     id: number;
@@ -11,23 +13,7 @@ export interface RequestContext {
   };
 }
 
-// Global context storage (per request)
-const contextStorage = new Map<string, RequestContext>();
-
-export const setRequestContext = (requestId: string, context: RequestContext) => {
-  contextStorage.set(requestId, context);
-};
-
-export const getRequestContext = (requestId?: string): RequestContext => {
-  if (!requestId) return {};
-  return contextStorage.get(requestId) || {};
-};
-
-export const clearRequestContext = (requestId: string) => {
-  contextStorage.delete(requestId);
-};
-
-// Generate unique request ID
-export const generateRequestId = () => {
-  return `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+export const getRequestContext = async (request: NextRequest): Promise<RequestContext> => {
+  const user = getUser(request);
+  return { user: user as any };
 };

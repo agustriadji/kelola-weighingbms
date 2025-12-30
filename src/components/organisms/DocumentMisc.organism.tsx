@@ -8,6 +8,7 @@ import {
   BCNumberMolecule,
   ContainerNumberMolecule,
   SupplierMaterialMolecule,
+  RFIDMolecule,
 } from '../molecules/Document.molecules';
 import { DriverNameMolecule, DriverIdMolecule } from '@/components/molecules/Driver.molecules';
 import {
@@ -17,6 +18,7 @@ import {
 import { TransporterMolecule } from '@/components/molecules/Transporter.molecules';
 import { MaterialMolecule } from '../molecules/Material.molecules';
 import { SealNumberMolecules } from '../molecules/CheckCondition.molecules';
+import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
 // import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
 
 export function DocumentMiscOrganism({ control }) {
@@ -46,6 +48,8 @@ export function DocumentMiscOrganism({ control }) {
           <SealNumberMolecules control={control} Controller={Controller} />
           <BCTypeMolecule control={control} Controller={Controller} />
           <BCNumberMolecule control={control} Controller={Controller} />
+          <RFIDMolecule control={control} Controller={Controller} />
+          <CCTVStreamMolecule control={control} Controller={Controller} />
         </div>
       </div>
     </section>

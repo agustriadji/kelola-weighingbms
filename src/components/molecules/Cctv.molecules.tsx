@@ -46,27 +46,6 @@ function CCTVStreamModule({ onCapture }) {
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
-        {!stream ? (
-          <StyledButton onClick={startCamera} className="bg-blue-600 hover:bg-blue-700 text-white">
-            <Video className="w-4 h-4" /> Start Cam
-          </StyledButton>
-        ) : (
-          <StyledButton onClick={stopCamera} className="bg-red-600 hover:bg-red-700 text-white">
-            <Square className="w-4 h-4" /> Stop Cam
-          </StyledButton>
-        )}
-
-        {stream && (
-          <StyledButton
-            onClick={capture}
-            className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2"
-          >
-            <Camera className="w-4 h-4" /> Capture
-          </StyledButton>
-        )}
-      </div>
-
       {/* Live Video */}
       {stream && <video ref={videoRef} autoPlay className="rounded border w-full" />}
 
@@ -80,6 +59,45 @@ function CCTVStreamModule({ onCapture }) {
           <Image src={image} alt="CCTV Snapshot" className="rounded border w-full" />
         </div>
       )}
+      <div className="space-y-2">
+        <p className="text-sm text-gray-600">Snapshot:</p>
+        <Image
+          src={image || '/images/no-image.jpg'}
+          alt="CCTV Snapshot"
+          width={250}
+          height={60}
+          className="rounded border max-h-40 max-w-72 object-contain"
+        />
+        <div className="flex gap-2 pt-2">
+          {!stream ? (
+            <StyledButton
+              onClick={startCamera}
+              className="bg-blue-600 hover:bg-blue-700 text-white flex items-center gap-2 px-4 py-2 rounded"
+            >
+              <Camera className="w-5 h-5" />
+              <span>Start Cam</span>
+            </StyledButton>
+          ) : (
+            <StyledButton
+              onClick={stopCamera}
+              className="bg-red-600 hover:bg-red-700 text-white flex items-center gap-2 px-4 py-2 rounded"
+            >
+              <Square className="w-5 h-5" />
+              <span>Stop Cam</span>
+            </StyledButton>
+          )}
+
+          {stream && (
+            <StyledButton
+              onClick={capture}
+              className="bg-green-600 hover:bg-green-700 text-white flex items-center gap-2 px-4 py-2 rounded"
+            >
+              <Camera className="w-5 h-5" />
+              <span>Capture</span>
+            </StyledButton>
+          )}
+        </div>
+      </div>
     </div>
   );
 }

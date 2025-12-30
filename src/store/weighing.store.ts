@@ -56,6 +56,9 @@ export const useWeighingStore = create<WeighingState>()(
       rejectModalOpen: false,
       rejectReason: '',
 
+      // Button States
+      isSaved: false,
+
       // Actions
       setActiveListWeighingState: (listActiveWeigh: string) =>
         set({ activeListWeighingState: listActiveWeigh }),
@@ -106,8 +109,28 @@ export const useWeighingStore = create<WeighingState>()(
           miscCategory: '',
           weightHistory: [],
           shrinkageData: null,
+          // TIDAK clear currentBatch dan batchId untuk kebutuhan printing
+          // currentBatch: null,
+          // batchId: null,
+          isSaved: false,
+        }),
+
+      // Clear total state - hanya untuk Close dan Reject
+      clearAllState: () =>
+        set({
+          brutoWeight: 0,
+          tarraWeight: 0,
+          nettoWeight: 0,
+          expectedNetto: 0,
+          currentWeight: 0,
+          captureWeight: 0,
+          isCaptureWeight: false,
+          miscCategory: '',
+          weightHistory: [],
+          shrinkageData: null,
           currentBatch: null,
           batchId: null,
+          isSaved: false,
         }),
 
       resetForm: () =>
@@ -140,6 +163,9 @@ export const useWeighingStore = create<WeighingState>()(
 
       // Miscellaneous Category Actions
       setMiscCategory: (category: string) => set({ miscCategory: category }),
+
+      // Button State Actions
+      setIsSaved: (saved: boolean) => set({ isSaved: saved }),
     }),
     {
       name: 'weighing-store',
@@ -153,6 +179,7 @@ export const useWeighingStore = create<WeighingState>()(
         batchId: state.batchId,
         captureWeight: state.captureWeight,
         isCaptureWeight: state.isCaptureWeight,
+        isSaved: state.isSaved,  // ✅ Added for button state persistence
         miscCategory: state.miscCategory,
         listDocument: state.listDocument,
         lastDocumentType: state.lastDocumentType,

@@ -21,6 +21,7 @@ export default function ListQueueWeighing({ show, onClose }: ListQueueWeighingPr
   }, []);
 
   const handleProcess = async (item: any) => {
+    console.log('Processing item:', item);
     const confirmed = window.confirm(
       `Are you sure you want to start weighing process for vehicle ${item.vehicle_number}?`
     );

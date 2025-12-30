@@ -1,0 +1,15 @@
+api:
+  - gateOut:
+      - name: 'gate-out'
+      - api: 'http://localhost:3400/gate-weighing-out'
+      - method: 'POST'
+
+  - gateIn:
+      - name: 'gate-in'
+      - api: 'http://localhost:3400/gate-weighing-in'
+      - method: 'POST'
+
+  - gateRegistering:
+      - name: 'registering'
+      - api: 'http://localhost:3400/gate-weighing-reg'
+      - method: 'POST'

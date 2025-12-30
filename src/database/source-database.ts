@@ -24,6 +24,8 @@ import { InboundTicket } from '../entities/inboundTicket.entity';
 import { IncomingDetail } from '../entities/IncomingDetail.entity';
 import { OutgoingDetail } from '../entities/OutgoingDetail.entity';
 import { MiscDetail } from '../entities/MiscDetail.entity';
+import { HwGeneralApi } from '../entities/HwGeneralApi.entity';
+import { HwConfiguration } from '../entities/HwConfiguration.entity';
 
 dotenv.config({ path: '.env.local' });
 
@@ -71,6 +73,8 @@ export const AppDataSource = new DataSource({
     IncomingDetail,
     OutgoingDetail,
     MiscDetail,
+    HwConfiguration,
+    HwGeneralApi,
   ],
   migrations: [],
   ssl: process.env.DATABASE_SSL === 'true',

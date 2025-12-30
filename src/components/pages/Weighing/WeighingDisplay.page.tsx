@@ -5,18 +5,16 @@ import LoadingSpinner from '@/components/shared/LoadingSpinner';
 import SkeletonLoader from '@/components/shared/SkeletonLoader';
 import { DocumentWbState } from '@/types/inbound.type';
 import { useWeighing } from '@/hooks/useWeighing';
+import RejectDocumentControl from '@/components/organisms/RejectDocumentControl';
+import PrintControl from '@/components/organisms/PrintControl';
+import DocumentWeighingTemplate from '@/components/shared/DocumentWeighing.template';
+import WeighingInfoTemplate from '@/components/shared/WeighingInfo.template';
+import MenuListWeighingTemplate from '@/components/shared/MenuListWeighing.template';
+import VehicleIdentityTemplate from '@/components/shared/VehicleIdentity.template';
 
 // Lazy load heavy components
 const MonitorWeighingTemplate = lazy(() => import('@/components/shared/MonitorWeighing.template'));
-const VehicleIdentityTemplate = lazy(() => import('@/components/shared/VehicleIdentity.template'));
-const DocumentWeighingTemplate = lazy(
-  () => import('@/components/shared/DocumentWeighing.template')
-);
-const WeighingInfoTemplate = lazy(() => import('@/components/shared/WeighingInfo.template'));
 const BatchProcessTemplate = lazy(() => import('@/components/shared/BatchProcess.template'));
-const MenuListWeighingTemplate = lazy(
-  () => import('@/components/shared/MenuListWeighing.template')
-);
 const ListQueueWeighing = lazy(() => import('@/components/pages/Weighing/ListQueueWeighing.page'));
 const ListQueueYard = lazy(() => import('@/components/pages/Weighing/ListQueueYard.page'));
 const ListTruckReject = lazy(() => import('@/components/pages/Weighing/ListTruckReject.page'));
@@ -68,7 +66,10 @@ export default function WeighingDisplay() {
                     </div>
                   }
                 >
-                  <ListQueueYard show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                  <ListQueueYard
+                    show={true}
+                    onClose={() => setActiveListWeighingState('weighing')}
+                  />
                 </Suspense>
               </div>
             </div>
@@ -82,7 +83,10 @@ export default function WeighingDisplay() {
                     </div>
                   }
                 >
-                  <ListTruckReject show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                  <ListTruckReject
+                    show={true}
+                    onClose={() => setActiveListWeighingState('weighing')}
+                  />
                 </Suspense>
               </div>
             </div>
@@ -96,7 +100,10 @@ export default function WeighingDisplay() {
                     </div>
                   }
                 >
-                  <ListClosedWB show={true} onClose={() => setActiveListWeighingState('weighing')} />
+                  <ListClosedWB
+                    show={true}
+                    onClose={() => setActiveListWeighingState('weighing')}
+                  />
                 </Suspense>
               </div>
             </div>
@@ -139,6 +146,11 @@ export default function WeighingDisplay() {
                     <WeighingInfoTemplate />
                   </Suspense>
                 </div>
+              </div>
+
+              {/* Reject Document Control */}
+              <div className="mt-10 pt-10 float-right">
+                <RejectDocumentControl />
               </div>
             </>
           )}

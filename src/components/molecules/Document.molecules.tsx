@@ -345,3 +345,18 @@ export function ImpuritiesMolecule({ control, Controller }) {
     </div>
   );
 }
+
+export function RFIDMolecule({ control, Controller }) {
+  return (
+    <div className="flex flex-col gap-1">
+      <label className="text-sm font-medium text-gray-700">Register ID*</label>
+      <Controller
+        name="rfid"
+        control={control}
+        render={({ field }) => (
+          <StyledInput {...field} placeholder="Please Tap Register ID Card" required={true} />
+        )}
+      />
+    </div>
+  );
+}

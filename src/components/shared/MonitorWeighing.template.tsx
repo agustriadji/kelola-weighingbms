@@ -18,45 +18,91 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
 
   const { inbound, document } = currentBatch || {};
 
+  const transactionType = inbound?.transactionType || '';
+  const statusTransaction = inbound?.status || '';
+
   const valueWIN = () => {
-    if (inbound?.weighIn?.weight) {
-      return inbound.weighIn.weight;
-    } else if (inbound?.status === InboundStatus.WEIGHING_IN) {
-      if (isCaptureWeight) {
-        return captureWeight;
+    if (statusTransaction === 'weighing-out' && inbound?.weighInId && inbound?.weighOutId) {
+      if (transactionType === 'DISPATCH') {
+        if (inbound?.weighIn?.tarra) {
+          return inbound.weighIn.tarra;
+        } else {
+          return 0;
+        }
       } else {
-        return currentWeight;
+        if (inbound?.weighIn?.brutto) {
+          return inbound.weighIn.brutto;
+        } else {
+          return 0;
+        }
       }
     } else {
-      return 0;
+      if (inbound?.weighIn?.weight) {
+        return inbound.weighIn.weight;
+      } else if (inbound?.status === InboundStatus.WEIGHING_IN) {
+        if (isCaptureWeight) {
+          return captureWeight;
+        } else {
+          return currentWeight;
+        }
+      } else {
+        return 0;
+      }
     }
   };
 
   const valueWOUT = () => {
-    if (inbound?.weighOut?.weight) {
-      return inbound.weighOut.weight;
-    } else if (inbound?.status === InboundStatus.WEIGHING_OUT) {
-      if (isCaptureWeight) {
-        return captureWeight;
+    if (statusTransaction === 'weighing-out' && inbound?.weighInId && inbound?.weighOutId) {
+      if (transactionType === 'DISPATCH') {
+        if (inbound?.weighIn?.brutto) {
+          return inbound.weighIn.brutto;
+        } else {
+          return 0;
+        }
       } else {
-        return currentWeight;
+        if (inbound?.weighIn?.tarra) {
+          return inbound.weighIn.tarra;
+        } else {
+          return 0;
+        }
       }
     } else {
-      return 0;
+      if (inbound?.weighOut?.weight) {
+        return inbound.weighOut.weight;
+      } else if (inbound?.status === InboundStatus.WEIGHING_OUT) {
+        if (isCaptureWeight) {
+          return captureWeight;
+        } else {
+          return currentWeight;
+        }
+      } else {
+        return 0;
+      }
     }
   };
 
   const valueNET = () => {
-    if (inbound?.status === InboundStatus.FINISHED && inbound?.weighOut?.netto) {
-      return inbound.weighOut.netto;
-    } else if (isCaptureWeight && inbound?.weighIn?.weight) {
-      if (inbound?.weighIn?.weight_type === 'BRUTTO') {
-        return Number(inbound.weighIn.weight) - Number(captureWeight);
+    if (statusTransaction === 'weighing-out' && inbound?.weighInId && inbound?.weighOutId) {
+      if (inbound?.weighIn?.netto) {
+        // change to positive number
+        return Number(inbound.weighIn.netto) < 0
+          ? Math.abs(inbound.weighIn.netto)
+          : inbound.weighIn.netto;
       } else {
-        return Number(captureWeight) - Number(inbound.weighIn.weight);
+        return 0;
       }
     } else {
-      return 0;
+      if (inbound?.status === InboundStatus.FINISHED && inbound?.weighOut?.netto) {
+        return inbound.weighOut.netto;
+      } else if (isCaptureWeight && inbound?.weighIn?.weight) {
+        if (inbound?.weighIn?.weight_type === 'BRUTTO') {
+          return Number(inbound.weighIn.weight) - Number(captureWeight);
+        } else {
+          return Number(captureWeight) - Number(inbound.weighIn.weight);
+        }
+      } else {
+        return 0;
+      }
     }
   };
 
@@ -66,7 +112,7 @@ export default function MonitorWeighingTemplate({ data }: { data: any } | undefi
     totalShrinkage: '-0.02 %',
   };
   return (
-    <div className="bg-blue-100 p-2 mb-6 border rounded-md border-gray-400">
+    <div className="flex flex-col-5 bg-blue-100 p-2 mb-6 border rounded-md border-gray-400">
       <div className="flex gap-4 items-start">
         {/* Vehicle Number */}
         <div className="flex-shrink-0 w-48">

@@ -1,0 +1,15 @@
+api:
+  - camOut:
+      - name: 'cam-out'
+      - api: 'http://localhost:3400/cam-weighing-out'
+      - method: 'POST'
+
+  - camIn:
+      - name: 'cam-in'
+      - api: 'http://localhost:3400/cam-weighing-in'
+      - method: 'POST'
+
+  - camRegistering:
+      - name: 'registering'
+      - api: 'http://localhost:3400/cam-weighing-reg'
+      - method: 'POST'

@@ -32,10 +32,8 @@ export const useWeighing = () => {
         // TODO: Implement reject API call
         console.log('Rejecting document:', store.currentBatch.id, 'Reason:', reason);
 
-        // Reset current batch after rejection
-        store.setCurrentBatch(null);
-        store.setBatchId(null);
-        store.resetWeights();
+        // Clear total state after rejection
+        store.clearAllState();
 
         return true;
       } catch (error) {
@@ -186,7 +184,9 @@ export const useWeighing = () => {
 
   const startWeightSimulationAgain = useCallback(() => {
     console.log('🔄 Starting weight simulation again');
+    // Hanya reset capture state, TIDAK clear currentBatch dan formData
     store.setWeightData({ captureWeight: 0, isCaptureWeight: false });
+    store.setIsSaved(false);
   }, [store]);
 
   const saveWeightRecordRejectedState = useCallback(
@@ -229,7 +229,7 @@ export const useWeighing = () => {
 
     try {
       sysStore.setLoadingState(true);
-      const data = await apiWeighing.saveWeightRecord(
+      const { data, ok } = await apiWeighing.saveWeightRecord(
         store.currentBatch.inbound.id,
         store.captureWeight,
         store.isStable,
@@ -238,10 +238,14 @@ export const useWeighing = () => {
         store.currentBatch.inbound.status
       );
 
-      store.setCurrentBatch(null);
-      store.setBatchId(null);
-      store.resetWeights();
+      // Set saved state to true, don't clear form data yet
+      const updateBatch = store.currentBatch;
+      updateBatch.inbound.weighIn = data;
+      store.setCurrentBatch(updateBatch);
+
+      store.setIsSaved(true);
       sysStore.setLoadingState(false);
+
       return true;
     } catch (error) {
       console.error('Error saving weight record:', error);
@@ -365,9 +369,51 @@ export const useWeighing = () => {
   );
 
   return {
-    // State
-    ...sysStore,
-    ...store,
+    // ✅ SELECTIVE state - commonly needed
+    activeListWeighingState: store.activeListWeighingState,
+    setActiveListWeighingState: store.setActiveListWeighingState,
+    batchId: store.batchId,
+    currentBatch: store.currentBatch,
+    currentWeight: store.currentWeight,
+    captureWeight: store.captureWeight,
+    isStable: store.isStable,
+    isCaptureWeight: store.isCaptureWeight,
+
+    // ✅ Add missing states for components
+    vehicleHistory: store.vehicleHistory || [],
+    tarraHistory: store.tarraHistory,
+    brutoWeight: store.brutoWeight,
+    tarraWeight: store.tarraWeight,
+    nettoWeight: store.nettoWeight,
+    expectedNetto: store.expectedNetto,
+    shrinkageData: store.shrinkageData,
+    listDocument: store.listDocument || [],
+    currentTime: store.currentTime,
+
+    // Gate & reject states
+    gateStatus: store.gateStatus,
+    gateProcessing: store.gateProcessing,
+    rejectModalOpen: store.rejectModalOpen,
+    rejectReason: store.rejectReason,
+    setRejectModalOpen: store.setRejectModalOpen,
+    setRejectReason: store.setRejectReason,
+
+    // Form data
+    formData: store.formData,
+    setFormData: store.setFormData,
+
+    // Misc category
+    miscCategory: store.miscCategory,
+    setMiscCategory: store.setMiscCategory,
+
+    // Button states
+    isSaved: store.isSaved,
+
+    // Loading states
+    loadingState: sysStore.loadingState,
+    isLoading: store.isLoading,
+
+    // Constants
     InboundStatus,
 
     // Actions
@@ -382,5 +428,12 @@ export const useWeighing = () => {
     initializeData,
     toggleGate,
     rejectDocument,
+
+    // Additional actions for button management
+    setIsSaved: store.setIsSaved,
+    setCurrentBatch: store.setCurrentBatch,
+    setBatchId: store.setBatchId,
+    resetWeights: store.resetWeights,
+    clearAllState: store.clearAllState,
   };
 };

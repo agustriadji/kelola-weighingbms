@@ -10,6 +10,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   // const [filterJenis, setFilterJenis] = useState('')
   const [loading, setLoading] = useState(false);
+  const [isDisbaled, setIsDisabled] = useState(false);
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -29,6 +30,7 @@ export default function LoginPage() {
     }
 
     setLoading(true);
+    setIsDisabled(true);
 
     try {
       const response = await fetch('/api/auth/login', {
@@ -55,7 +57,7 @@ export default function LoginPage() {
           if (result.user.role === 'Operator_Registering') {
             router.push('/pos-one');
           } else {
-            router.push('/dashboard');
+            router.push('/pos-weighing');
           }
         }
       } else {
@@ -65,6 +67,7 @@ export default function LoginPage() {
       setError('An error occurred during login');
     } finally {
       setLoading(false);
+      setIsDisabled(false);
     }
   };
 
@@ -81,7 +84,13 @@ export default function LoginPage() {
       <div className="bg-white p-8 rounded-lg shadow-md w-full max-w-md">
         {/* Logo */}
         <div className="text-center mb-8">
-          <Image src="/logo_B.png" alt="Evyap" width={100} height={50} className="mx-auto mb-2" />
+          <Image
+            src="/images/logo_B.png"
+            alt="Evyap"
+            width={160}
+            height={70}
+            className="mx-auto mb-2"
+          />
         </div>
 
         {/* Error Message */}

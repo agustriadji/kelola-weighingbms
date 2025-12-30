@@ -7,6 +7,7 @@ import {
   CertificateOutgoingMolecule,
   ContainerNumberMolecule,
   VesselNameMolecule,
+  RFIDMolecule,
 } from '../molecules/Document.molecules';
 import { SealNumberMolecules } from '@/components/molecules/CheckCondition.molecules';
 import { DriverNameMolecule, DriverIdMolecule } from '@/components/molecules/Driver.molecules';
@@ -16,7 +17,8 @@ import {
 } from '@/components/molecules/Vehicle.molecules';
 import { TransporterMolecule } from '@/components/molecules/Transporter.molecules';
 import { MaterialMolecule } from '../molecules/Material.molecules';
-// import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
+
+import { CCTVStreamMolecule } from '../molecules/Cctv.molecules';
 
 export function DocumentOutgoingOrganism({ control }) {
   return (
@@ -44,6 +46,8 @@ export function DocumentOutgoingOrganism({ control }) {
         <div className="space-y-3">
           <VesselNameMolecule control={control} Controller={Controller} />
           <SealNumberMolecules control={control} Controller={Controller} />
+          <RFIDMolecule control={control} Controller={Controller} />
+          <CCTVStreamMolecule control={control} Controller={Controller} />
         </div>
       </div>
     </section>

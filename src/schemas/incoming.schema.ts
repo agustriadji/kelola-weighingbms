@@ -2,7 +2,8 @@ import { z } from 'zod';
 
 export const IncomingSchema = z.object({
   // RFID & Vehicle
-  rfid: z.string().optional(),
+  rfid: z.string().min(3),
+  cctv: z.string().optional(),
   vehicleNumber: z.string().min(3),
   vehicleType: z.string().optional(),
   driverName: z.string().min(3),

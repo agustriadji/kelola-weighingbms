@@ -3,17 +3,16 @@
 import { useState, useEffect, lazy, Suspense } from 'react';
 import ProtectedRoute from '@/components/shared/ProtectedRoute';
 import LoadingSpinner from '@/components/shared/LoadingSpinner';
-import NavbarTemplate from '@/components/templates/NavbarTemplate';
 import { useSysStore } from '@/store/sys.store';
 import { RegisterDocType, RegisterDocTypeAPI } from '@/types/inbound.type';
 import { Permissions } from '@/types/rbac';
+import MenuHeaderRegisterDocPage from './MenuHeaderRegisterDoc.page';
+import HardwareControlSidebarRegister from '@/components/organisms/HardwareControlSidebarRegister';
 
 // Lazy load components
 const ListIncomingPage = lazy(() => import('./ListIncoming.page'));
 const ListOutgoingPage = lazy(() => import('./ListOutgoing.page'));
 const ListMiscPage = lazy(() => import('./ListMisc.page'));
-const Footer = lazy(() => import('@/components/templates/Footer'));
-const MenuHeaderRegisterDocPage = lazy(() => import('./MenuHeaderRegisterDoc.page'));
 
 export default function Pos1Page() {
   const { activeMenuState, setActiveMenuState, setLoadingState } = useSysStore();
@@ -56,25 +55,11 @@ export default function Pos1Page() {
   const totalPages = Math.ceil(allData.length / limit);
 
   return (
-    <ProtectedRoute requiredPermissions={[Permissions.VIEW_DASHBOARD, Permissions.CREATE_WEIGHING]}>
-      <div className="min-h-screen bg-gray-100">
-        <div className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <NavbarTemplate />
-          </div>
-        </div>
-
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-16">
-          <div className="bg-cyan-200 rounded-lg shadow-md p-2">
-            <Suspense
-              fallback={
-                <div className="h-12 flex items-center justify-center">
-                  <LoadingSpinner size="sm" />
-                </div>
-              }
-            >
-              <MenuHeaderRegisterDocPage />
-            </Suspense>
+    <ProtectedRoute requiredPermissions={[Permissions.MANAGE_SYSTEM, Permissions.CREATE_INCOMING]}>
+      <div className="grid grid-cols-5 gap-4">
+        <div className="col-span-4">
+          <div className="bg-cyan-200 rounded-lg shadow-md">
+            <MenuHeaderRegisterDocPage />
             {/* LISTS */}
             {activeMenuState === RegisterDocType.RAW_MATERIAL && (
               <Suspense
@@ -150,15 +135,9 @@ export default function Pos1Page() {
             )}
           </div>
         </div>
-        <Suspense
-          fallback={
-            <div className="h-16 flex items-center justify-center">
-              <LoadingSpinner size="sm" />
-            </div>
-          }
-        >
-          <Footer />
-        </Suspense>
+        <div className="col-span-1">
+          <HardwareControlSidebarRegister />
+        </div>
       </div>
     </ProtectedRoute>
   );

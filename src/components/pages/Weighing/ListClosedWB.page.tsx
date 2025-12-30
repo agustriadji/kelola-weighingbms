@@ -72,7 +72,7 @@ export default function ListClosedWB({ show, onClose }: ListClosedWBProps) {
                 <th className="px-4 py-2">Netto (Kg)</th>
                 <th className="px-4 py-2">Relation</th>
                 <th className="px-4 py-2">Transporter</th>
-                <th className="px-4 py-2">Action</th>
+                {/* <th className="px-4 py-2">Action</th> */}
               </tr>
             </thead>
             <tbody>
@@ -84,12 +84,18 @@ export default function ListClosedWB({ show, onClose }: ListClosedWBProps) {
                     <td className="px-4 py-2 font-medium">{item.vehicle_number}</td>
                     <td className="px-4 py-2">{item.material}</td>
                     <td className="px-4 py-2">{new Date(item.updated_at).toLocaleString()}</td>
-                    <td className="px-4 py-2 text-right">{item.brutto_weight?.toLocaleString() || '-'}</td>
-                    <td className="px-4 py-2 text-right">{item.tarra_weight?.toLocaleString() || '-'}</td>
-                    <td className="px-4 py-2 text-right font-medium">{item.netto_weight?.toLocaleString() || '-'}</td>
+                    <td className="px-4 py-2 text-right">
+                      {item?.brutto_weight?.toLocaleString() || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-right">
+                      {item?.tarra_weight?.toLocaleString() || '-'}
+                    </td>
+                    <td className="px-4 py-2 text-right font-medium">
+                      {item?.netto_weight?.toLocaleString() || '-'}
+                    </td>
                     <td className="px-4 py-2">{item.relation_name || '-'}</td>
                     <td className="px-4 py-2">{item.transporter}</td>
-                    <td className="px-4 py-2">
+                    {/* <td className="px-4 py-2">
                       <div className="flex gap-1 justify-center">
                         <button
                           onClick={() => handleViewDetails(item)}
@@ -108,7 +114,7 @@ export default function ListClosedWB({ show, onClose }: ListClosedWBProps) {
                           Report
                         </button>
                       </div>
-                    </td>
+                    </td> */}
                   </tr>
                 ))
               ) : (

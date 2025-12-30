@@ -11,7 +11,7 @@ export default function MenuListWeighingTemplate() {
 
   return (
     <>
-      <div className="p-6 space-y-6">
+      <div>
         <div className="flex mb-6 space-x-2 text-sm">
           <PermissionGate permissions={[Permissions.CREATE_WEIGHING]}>
             <button

@@ -8,15 +8,18 @@ export const useSysStore = create<SysMenuState>()(
     (set) => ({
       // Initial State
       loadingState: false,
-      activeMenuState: 'dashboard',
+      activeMenuState: 'weighing',
       setLoadingState: (loadingState: boolean) => set({ loadingState }),
       setActiveMenuState: (activeMenu: string) => set({ activeMenuState: activeMenu }),
       activeModalState: '',
       setActiveModalState: (activeModal: string) => set({ activeModalState: activeModal }),
-      resetModalState: () => set({ activeMenuState: 'dashboard' }),
+      resetModalState: () => set({ activeMenuState: 'weighing' }),
     }),
     {
       name: 'sys-weighing',
+      partialize: (state) => ({
+        activeMenuState: state.activeMenuState,
+      }),
       storage:
         typeof window !== 'undefined'
           ? {

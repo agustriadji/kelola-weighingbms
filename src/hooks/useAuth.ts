@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Permissions } from '@/types/rbac';
+import { hwConfigDB } from '@/utils/hwConfigDB';
+
 interface AuthState {
   user: any | null;
   isAuthenticated: boolean;
@@ -19,6 +21,8 @@ export const useAuth = () => {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const syncCompleted = localStorage.getItem('hw_sync_completed');
+    
     if (token) {
       try {
         const payload = JSON.parse(atob(token.split('.')[1]));
@@ -29,9 +33,19 @@ export const useAuth = () => {
           permissions: payload.permissions || [],
           loading: false,
         });
+
+        // Background sync HW configurations only once per session
+        if (!syncCompleted) {
+          localStorage.setItem('hw_sync_completed', 'true');
+          hwConfigDB.syncAllConfigurations().catch(error => {
+            console.warn('Background HW config sync failed:', error);
+            localStorage.removeItem('hw_sync_completed'); // Retry on next load if failed
+          });
+        }
       } catch (error) {
         console.error('❌ JWT decode error:', error);
         localStorage.removeItem('token');
+        localStorage.removeItem('hw_sync_completed');
         setAuthState({
           user: null,
           isAuthenticated: false,
@@ -40,6 +54,7 @@ export const useAuth = () => {
         });
       }
     } else {
+      localStorage.removeItem('hw_sync_completed');
       setAuthState({
         user: null,
         isAuthenticated: false,
@@ -65,6 +80,7 @@ export const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('hw_sync_completed'); // Clear sync flag on logout
     setAuthState({
       user: null,
       isAuthenticated: false,
